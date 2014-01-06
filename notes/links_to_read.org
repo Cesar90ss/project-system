@@ -1,0 +1,4 @@
+* Links to read
+** Road map : http://www.cs.duke.edu/~narten/110/nachos/main/main.html
+** Common mistakes : http://everything2.com/index.pl?node_id=1467693
+** Original paper : http://lazowska.cs.washington.edu/nachos.pdf
