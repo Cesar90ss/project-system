@@ -1,0 +1,14 @@
+* Organization
+** Use formus for questions.
+** Group of 5
+** Use tools (IM2AG forge)
+* Evaluation
+** Code
+** Report
+** Defense
+* Planning
+** General meetings (Monday & Thursday 9:30)
+** Step 1 & 2 + report + test + debug
+** Step 3 & 4 + report + test + debug
+** Step 4 & S/6 + report + test + debug
+** Step 5/6 + report + defense + test + debug

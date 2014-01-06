@@ -1,0 +1,8 @@
+* Put in /etc/apt/source.list :
+deb http://www.emdebian.org/debian/ stable main
+* Execute the two following command
+GCC_V=4.4
+sudo apt-get install gcc-${GCC_V}-mipsel-linux-gnu gcc-${GCC_V}-mipsel-linux-gnu-base cpp-${GCC_V}-mipsel-linux-gnu libgcc1-mipsel-cross libgomp1-mipsel-cross     
+* If distrib 64 bits
+sudo apt-get install lib32stdc++-4.8-dev
+
