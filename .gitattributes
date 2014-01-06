@@ -1,0 +1,4 @@
+# Add whitespace policy
+*.cc        text whitespace=trailing-space,space-before-tab,tab-in-indent,tabwidth=4
+*.h         text whitespace=trailing-space,space-before-tab,tab-in-indent,tabwidth=4
+*.S         text whitespace=trailing-space,space-before-tab,tab-in-indent,tabwidth=4
