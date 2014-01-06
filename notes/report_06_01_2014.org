@@ -1,0 +1,13 @@
+* Report for the first day
+Meeting at 9:45 a.m (see first_meeting.org for more informations)
+
+All we'll work everyday on campus.
+
+Use git as source code versioning. Repository is set up at https://github.com/GHugo/project-system
+Links to read for comprehension of Nachos (see link_to_reads.org)
+Everybody seems to succeed installing tools to compile Nachos.
+
+We has been asked to read all subject pdf and some (all?) start to implement the first one.
+For tomorrow, meeting at 9:30 a.m.
+
+Still need to discuss how we handle work (small team?) and how we will handle test & plan the work.
