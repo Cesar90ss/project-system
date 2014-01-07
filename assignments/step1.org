@@ -1,0 +1,230 @@
+* Step 1
+** Code review & notes
+*** main.cc:main() =>
+    call system.cc:Initialize()
+    following program (nachos-threads, nachos-userprog, ...), execute one action.
+    in case of nachos-userprog (#ifdef USER_PROGRAM), call userprog/progtest.c:StartProcess(char *filename)
+    call currentThread->Finish()
+
+*** system.cc:Initialize() =>
+    call DebugInit
+    Init Statistics
+    Init Interrupt
+    Init Scheduler
+    set currentThread to new Thread("main")
+    set currentThread status to RUNNING
+    enabled Interrupt
+    set hook function Cleanup if user hits Ctrl-C (just use signal(SIGINT, Cleanup))
+    Cleanup delete memory and call Exit (0)
+    Init Machine
+
+*** progtest.cc:StartProcess(char *filename) =>
+    Open filename
+    Init AddrSpace for executable
+    Set addr space to currentThread
+    Init current registers using space
+    call space->RestoreState (load page table register)
+    call machine->Run()
+
+*** stats.cc::Statistics() =>
+    keep stats like ticks, disk access, console r/w, page faults, etc.
+
+*** machine.cc:Machine(bool debug) =>
+    init registers to 0
+    init mainMemory to 0
+
+*** thread.cc:Thread(const char *threadName)
+    init stack to NULL, status to JUST_CREATED
+    and space to NULL
+
+*** addrspace.cc:AddrSpace(OpenFile *executable)
+    Load & parse executable
+    Also init PageTable (here just linear page table). Seen as an array of pages.
+
+*** addrspace.cc:InitRegisters()
+    PCReg is the current PC
+    NextPCReg is the next register (4)
+    StackReg contains the top of the register. At the beginning, StackRegs points to the end of MainMemory - 16
+
+*** addrspace.cc:RestoreState
+    In linear page mode (no virtual memory), just set up pageTable & numPages to machine
+
+*** mipssim.cc:Run()
+    Run one instruction
+    Add one tick to interrupt
+    Call Machine::Debugger()
+
+*** machine.cc:Debugger()
+    Dump memory state with single stepping :
+    Dump interrupt state
+    Dump machine state
+    Ask for command
+
+*** threadtest.cc:ThreadTest()
+    Launch one thread using Fork and use 1 as argument
+
+*** thread.cc:Fork()
+    Allocate a new stack using StackAllocate
+    Set addr space for new thread of the current thread
+    Mark current thread as ReadyToRun (put in readyList)
+
+*** thread.cc:StackAllocate(VoidFunctionPtr func, int arg)
+    Allocate for stack of size StackSize using AllocBoundedArray
+    Set the top of the stack (depending on stack convention  : descending, etc)
+    Set PC points to ThreadRoot
+    Set StartupPCState to SetupThreadState
+    Set InitialPcState to func
+    Set InitialArgState to arg
+    Set WhenDonePCState arg ThreadFinish
+
+*** sysdep.cc:AllocBoundedArray(int size)
+    Allocate an array of size /size/ with one page before and after
+    setting mprotect to catch illegal access via page fault (to detect overflow)
+
+*** switch.S:ThreadRoot
+    Provide host-machine dependent code to init thread
+    call StartupPc (which call SetupThreadState)
+    call InitialialPC(InitialArg) (wich call thread function with arg)
+    call WhenDonePC (which call ThreadFinish)
+
+*** thread.cc:SetupThreadState
+    Delete previous thread if needed
+    If addr space, call RestoreUserState & RestoreState
+    Enable interrupt
+
+*** thread.cc:ThreadFinish()
+    Call currentThread->Finish()
+
+*** thread.cc:Finish()
+    Deactivate interrupt
+    Mark thread as to be destroyed
+    Call sleep (will invoke switch)
+
+*** scheduler.c::Run(Thread *nextThread)
+    Save user state
+    Test overflow on previous thread
+    Set current thread as next thread
+    call SWITCH (oldThread, nextThread)
+    Delete thread if needed
+    Restore user state (registers, etc)
+
+*** switch.S:Switch
+    Implement context switch at host level
+    Maybe this is for support of multi-threaded Nachos
+
+*** thread.cc:RestoreUserState()
+    Set up userRegisters as machine registers
+    Called for saving registers during context switch
+
+*** interrupt.cc:OneTick()
+    Update statistic counter
+    Turn off interrupt
+    Call Interrupt::CheckIfDue to execute interrupt
+    If context-Switch, call yield
+
+*** machine.cc:RaiseException(ExceptionType, int badVAddr)
+    Switch to kernel
+    Call ExceptionHandler
+
+*** exception.cc:ExceptionHandler(ExceptionType)
+    Read syscall code from register 2
+    Handle action depending on type
+
+*** interrupt.cc:Halt()
+    Print stats
+    Call Cleanup()
+
+*** Note on command line :
+    See top of main.cc for all command lines options
+    For debugflags see threads/utility.h
+
+*** Bug for other programs than halt :
+    Assertion failed: line 80, file "../userprog/addrspace.cc"
+    Change NumPhysPages on top of machine.h
+
+** Answer to step 1
+   The first thread is created using new Thread("main") & the stack is allocated at
+   the bottom of mainMemory. Registers are stored inside userRegisters for
+   simulated code and inside host stack for real context switch.
+
+   currentThread store the current thread.
+
+   A thread stores states of executions : registers mainly (for later, TLB &
+   virtual memory informations).
+
+   Future threads need to add their own context (a Thread object) & their own stack
+   (using StackAllocate) inside mainMemory. To create a new Thread, system use
+   Thread::Fork which handle stack allocation & state initialization. It also exec
+   a file.
+
+   A MIPS simulated processor is represented by a Memory object (only one).  At
+   init, all registers are set to 0 and the memory (which is represented by
+   variable mainMemory is zero-ed).
+
+   AddrSpace::AddrSpace init mainMemory with executable. Also init registers for
+   machine inside AddrSpace::InitRegisters
+
+   If an overflow exception is raised, it names OverflowException. Registers
+   PrevPCReg, PCReg and NextPCReg handle temporal PC register.
+
+   OP_SYSCALL is handled using RaiseException. RaiseException call ExceptionHandler
+   ExceptionHandler call interrupt->halt() and interrupt->halt() call Cleanup()
+
+   The call to function Halt is done by a *jal Halt*, where *Halt* is the
+   function stored in test/start.S
+
+   Concerning the fact that the program start at the tenth tick, this is due to
+   the constant SystemTick which express each time interrupts are enabled. As we
+   start in SystemMode, Nachos supposes that initialization of system take 10
+   ticks.
+
+   Adding one thread to testthread.cc still work, but we can see that each
+   threads executes after the other (no parallelism). The main difference
+   between UNIX's fork and Nachos' fork is that UNIX version only duplicate @
+   space and continue to execute the same program where as Nachos version do the
+   equivalent of UNIX fork + exec. Fork() function allocates stack (and entry
+   function point), link @ space to the new thread and mark this thread as ready
+   to run (to be executed later by the scheduler).
+
+   If we comment call to the Yield function (which give the hand to the
+   scheduler to select another threads), each thread will execute up to its end
+   one after the other. This means that threads are not made in a preemptive
+   way.  We consider here Cooperative Multithreading if we don't use random
+   preemption.
+
+   We see no difference using -rs options with currentThread. However observing
+   trace with debug flag *i* and using different seeds show different ticks.
+
+   The cause is because here we execute thread test code on host machine, not
+   inside the MIPS simulator. Interrupts are handled every time Nachos get the
+   hand, for example by a yield. So with explicit Yield, Scheduler will try to
+   execute new thread, but it is already the current action. Without explicit
+   Yield, Nachos will only handle TimerInterrupt at the end of one thread
+   (because it's host threads), so it will schedule a thread while it is already
+   the current action.
+
+   During the Yield function, we deactivate interrupts, elect the next thread to
+   run, and if one is found, mark the new thread as ready, then run the next
+   thread. After we put the interrupt at the same state at the beginning of the
+   function. The new thread will re-emerge after the context switch, thus after
+   the call of Run function.
+
+   The ReadyToRun function just mark the thread as READY and put it on the
+   readyList.
+
+   The FindNextToRun function just take the first element of the readyList.
+
+   The Run function do the context switch stuff. If User prog, do it use
+   userRegisters (machine class) and after (in all cases), do the context switch
+   at host level. Also destroy thread if needed.
+
+   The real context switch between two processes is done inside the SWITCH
+   (threads/switch.S) function. This function is machine dependent. After
+   restoring the context (registers). Registers are saved inside the stack using
+   stackTop pointer. After that it restore the stack pointer of new threads and
+   all previously saved thread. The new PC is set has the return @ of the
+   function SWITCH which point inside the Scheduler::Run function.
+
+   During the yield, gdb lose track after switch via Scheduler::Run. To get
+   control after a context switch, one solution is to add a break-point after the
+   call to Scheduler::Run.
