@@ -1,0 +1,20 @@
+* Second meeting : technical
+bin/
+Nachos tools
+
+filesys/
+machine/
+network/
+test/
+threads/
+userpog/
+vm/
+To compile nachos kernel
+
+test/
+userprog
+
+Schema Linux kernel
+
+* Step2 : create Console driver
+  Create console driver & create syscall 
