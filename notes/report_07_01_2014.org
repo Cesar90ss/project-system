@@ -1,0 +1,14 @@
+* Report for 07/01/2014
+Meeting at 9:30 a.m
+
+Some global view about Nachos system (see notes & Fida schema).
+Also build flavor (see Makefile.define-user)
+
+Today read of code & finish of step 1.
+Report about step 1 is inside assignment.
+
+Also updating num of physical pages to 128.
+Implements syscall Exit() for running sort & matmult.
+
+At the end of the day, meeting to see if everybody understand what is Nachos.
+For tomorrow, we plan to do step 2 working 2 teams : 1 for test & 1 which programs.
