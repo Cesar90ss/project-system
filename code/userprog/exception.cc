@@ -69,16 +69,45 @@ ExceptionHandler (ExceptionType which)
 {
     int type = machine->ReadRegister (2);
 
-    if ((which == SyscallException) && (type == SC_Halt))
-      {
-	  DEBUG ('a', "Shutdown, initiated by user program.\n");
-	  interrupt->Halt ();
-      }
-    else
-      {
-	  printf ("Unexpected user mode exception %d %d\n", which, type);
-	  ASSERT (FALSE);
-      }
+    switch (which)
+    {
+        /**
+         * Handling syscall exceptions
+         **/
+        case SyscallException:
+        {
+            switch (type)
+            {
+                case SC_Halt:
+                {
+                    DEBUG ('a', "Shutdown, initiated by user program.\n");
+                    interrupt->Halt ();
+                    break;
+                }
+                case SC_Exit:
+                {
+                    DEBUG('a', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
+                    // Stop current thread
+                    currentThread->Finish();
+                    break;
+                }
+                default:
+                {
+                    printf ("Unexpected syscall type %d\n", type);
+                    ASSERT (FALSE);
+                }
+            }
+            break;
+        }
+        /**
+         * TODO : handle other type of exception
+         **/
+        default:
+        {
+            printf ("Unexpected user mode exception %d %d\n", which, type);
+            ASSERT (FALSE);
+        }
+    }
 
     // LB: Do not forget to increment the pc before returning!
     UpdatePC ();
