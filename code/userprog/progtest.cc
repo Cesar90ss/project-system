@@ -27,10 +27,10 @@ StartProcess (char *filename)
     AddrSpace *space;
 
     if (executable == NULL)
-      {
-	  printf ("Unable to open file %s\n", filename);
-	  return;
-      }
+    {
+        printf ("Unable to open file %s\n", filename);
+        return;
+    }
     space = new AddrSpace (executable);
     currentThread->space = space;
 
@@ -84,12 +84,26 @@ ConsoleTest (char *in, char *out)
     writeDone = new Semaphore ("write done", 0);
 
     for (;;)
-      {
-	  readAvail->P ();	// wait for character to arrive
-	  ch = console->GetChar ();
-	  console->PutChar (ch);	// echo it!
-	  writeDone->P ();	// wait for write to finish
-	  if (ch == 'q')
-	      return;		// if q, quit
-      }
+    {
+        readAvail->P();	// wait for character to arrive
+        ch = console->GetChar();
+
+        if (ch != '\n')
+        {
+            console->PutChar('<');
+            writeDone->P();
+        }
+
+        console->PutChar(ch);	// echo it!
+        writeDone->P();	// wait for write to finish
+
+        if (ch != '\n')
+        {
+            console->PutChar('>');
+            writeDone->P();
+        }
+
+        if (ch == 'q' || ch == EOF)
+            return;		// if q or EOF, quit
+    }
 }
