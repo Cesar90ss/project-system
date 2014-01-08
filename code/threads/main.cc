@@ -60,6 +60,9 @@ extern void ThreadTest (void), Copy (const char *unixFile, const char *nachosFil
 extern void Print (char *file), PerformanceTest (void);
 extern void StartProcess (char *file), ConsoleTest (char *in, char *out);
 extern void MailTest (int networkID);
+extern void SynchConsoleTest(char *in, char *out);
+extern void SynchConsoleTestChev(char *in, char *out);
+extern void SynchConsoleTestString(char *in, char *out);
 
 //----------------------------------------------------------------------
 // main
@@ -114,6 +117,57 @@ main (int argc, char **argv)
 		// Nachos will loop forever waiting
 		// for console input
 	    }
+	  else if (!strcmp (*argv, "-sc"))
+      {
+          // test the  synch console
+          if (argc == 1)
+          {
+              SynchConsoleTest(NULL, NULL);
+          }
+          else
+		  {
+		      ASSERT(argc > 2);
+		      SynchConsoleTest(*(argv + 1), *(argv + 2));
+		      argCount = 3;
+		  }
+          interrupt->Halt ();	// once we start the console, then
+          // Nachos will loop forever waiting
+          // for console input
+      }
+	  else if (!strcmp (*argv, "-scc"))
+      {
+          // test the  synch console with chevron
+          if (argc == 1)
+          {
+              SynchConsoleTestChev(NULL, NULL);
+          }
+          else
+		  {
+		      ASSERT(argc > 2);
+		      SynchConsoleTestChev(*(argv + 1), *(argv + 2));
+		      argCount = 3;
+		  }
+          interrupt->Halt ();	// once we start the console, then
+          // Nachos will loop forever waiting
+          // for console input
+      }
+	  else if (!strcmp (*argv, "-scs"))
+      {
+          // test the  synch console with string
+          if (argc == 1)
+          {
+              SynchConsoleTestString(NULL, NULL);
+          }
+          else
+		  {
+		      ASSERT(argc > 2);
+		      SynchConsoleTestString(*(argv + 1), *(argv + 2));
+		      argCount = 3;
+		  }
+          interrupt->Halt ();	// once we start the console, then
+          // Nachos will loop forever waiting
+          // for console input
+      }
 #endif // USER_PROGRAM
 #ifdef FILESYS
 	  if (!strcmp (*argv, "-cp"))
