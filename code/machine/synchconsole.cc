@@ -11,45 +11,49 @@ static void SynchConsole_WriteDone(int arg) { SynchConsole_writeDone->V(); }
 
 SynchConsole::SynchConsole(char *readFile, char *writeFile)
 {
-  SynchConsole_readAvail = new Semaphore("SynchConsole_read avail", 0);
-  SynchConsole_writeDone = new Semaphore("SynchConsole_write done", 0);
-  console = new Console(readFile, writeFile, SynchConsole_ReadAvail, SynchConsole_WriteDone, 0);
+    SynchConsole_readAvail = new Semaphore("SynchConsole_read avail", 0);
+    SynchConsole_writeDone = new Semaphore("SynchConsole_write done", 0);
+    console = new Console(readFile, writeFile, SynchConsole_ReadAvail, SynchConsole_WriteDone, 0);
 }
 
 SynchConsole::~SynchConsole()
 {
-delete console;
-delete SynchConsole_writeDone;
-delete SynchConsole_readAvail;
+    delete console;
+    delete SynchConsole_writeDone;
+    delete SynchConsole_readAvail;
 }
 
 void SynchConsole::SynchPutChar(const char ch)
 {
-  console->PutChar(ch);
-  SynchConsole_writeDone->P(); //wait for the end of the writing
+    console->PutChar(ch);
+    SynchConsole_writeDone->P(); //wait for the end of the writing
 }
 
 
 char SynchConsole::SynchGetChar()
 {
-  SynchConsole_readAvail->P();
-  return console->GetChar();
+    SynchConsole_readAvail->P();
+    return console->GetChar();
 }
 
 void SynchConsole::SynchPutString(const char s[])
 {
-  int i = 0;
-  while( s[i] != '\0' )
-  {
-    SynchPutChar(s[i]);
-  }
+    int i = 0;
+
+    while (s[i] != '\0')
+        SynchPutChar(s[i++]);
 }
 
 void SynchConsole::SynchGetString(char *s, int n)
 {
-  int i;
-  for(i=0; i<n;i++)
-  {
-    s[i] = SynchGetChar();
-  }
+    int i;
+    for(i = 0; i < n - 1; i++)
+    {
+        s[i] = SynchGetChar();
+        if (s[i] == EOF)
+            break;
+
+    }
+
+    s[i] = '\0';
 }
