@@ -10,4 +10,8 @@ ANSWER :
 normally.
 
 ANSWER : 
+
+(3) Do we have to make SynchConsole thread safe?
+
+ANSWER :
 ----------------
