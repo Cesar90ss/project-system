@@ -11,6 +11,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "console.h"
+#include "synchconsole.h"
 #include "addrspace.h"
 #include "synch.h"
 
@@ -106,4 +107,81 @@ ConsoleTest (char *in, char *out)
         if (ch == 'q' || ch == EOF)
             return;		// if q or EOF, quit
     }
+}
+
+//----------------------------------------------------------------------
+// SynchConsoleTest
+//      Test the synchronize console by echoing characters typed at the input
+// onto the output.  Stop when the user types a 'q'.
+//----------------------------------------------------------------------
+
+void SynchConsoleTest(char *in, char *out)
+{
+    char ch;
+
+    // Init console
+    SynchConsole *synchconsole = new SynchConsole(in, out);
+
+    // Get & print char by char
+    while ((ch = synchconsole->SynchGetChar()) != EOF)
+        synchconsole->SynchPutChar(ch);
+
+    // Should only go out loop when EOF
+    fprintf(stderr, "Nachos: EOF detected in SynchConsole!\n");
+
+    // Delete to test destructor
+    delete synchconsole;
+}
+
+void SynchConsoleTestChev(char *in, char *out)
+{
+    char ch;
+    char string[4];
+
+    string[0] = '<';
+    string[2] = '>';
+    string[3] = '\0';
+
+    // Init Console
+    SynchConsole *synchconsole = new SynchConsole(in, out);
+
+    // Get & print char by char
+    while ((ch = synchconsole->SynchGetChar()) != EOF)
+    {
+        string[1] = ch;
+        synchconsole->SynchPutString(const_cast<char*>(string));
+    }
+
+    // Should only go out loop when EOF
+    fprintf(stderr, "Nachos: EOF detected in SynchConsole!\n");
+
+    // Delete to test destructor
+    delete synchconsole;
+}
+
+void SynchConsoleTestString(char *in, char *out)
+{
+    char buffer[12];
+    char ended = 0;
+
+    buffer[10] = '\n';
+    buffer[11] = '\0';
+
+    // Init Console
+    SynchConsole *synchconsole = new SynchConsole(in, out);
+
+    // Try to read at most 10 char & stop if
+    do
+    {
+        synchconsole->SynchGetString(buffer, 11);
+        ended = buffer[10] != '\0';
+        buffer[10] = '\n';
+        synchconsole->SynchPutString(const_cast<char*>(buffer));
+    } while (!ended);
+
+    // Should only go out loop when EOF
+    fprintf(stderr, "Nachos: EOF detected in SynchConsole!\n");
+
+    // Delete to test destructor
+    delete synchconsole;
 }

@@ -7,7 +7,10 @@ export DEFAULT_VERBOSITY
 
 # By default, build the check target so that we check that initial
 # nachos code still compile
-check:
+
+# By default only build "build" directory (using git to revert to origin version)
+# use git checkout v0.0 -b build_origing
+build:
 
 all: build
 
