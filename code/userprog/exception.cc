@@ -24,7 +24,8 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
-
+#include "synchconsole.h"
+extern SynchConsole *synchconsole;
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -89,6 +90,22 @@ ExceptionHandler (ExceptionType which)
                     DEBUG('a', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
                     // Stop current thread
                     currentThread->Finish();
+                    break;
+                }
+                case SC_PutChar:
+                {   
+		    char c = (char)machine->ReadRegister(4);//order of the bit endian
+		    DEBUG('a', "Putchar program, return code exit(%d)\n", machine->ReadRegister(4));
+                    synchconsole->SynchPutChar(c);
+                    
+                    break;
+                }
+                case SC_GetChar:
+                {
+                   
+                    char c = synchconsole->SynchGetChar();//order of the bit endian
+		    machine->WriteRegister(2,(int)c);
+		    DEBUG('a', "Getchar %c\n",c);
                     break;
                 }
                 default:
