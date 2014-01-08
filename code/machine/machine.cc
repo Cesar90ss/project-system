@@ -6,6 +6,7 @@
 // Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
+#include <string.h>
 
 #include "copyright.h"
 #include "machine.h"
@@ -217,3 +218,12 @@ void Machine::WriteRegister(int num, int value)
 	// DEBUG('m', "WriteRegister %d, value %d\n", num, value);
 	registers[num] = value;
     }
+
+//----------------------------------------------------------------------
+//TODO when we will implement the virtual memory,
+//we could have problems of translation with this function
+//(it suppose we use physical addresses)
+void Machine::copyStringFromMachine(int from, char *to, unsigned int size)
+{
+	strncpy(to, (char*)(&mainMemory[from]), size);
+}

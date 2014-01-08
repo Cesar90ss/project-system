@@ -187,6 +187,9 @@ class Machine {
 				// simulated instruction
     int runUntilTime;		// drop back into the debugger when simulated
 				// time reaches this value
+
+	// Copy a string from the MIPS world to the Unix world
+	void copyStringFromMachine(int from, char *to, unsigned int size);
 };
 
 extern void ExceptionHandler(ExceptionType which);
