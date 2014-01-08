@@ -1,0 +1,6 @@
+1) For the string translation from MIPS to unix world : we have to use fonctions
+to read and write in the main memory because we will have a problem with
+virtual memory. But we cant use ReadMem and WriteMem in machine.h (comments
+saying we cant)
+2) Question about the end of threads : how threads should end
+normally.

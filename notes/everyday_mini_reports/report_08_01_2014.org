@@ -1,0 +1,14 @@
+- Reading step 2 subject and starting to implement some part of SyncConsole.
+
+- Divinding the jobs for synchrone input/output in two groups, one for the
+  test, the others for the implementation : 
+    -1- SynchConsole class
+    -2- Test SynchCons class
+    -3- Implement syscall
+    -4- Test syscall
+
+- Adding 3 tests in progtest.cc : 
+    - SyncConsoleTest //test GetChar & PutChar - print char by char (./nachos-step2 -sc).
+    - SyncConsoleTestString //Testing 10 characters string : GetString & PutString : ./nachos-userprog.
+      -scs
+    - SyncConsoleTestChev // testing GetChar & PutString  - print <c> (./nachos-step2 -scc).
