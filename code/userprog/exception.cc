@@ -89,7 +89,15 @@ ExceptionHandler (ExceptionType which)
                 {
                     DEBUG('a', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
                     // Stop current thread
-                    currentThread->Finish();
+                    AddrSpace::nbProcess --;
+		    if ( AddrSpace::nbProcess == 0 )
+		    {
+		      interrupt->Halt ();
+		    }
+		    else
+		    {
+		      currentThread->Finish();
+		    }
                     break;
                 }
                 case SC_PutChar:
