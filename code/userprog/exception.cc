@@ -121,7 +121,7 @@ ExceptionHandler (ExceptionType which)
                     int from = machine->ReadRegister(4);
                     char* c = new char[MAX_STRING_SIZE];
                     copyStringFromMachine(from,c,MAX_STRING_SIZE);
-                    DEBUG('a', "Putstring %s\n", (char*)machine->ReadRegister(4));
+                    DEBUG('a', "Putstring %s\n", c);
                     synchconsole->SynchPutString(c);
                     delete c;
                     break;
