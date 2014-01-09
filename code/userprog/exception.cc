@@ -103,7 +103,7 @@ ExceptionHandler (ExceptionType which)
                 case SC_GetChar:
                 {
                    
-                    char c = synchconsole->SynchGetChar();//order of the bit endian
+                    char c = synchconsole->SynchGetChar();
 		    machine->WriteRegister(2,(int)c);
 		    DEBUG('a', "Getchar %c\n",c);
                     break;
@@ -124,9 +124,24 @@ ExceptionHandler (ExceptionType which)
                     int n = (int)machine->ReadRegister(5);
 		    char* buffer = new char[n];
 		    synchconsole->SynchGetString(buffer,n);
-		    strncpy(&machine->mainMemory[machine->ReadRegister(4)],buffer,n);//copy buffer to string
+		    strncpy(&machine->mainMemory[machine->ReadRegister(4)],buffer,n);//copy buffer to string with the first argument addr
 		    DEBUG('a', "GetString%s\n",buffer);
 		    delete buffer;
+                    break;
+                }
+                case SC_PutInt:
+                {   
+		    int i = machine->ReadRegister(4);
+		    DEBUG('a', "PutInt \n", machine->ReadRegister(4));
+                    synchconsole->SynchPutInt(i);                    
+                    break;
+                }
+                case SC_GetInt:
+                {
+                   
+		    int i = synchconsole->SynchGetInt();
+		    machine->WriteRegister(2,i);
+		    DEBUG('a', "GetInt %i\n",i);
                     break;
                 }
                 default:
