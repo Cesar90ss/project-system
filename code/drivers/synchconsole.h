@@ -3,6 +3,8 @@
 #include "copyright.h"
 #include "utility.h"
 #include "console.h"
+#include "synch.h"
+
 
 class SynchConsole {
   public:
@@ -14,6 +16,11 @@ class SynchConsole {
     char *SynchGetString(char *s, int n);	// Unix fgets(3S)
     void SynchPutInt(int i);
     int SynchGetInt();
+
+  private:
+    void __PutChar(const char ch);
+    int __GetChar();
+    Semaphore *monitor;
   private:
     Console *console;
 };

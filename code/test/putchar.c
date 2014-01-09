@@ -4,8 +4,6 @@
  * Provided code from step 2
  **/
 
-// For now define PutChar to compile (will be syscall later)
-#define PutChar(x)
 void print(char c, int n)
 {
     int i;

@@ -181,8 +181,7 @@ class Machine {
 
     TranslationEntry *pageTable;
     unsigned int pageTableSize;
-    // Copy a string from the MIPS world to the Unix world
-    void copyStringFromMachine(int from, char *to, unsigned int size);
+
   private:
     bool singleStep;		// drop back into the debugger after each
 				// simulated instruction

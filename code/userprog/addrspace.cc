@@ -60,6 +60,7 @@ SwapHeader (NoffHeader * noffH)
 //      "executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
 
+unsigned int AddrSpace::nbProcess = 0;
 AddrSpace::AddrSpace (OpenFile * executable)
 {
     NoffHeader noffH;
@@ -119,7 +120,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
 			       [noffH.initData.virtualAddr]),
 			      noffH.initData.size, noffH.initData.inFileAddr);
       }
-
+  AddrSpace::nbProcess ++;
 }
 
 //----------------------------------------------------------------------

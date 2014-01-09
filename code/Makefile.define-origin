@@ -67,7 +67,7 @@ thread-test_CPPFLAGS=-DTHREADS
 userprog_DEP_ALT=filesys filesys-stub
 userprog_SRC=$(USERPROG_SRC)
 userprog_CPPFLAGS=-DUSER_PROGRAM
-userprog_INCDIRS=bin userprog
+userprog_INCDIRS=bin drivers userprog
 
 # filesys: add support for filesystem
 filesys_DEP_ALT=thread-test userprog

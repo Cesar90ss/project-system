@@ -55,6 +55,9 @@
 typedef void (*VoidFunctionPtr) (int arg);
 typedef void (*VoidNoArgFunctionPtr) ();
 
+// Copy a string from the MIPS world to the UNIX world
+int copyStringFromMachine(int from, char *to, unsigned int size);
+int copyStringToMachine(int from, char *to, unsigned int size);
 
 // Include interface that isolates us from the host machine system library.
 // Requires definition of bool, and VoidFunctionPtr

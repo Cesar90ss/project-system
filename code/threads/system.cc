@@ -7,7 +7,9 @@
 
 #include "copyright.h"
 #include "system.h"
+#ifdef USER_PROGRAM
 #include "synchconsole.h"
+#endif
 // This defines *all* of the global data structures used by Nachos.
 // These are all initialized and de-allocated by this file.
 
@@ -84,6 +86,7 @@ Initialize (int argc, char **argv)
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program
+    AddrSpace::nbProcess = 0;
 #endif
 #ifdef FILESYS_NEEDED
     bool format = FALSE;	// format disk

@@ -101,7 +101,7 @@ Console::CheckCharAvail()
 
     // otherwise, read character and tell user about it
     n = ReadPartial(readFileNo, &c, sizeof(char));
-    incoming = (n == 1 ? c : EOF);
+    incoming = (n == 1 ? (int)((unsigned char)c) : EOF);
     stats->numConsoleCharsRead++;
     (*readHandler)(handlerArg);
 }
