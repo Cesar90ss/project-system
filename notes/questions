@@ -4,14 +4,32 @@ to read and write in the main memory because we will have a problem with
 virtual memory. But we cant use ReadMem and WriteMem in machine.h (comments
 saying we cant)
 
-ANSWER : 
+ANSWER : We need to use ReadMem & WriteMem (don't care of message), this is the
+purpose of this function. Need to add all check to avoid kernel crashing. Also
+handle big string (not a big block). We need to move copyStringFromMachine
+outside machine.cc which will be better in addrspace class.
+
+Move console outside machine directory.
 
 (2) Question about the end of threads : how threads should end
 normally.
 
-ANSWER : 
+ANSWER : Other kernel threads end with ThreadFinish.
 
 (3) Do we have to make SynchConsole thread safe?
 
-ANSWER :
+ANSWER : In step 3. With recursive mutex or extract main code of B inside C and B & A call C.
+
+(4) When handling long string, do we have to return EOF if string is longuer
+thant MAX_STRING_SIZE ?
+
+ANSWER : Choice of implementation, choose to implement. Propose idea of other choices.
+
+(5) After exit,  loops due to console interrupt. Need to stop nachos ?
+
+ANSWER : If last processus, call Halt. Need to store global counter of all addr space.
+
+(6) For threads, no potential concurrency probleme because syscall is atomic ? No interrupt while syscall ?
+
+ANSWER : False, this is not the problem. No interruption.
 ----------------

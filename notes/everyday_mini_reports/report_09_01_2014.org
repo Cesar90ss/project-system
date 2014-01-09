@@ -1,0 +1,15 @@
+* TODO (after morning meeting with the teacher) :
+    * Implement getInt and putInt.
+    * Create a function : 'isEOF' in console class.
+    * Convert copyStringFromMachine using ReadMem and WriteMem.
+    * Modify syscall to use ReadMem and WriteMem.
+    * Add check in copyStringFromMemory.
+    * Move copyStringFromMemory in an 'utilitary' class.
+    * Move SynchConsole in a driver directory.
+    * Make SynchConsole thread safe (move getChar code inside internal
+     functiono & use monitor).
+    * Make a choice of implementation for putString with MAX_STRING_SIZE.
+    * Store a global counter for process number inside addrSpace.
+    * Modify exit syscall to halt if last process ends.
+    * Make user doc for syscall.
+    * Make regression test.
