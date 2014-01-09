@@ -39,6 +39,10 @@
 #define divRoundDown(n,s)  ((n) / (s))
 #define divRoundUp(n,s)    (((n) / (s)) + ((((n) % (s)) > 0) ? 1 : 0))
 
+// macro to convert a digit(int) into a char or char to int
+#define charOfInt(x) ((x) + '0')
+#define intOfChar(x) ((x) - '0')
+
 // This declares the type "VoidFunctionPtr" to be a "pointer to a
 // function taking an integer argument and returning nothing".  With
 // such a function pointer (say it is "func"), we can call it like this:

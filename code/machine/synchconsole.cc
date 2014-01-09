@@ -2,7 +2,8 @@
 #include "system.h"
 #include "synchconsole.h"
 #include "synch.h"
-
+#include "utility.h"
+#include <math.h>
 //declare static to use under C function
 static Semaphore *SynchConsole_readAvail;
 static Semaphore *SynchConsole_writeDone;
@@ -60,4 +61,22 @@ void SynchConsole::SynchGetString(char *s, int n)
 
     //add end of string
     s[i] = '\0';
+}
+
+void SynchConsole::SynchPutInt(int i)
+{
+  char *ToBeWritten = new char [11];
+  sprintf(ToBeWritten,"%i",i);
+  SynchPutString(ToBeWritten);
+}
+
+int SynchConsole::SynchGetInt()
+{
+  char c = SynchGetChar();
+  int total = 0;
+  while(c != ' ')
+  {
+    total = 10*total + intOfChar(c);
+  }
+  return total;
 }
