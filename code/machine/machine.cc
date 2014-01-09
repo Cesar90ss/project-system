@@ -220,10 +220,3 @@ void Machine::WriteRegister(int num, int value)
     }
 
 //----------------------------------------------------------------------
-//TODO when we will implement the virtual memory,
-//we could have problems of translation with this function
-//(it suppose we use physical addresses)
-void Machine::copyStringFromMachine(int from, char *to, unsigned int size)
-{
-	strncpy(to, (char*)(&mainMemory[from]), size);
-}

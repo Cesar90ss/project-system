@@ -112,22 +112,30 @@ ExceptionHandler (ExceptionType which)
                 {
                     int from = machine->ReadRegister(4);
                     char* c = new char[MAX_STRING_SIZE];
-                    machine->copyStringFromMachine(from,c,MAX_STRING_SIZE);
-                    DEBUG('a', "Putstring \n", machine->ReadRegister(4));
+                    copyStringFromMachine(from,c,MAX_STRING_SIZE);
+                    DEBUG('a', "Putstring %s\n", (char*)machine->ReadRegister(4));
                     synchconsole->SynchPutString(c);
                     delete c;
                     break;
                 }
                 case SC_GetString:
                 {
-
                     int n = (int)machine->ReadRegister(5);
-		    char* buffer = new char[n];
-		    machine->WriteRegister(2,(int)synchconsole->SynchGetString(buffer,n));
-		    strncpy(&machine->mainMemory[machine->ReadRegister(4)],buffer,n);//copy buffer to string with the first argument addr
-		    DEBUG('a', "GetString%s\n",buffer);
-		    delete buffer;
-                    break;
+                    char* buffer = new char[n];
+					if (synchconsole->SynchGetString(buffer, n) == NULL)
+					{	
+						machine->WriteRegister(2, (int)NULL);
+					}
+					else
+					{
+                    	//copy buffer to string
+						copyStringToMachine(machine->ReadRegister(4), buffer, n);
+						machine->WriteRegister(2, machine->ReadRegister(4));
+                    	DEBUG('a', "GetString %s\n", buffer);
+					}	
+                    
+					delete buffer;
+ 	                break;
                 }
                 case SC_GetInt:
                 {

@@ -8,6 +8,7 @@
 
 #include "copyright.h"
 #include "utility.h"
+#include "system.h"
 
 // this seems to be dependent on how the compiler is configured.
 // if you have problems with va_start, try both of these alternatives
@@ -15,6 +16,55 @@
 #include <stdarg.h>
 #else
 #include "/usr/include/stdarg.h"
+#endif
+
+#ifdef USER_PROGRAM
+int copyStringFromMachine(int from, char *to, unsigned int size)
+{
+	int value;
+	int i;
+
+	//read bytes one by one
+	for(i=0 ; (unsigned int)i<size ; i++)
+	{
+		if(!machine->ReadMem(from+i, 1, &value))
+		{
+			//ReadMem error
+			return -1;
+		}
+
+		to[i] = (char)value;
+		if(value == '\0')
+		{
+			break;
+		}
+	}
+
+	return i;
+}
+
+int copyStringToMachine(int to, char *from, unsigned int size)
+{
+	unsigned int fSize, i;
+	fSize = strlen(from);
+
+	//read bytes one by one
+	for(i=0 ; i < size && i < fSize ; i++)
+	{
+		if(!machine->WriteMem(to+i, 1, from[i]))
+		{
+			//WriteMem error
+			return -1;
+		}
+		
+		if(from[i] == '\0')
+		{
+			break;
+		}
+	}
+
+	return i;
+}
 #endif
 
 static const char *enableFlags = NULL;	// controls which DEBUG messages are printed
