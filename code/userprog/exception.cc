@@ -103,8 +103,8 @@ ExceptionHandler (ExceptionType which)
                 case SC_GetChar:
                 {
                    
-                    char c = synchconsole->SynchGetChar();
-		    machine->WriteRegister(2,(int)c);
+                    int c = synchconsole->SynchGetChar();//change to int to make it work to EOF
+		    machine->WriteRegister(2,c);
 		    DEBUG('a', "Getchar %c\n",c);
                     break;
                 }
