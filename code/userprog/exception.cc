@@ -93,55 +93,55 @@ ExceptionHandler (ExceptionType which)
                     break;
                 }
                 case SC_PutChar:
-                {   
-		    char c = (char)machine->ReadRegister(4);//order of the bit endian
-		    DEBUG('a', "Putchar \n", machine->ReadRegister(4));
+                {
+                    char c = (char)machine->ReadRegister(4);//order of the bit endian
+                    DEBUG('a', "Putchar \n", machine->ReadRegister(4));
                     synchconsole->SynchPutChar(c);
-                    
+
                     break;
                 }
                 case SC_GetChar:
                 {
                    
                     int c = synchconsole->SynchGetChar();//change to int to make it work to EOF
-		    machine->WriteRegister(2,c);
-		    DEBUG('a', "Getchar %c\n",c);
+		            machine->WriteRegister(2,c);
+		            DEBUG('a', "Getchar %c\n",c);
                     break;
                 }
                 case SC_PutString:
-                {   
-		    int from = machine->ReadRegister(4);
-		    char* c = new char[MAX_STRING_SIZE];
-		    machine->copyStringFromMachine(from,c,MAX_STRING_SIZE);	    
-		    DEBUG('a', "Putstring \n", machine->ReadRegister(4));
-		    synchconsole->SynchPutString(c);
-		    delete c;
+                {
+                    int from = machine->ReadRegister(4);
+                    char* c = new char[MAX_STRING_SIZE];
+                    machine->copyStringFromMachine(from,c,MAX_STRING_SIZE);
+                    DEBUG('a', "Putstring \n", machine->ReadRegister(4));
+                    synchconsole->SynchPutString(c);
+                    delete c;
                     break;
                 }
                 case SC_GetString:
                 {
-                   
+
                     int n = (int)machine->ReadRegister(5);
-		    char* buffer = new char[n];
-		    synchconsole->SynchGetString(buffer,n);
-		    strncpy(&machine->mainMemory[machine->ReadRegister(4)],buffer,n);//copy buffer to string with the first argument addr
-		    DEBUG('a', "GetString%s\n",buffer);
-		    delete buffer;
-                    break;
-                }
-                case SC_PutInt:
-                {   
-		    int i = machine->ReadRegister(4);
-		    DEBUG('a', "PutInt \n", machine->ReadRegister(4));
-                    synchconsole->SynchPutInt(i);                    
+                    char* buffer = new char[n];
+                    synchconsole->SynchGetString(buffer,n);
+                    //copy buffer to string
+                    strncpy(&machine->mainMemory[machine->ReadRegister(4)],buffer,n);
+                    DEBUG('a', "GetString%s\n",buffer);
+                    delete buffer;
                     break;
                 }
                 case SC_GetInt:
                 {
-                   
-		    int i = synchconsole->SynchGetInt();
-		    machine->WriteRegister(2,i);
-		    DEBUG('a', "GetInt %i\n",i);
+                    int num = synchconsole->SynchGetInt();
+                    machine->WriteRegister(2,num);
+                    DEBUG('a', "GetInt %n\n", num);
+                    break;
+                }
+                case SC_PutInt:
+                {
+                    int num = machine->ReadRegister(4);
+                    synchconsole->SynchPutInt(num);
+                    DEBUG('a', "PutInt %n\n", num);
                     break;
                 }
                 default:
