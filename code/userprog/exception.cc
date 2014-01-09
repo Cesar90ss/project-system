@@ -123,7 +123,7 @@ ExceptionHandler (ExceptionType which)
                    
                     int n = (int)machine->ReadRegister(5);
 		    char* buffer = new char[n];
-		    synchconsole->SynchGetString(buffer,n);
+		    machine->WriteRegister(2,(int)synchconsole->SynchGetString(buffer,n));
 		    strncpy(&machine->mainMemory[machine->ReadRegister(4)],buffer,n);//copy buffer to string with the first argument addr
 		    DEBUG('a', "GetString%s\n",buffer);
 		    delete buffer;

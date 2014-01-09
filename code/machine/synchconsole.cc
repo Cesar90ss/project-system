@@ -48,7 +48,7 @@ void SynchConsole::SynchPutString(const char s[])
         SynchPutChar(s[i++]);
 }
 
-void SynchConsole::SynchGetString(char *s, int n)
+char *SynchConsole::SynchGetString(char *s, int n)
 {
     int i;
     //try to get n-1 characters
@@ -56,11 +56,16 @@ void SynchConsole::SynchGetString(char *s, int n)
     {
         s[i] = SynchGetChar();
         if (console->isEOF())
-            break;
+	{
+	    s[i] = '\0';
+	    return NULL;
+	   
+	}
     }
 
     //add end of string
     s[i] = '\0';
+    return s;
 }
 
 void SynchConsole::SynchPutInt(int i)

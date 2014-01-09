@@ -138,11 +138,11 @@ void Yield ();
 
 void PutChar(char c);
 
-char GetChar();
+int GetChar();
 
 void PutString(char s[]);
 
-void GetString(char *s, int n);
+char* GetString(char *s, int n);
 
 void PutInt(int i);
 
