@@ -1,0 +1,59 @@
+* Step 2 : answer to questions & notes
+  We can't call GetChar without trying to get another character from console. If
+  we call getChar without this check, GetChar could return EOF whereas in fact
+  there is a character available which has not been fetch from the input file.
+
+  This is the same for PutChar. First an assert is here to check if putBusy is
+  FALSE. putBusy is here to prevent called twice PutChar. As the internal buffer
+  to post char is for only one char, we need to wait for action to end before
+  posting another char.
+
+  Executing console test show that we need to press Enter for char to be sent to
+  Nachos. This is due to the internal buffering of the terminal system. This can
+  be disable using stty.
+
+  We choose to implement SynchConsole not as a child class but with a console
+  variable. GetChar & PutChar are the same as in the ConsoleTest
+  function. GetString() call GetChar() n-1 times and put \0 at the end. It also
+  handle EOF by putting \0 where the EOF takes place. PutString simply call
+  PutChar using a kind of strlen().
+
+  - Adding 3 tests in progtest.cc:
+   - SynchConsoleTest : test GetChar & PutChar - print char by char (./nachos-step2 -sc)
+   - SynchConsoleTestChev : test GetChar & PutString - print <c> (./nachos-step2 -scc)
+   - SynchConsoleTestString : test GetString & PutString - block of 10 char (./nachos-step2 -scs)
+
+  For GetChar & PutChar, we only pass arguments to corresponding function inside
+  SynchronizedConsole class. For GetString & PutString, we use function
+  copyStringFromMachine which is basically a wrapper around a kind of strncpy
+  using Machine::ReadMem. We will have to change this function to handle virtual
+  address space. All checks for not get out memory are done by [Read/Write]Mem
+
+  If multiple threads call SynchGetString, strings can be mixed up or Semaphore
+  could induce multiply call to GetChar(). The same for PutChar.
+
+  For the end, the error was the lack of implementation for Exit syscall. The
+  return instruction is transformed as an Exit syscall at top of start.S. To get
+  exit code, we put the return value of main (contains r2) inside the first
+  argument of Exit function which is r4.
+
+  1) getchar.c: get & print 10 char
+  2) getstring.c: get & put 10 block of 10 char
+  3) longstring.c: test handling string greater than MAX_STRING_SIZE
+  4) getint.c: get & print 10 int
+
+  For GetInt/PutInt, we make the choice to return -1 if it is not a number. this
+  is not totally correct as -1 can also be a valid return value. A possible
+  return policy could be to propagate an errno to from kernel land to user land.
+
+  We also add IsEof & eof inside each function. Also return error in
+  GetChar/String.
+
+  We created a drivers directory for synchconsole & modify Makefile to handle
+  this new directory.
+
+  AddrSpace::numOfProcesses track the number of all processes (one process ==
+  one address space) inside Nachos. This allows us to check when a user program
+  call Exit if we need to halt nachos or schedule another thread.
+
+  assignments/user-doc.org contains man-style documentation for syscall.
