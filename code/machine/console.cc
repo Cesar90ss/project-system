@@ -23,6 +23,7 @@ static void ConsoleReadPoll(int c)
 static void ConsoleWriteDone(int c)
 { Console *console = (Console *)c; console->WriteDone(); }
 
+
 //----------------------------------------------------------------------
 // Console::Console
 // 	Initialize the simulation of a hardware console device.
@@ -53,6 +54,7 @@ Console::Console(char *readFile, char *writeFile, VoidFunctionPtr readAvail,
     readHandler = readAvail;
     handlerArg = callArg;
     putBusy = FALSE;
+    end_of_file = FALSE;
     incoming = EOF;
 
     // start polling for incoming packets
@@ -125,11 +127,13 @@ Console::WriteDone()
 //	Either return the character, or EOF if none buffered.
 //----------------------------------------------------------------------
 
-char
+int
 Console::GetChar()
 {
-   char ch = incoming;
-
+   int ch = incoming;
+   
+   end_of_file = ( ch == EOF);
+   
    incoming = EOF;
    return ch;
 }
@@ -148,4 +152,10 @@ Console::PutChar(char ch)
     putBusy = TRUE;
     interrupt->Schedule(ConsoleWriteDone, (int)this, ConsoleTime,
 					ConsoleWriteInt);
+}
+
+bool
+Console::isEOF()
+{
+  return end_of_file;
 }

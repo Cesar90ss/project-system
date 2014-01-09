@@ -47,10 +47,11 @@ class Console {
 				// and return immediately.  "writeHandler"
 				// is called when the I/O completes.
 
-    char GetChar();	   	// Poll the console input.  If a char is
+    int GetChar();	   	// Poll the console input.  If a char is
 				// available, return it.  Otherwise, return EOF.
     				// "readHandler" is called whenever there is
 				// a char to be gotten
+    bool isEOF();
 
 // internal emulation routines -- DO NOT call these.
     void WriteDone();	 	// internal routines to signal I/O completion
@@ -67,9 +68,10 @@ class Console {
 					// interrupt handlers
     bool putBusy;    			// Is a PutChar operation in progress?
 					// If so, you can't do another one!
-    char incoming;    			// Contains the character to be read,
+    int incoming;    			// Contains the character to be read,
 					// if there is one available.
 					// Otherwise contains EOF.
+    bool end_of_file;
 };
 
 #endif // CONSOLE_H

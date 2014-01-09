@@ -33,7 +33,7 @@ void SynchConsole::SynchPutChar(const char ch)
     SynchConsole_writeDone->P();
 }
 
-char SynchConsole::SynchGetChar()
+int SynchConsole::SynchGetChar()
 {
     //wait for avalaible character
     SynchConsole_readAvail->P();
@@ -55,7 +55,7 @@ void SynchConsole::SynchGetString(char *s, int n)
     for(i = 0; i < n - 1; i++)
     {
         s[i] = SynchGetChar();
-        if (s[i] == EOF)
+        if (console->isEOF())
             break;
     }
 
