@@ -3,7 +3,9 @@
 #include "synchconsole.h"
 #include "synch.h"
 #include "utility.h"
-#include <math.h>
+#include <cmath>
+#include <cctype>
+
 //declare static to use under C function
 static Semaphore *SynchConsole_readAvail;
 static Semaphore *SynchConsole_writeDone;
@@ -68,20 +70,29 @@ char *SynchConsole::SynchGetString(char *s, int n)
     return s;
 }
 
+#define MAX_INT_NUM 11
+
 void SynchConsole::SynchPutInt(int i)
 {
-  char *ToBeWritten = new char [11];
-  sprintf(ToBeWritten,"%i",i);
-  SynchPutString(ToBeWritten);
+    char *ToBeWritten = new char[MAX_INT_NUM + 1];
+    sprintf(ToBeWritten, "%i", i);
+    SynchPutString(ToBeWritten);
 }
 
 int SynchConsole::SynchGetInt()
 {
-  char c = SynchGetChar();
-  int total = 0;
-  while(c != ' ')
-  {
-    total = 10*total + intOfChar(c);
-  }
-  return total;
+    char c = SynchGetChar();
+    char buf[MAX_STRING_SIZE + 1];
+    int count = 0;
+    int num = -1;
+
+    // get string up to space
+    while (count < MAX_STRING_SIZE && !isspace(c))
+    {
+        buf[count++] = c;
+        c = SynchGetChar();
+    }
+
+    sscanf(buf, "%d", &num);
+    return num;
 }
