@@ -1,0 +1,13 @@
+* User Documentation
+
+** Syscalls :
+
+*** Halt
+*** Exit
+    Also talk about returning from main
+*** PutChar
+*** GetChar
+*** PutInt
+*** GetInt
+*** PutString
+*** GetString

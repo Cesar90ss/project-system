@@ -1,0 +1,45 @@
+* How to handle end of file : value of EOF is -1, it's an integer!
+    ** CARE, do not cast to character internaly (see GetChar/SynchGetChar).
+    ** type of fgetc is int not char, it's int.
+    ** 256 char + (-1) for EOF.
+    ** Printing char 255 inside console, it's 'printf "\xFF"'
+
+* Careful :
+    ** Nachos cant understand the difference between EOF and ÿ (255 in ASCII): it comes from
+    fgetc which is of type char.
+    ** Choice to make : handle the "error case" or modify the hardware.
+
+* Action of C-d :
+    ** EOF, action done by the terminal.
+
+* REPORT : No answer to questions in :
+* They want a user manual. 
+    ** What kind of program the user will be able to run.
+    ** What are the implementation choice : 
+        *** Explanation + snippets BUT NO copy from subject.
+    ** Explain a bit tests done.
+    ** Try to be concise
+
+* DEFENCE : 
+    ** 30 mins for all explanations + demo + questions
+        *** Question : what to explain, we'll not have time to explain everything.
+    ** Documentation/spec & choice of implementation
+
+ABOUT PART 3 : 
+* MIPS machine only emulate 1 processor
+* in nachos kernel : thread object & scheduler
+* Until now : it was possible to have multiple kernel threads but only one user prog.
+* Idea one : 
+    ** Create a user scheduler (heavy library to develop)
+* Idea two :
+    ** For each user threads, create and use a kernel thread--> no need to develop scheduler again (use the one in kernel space).
+
+* For information about processus, it seems better to use AddrSpace
+* Scheduler parameter : 
+    ** 0 --> random initialization --> random execution
+    ** int --> always same execution --> help for debug
+
+* To make Scheduler preemptive, use -rs option.
+
+
+--> NEXT MEETING monday morning, probably 9h30
