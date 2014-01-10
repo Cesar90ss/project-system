@@ -26,7 +26,7 @@ $(ALL_TESTS):
 	$(BASH) ./$@ >$$TMPNAME 2>&1; \
 	EXIT_CODE=$$?; \
 	if [ $$EXIT_CODE -ne 0 ]; then \
-		echo -e "\e[0;31merror\e[m"; \
+		echo -e "\033[0;31merror\033[m"; \
 		echo -n "[Test] Description : "; \
 		cat $*.desc; \
 		echo "[Test] Exit code : $$EXIT_CODE"; \
@@ -36,7 +36,7 @@ $(ALL_TESTS):
 		echo "See $(ERROR_LOG) to get output of $@"; \
 		rm $$TMPNAME; \
 	else \
-		echo -e "\e[0;32mok\e[m"; \
+		echo -e "\033[0;32mok\033[m"; \
 		rm $$TMPNAME; \
 	fi;
 
