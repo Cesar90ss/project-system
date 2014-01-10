@@ -10,7 +10,7 @@ void get(int n)
     int num;
     int error_code;
 
-    for (i = 0; i < n; i++)
+    for (i = 0; i <= n; i++)
     {
         error_code = GetInt(&num);
         if(error_code == 1)
