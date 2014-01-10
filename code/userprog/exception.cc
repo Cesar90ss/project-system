@@ -148,9 +148,19 @@ ExceptionHandler (ExceptionType which)
                 }
                 case SC_GetInt:
                 {
-                    int num = synchconsole->SynchGetInt();
-                    machine->WriteRegister(2,num);
-                    DEBUG('a', "GetInt %n\n", num);
+                    int p =  machine->ReadRegister(4);
+                    int num;
+                    //Try to write at @p before consume input
+                    if(!machine->WriteMem(p, sizeof(int), 0)){
+                        //-2 convention for non valid adress memory
+                        machine->WriteRegister(2,-2);
+                        DEBUG('a', "GetInt : bad adress %n\n", p);
+                        break;
+                    }
+                    int error_value = synchconsole->SynchGetInt(&num);
+                    machine->WriteRegister(2,error_value);
+                    machine->WriteMem(p, sizeof(int), num);
+                    DEBUG('a', "GetInt %n\n", error_value);
                     break;
                 }
                 case SC_PutInt:

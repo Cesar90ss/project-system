@@ -103,25 +103,26 @@ void SynchConsole::SynchPutInt(int i)
     SynchPutString(ToBeWritten);
 }
 
-int SynchConsole::SynchGetInt()
+int SynchConsole::SynchGetInt(int* p)
 {
     monitor->P();
 
-    char c = __GetChar();
+    int c = __GetChar();
     char buf[MAX_STRING_SIZE + 1];
     int count = 0;
-    int num = -1;
+    if(c==EOF){
+        monitor->V();
+        return EOF;
+    }
 
     // get string up to space
-    while (count < MAX_STRING_SIZE && !isspace(c))
+    while (count < MAX_STRING_SIZE && c!=EOF && !isspace((char)c))
     {
-        buf[count++] = c;
+        buf[count++] = (char) c;
         c = __GetChar();
     }
 
-    sscanf(buf, "%d", &num);
-
+    int ret = sscanf(buf, "%d", p);
     monitor->V();
-
-    return num;
+    return ret;
 }
