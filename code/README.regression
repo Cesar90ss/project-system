@@ -1,0 +1,21 @@
+An automatic test system has been made. It is based on Makefile system.
+
+* Running test
+  After adding tests, you can type "make regression" to run all tests.
+  It will try to execute all shell scripts inside regression/ directory.
+
+  If an error is encountered, output of shell script & return code are logged
+  inside an error log. (By default regression/error.log). Be careful, each times
+  you run make regression, error log is flushed.
+
+  You can also run a single test. To do this, cd regression/ and run "make test_name.sh".
+  If failure, the output will be *append* to the end of error log.
+
+* Adding test
+  To add a test, you need to create a shell script (ending by .sh) inside regression/ directory.
+  The convention is to return 0 if the test is a success. Otherwise it's a failure.
+  Two scripts (regression_system_test_{success,failure}.sh) are here as example.
+  Script can output information that will be logged if test fails.
+
+  After that, type "make create_test". It will ask you the shell script filename
+  (without regression/ and without .sh extension. A description to the test will be asked.

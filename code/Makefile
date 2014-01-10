@@ -3,13 +3,13 @@
 DEFAULT_VERBOSITY=0
 export DEFAULT_VERBOSITY
 
-.PHONY: all clean depend print build build-origin origin check mips-progs bin
+.PHONY: all clean depend print build build-origin origin check mips-progs bin regression create_test
 
 # By default, build the check target so that we check that initial
 # nachos code still compile
 
 # By default only build "build" directory (using git to revert to origin version)
-# use git checkout v0.0 -b build_origing
+# use git checkout v0.0 -b build_origin
 build:
 
 all: build
@@ -24,6 +24,9 @@ mips-progs:
 	$(MAKE) -C build $@
 
 check: origin build
+
+regression create_test:
+	$(MAKE) -C regression $@
 
 origin:
 	@set -e; RET= ;\
