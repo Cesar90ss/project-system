@@ -8,12 +8,21 @@ void get(int n)
 {
     int i;
     int num;
+    int error_code;
 
     for (i = 0; i < n; i++)
     {
-        num = GetInt();
-        PutInt(num);
-        PutChar('\n');
+        error_code = GetInt(&num);
+        if(error_code == 0){
+            PutInt(num);
+            PutChar(' ');
+        }
+        else if(error_code == -1){
+            PutChar('1');
+        }
+        else{
+            PutChar('2');
+        }
     }
 }
 
