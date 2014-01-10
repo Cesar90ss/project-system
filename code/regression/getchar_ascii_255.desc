@@ -1,0 +1,1 @@
+Trying to insert ascii char 255 inside string (should not be treated as EOF)
