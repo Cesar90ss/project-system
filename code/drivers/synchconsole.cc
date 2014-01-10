@@ -76,6 +76,7 @@ char *SynchConsole::SynchGetString(char *s, int n)
     monitor->P();
 
     int i;
+    
     //try to get n-1 characters
     for(i = 0; i < n - 1; i++)
     {
@@ -84,7 +85,7 @@ char *SynchConsole::SynchGetString(char *s, int n)
         {
             s[i] = '\0';
             monitor->V();
-            return NULL;
+            return i == 0 ? NULL : s;
         }
     }
 

@@ -25,7 +25,7 @@ void get(int n)
     {
         GetString(buffer, BUF_SIZE + 1);
         PutString(buffer);
-        PutChar('\n');
+        PutChar(' ');
 
         if (strlen(buffer) != BUF_SIZE)
             return;

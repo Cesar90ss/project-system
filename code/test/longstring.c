@@ -23,7 +23,7 @@ int main()
 
     bzero(buffer, MAX_STRING_SIZE);
 
-    PutChar('\n');
+    PutChar(' ');
     for (i = 0; i < MAX_STRING_SIZE; i++)
         buffer[i] = 'b';
 

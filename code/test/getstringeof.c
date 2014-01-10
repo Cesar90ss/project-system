@@ -25,9 +25,10 @@ void get(int n)
 
     for (i = 0; i < n; i++)
     {
-        if(GetString(buffer, BUF_SIZE + 1)== 0)
+        if(GetString(buffer, BUF_SIZE + 1) == 0)
 	{
 	  PutString("End Of File");
+	  return;
 	}
         PutString(buffer);
         PutChar('\n');
