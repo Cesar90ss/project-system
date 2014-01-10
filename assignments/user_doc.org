@@ -30,7 +30,7 @@
 	int GetChar()
     DESCRIPTION
 	GetChar is the function that read the character from the input buffer.
-	return the character or EOF if no more character to read.
+	Return the character or EOF if no more character to read.
 	
 *** NAME
 	PutInt
@@ -42,9 +42,12 @@
 *** NAME
 	GetInt
     SYNOPSIS
-	int GetInt()
+	int GetInt(int* p)
     DESCRIPTION
-	GetInt is the function that read the int from the input buffer.
+	GetInt is the function that read an int from the input buffer to the p pointer adress.
+	Return 0 when everything is ok, -1 when the input cannot be read as an int
+	and -2 when the adress p cannot be wroten by the caller.
+
 	
 *** NAME 
 	PutString
