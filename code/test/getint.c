@@ -13,15 +13,22 @@ void get(int n)
     for (i = 0; i < n; i++)
     {
         error_code = GetInt(&num);
-        if(error_code == 0){
+        if(error_code == 1)
+        {
             PutInt(num);
             PutChar(' ');
         }
-        else if(error_code == -1){
-            PutChar('1');
+        else if(error_code == -1)
+        {
+            PutString("EOF");
         }
-        else{
-            PutChar('2');
+        else if(error_code == -2)
+        {
+            PutString("Bad addr\n");
+        }
+        else
+        {
+            PutString("NaN\n");
         }
     }
 }

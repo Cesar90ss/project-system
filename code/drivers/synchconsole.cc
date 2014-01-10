@@ -76,7 +76,7 @@ char *SynchConsole::SynchGetString(char *s, int n)
     monitor->P();
 
     int i;
-    
+
     //try to get n-1 characters
     for(i = 0; i < n - 1; i++)
     {
@@ -108,20 +108,28 @@ int SynchConsole::SynchGetInt(int* p)
 {
     monitor->P();
 
-    int c = __GetChar();
+    int res = __GetChar();
+    char c;
     char buf[MAX_STRING_SIZE + 1];
     int count = 0;
-    if(c==EOF){
+
+    if(res == EOF)
+    {
         monitor->V();
         return EOF;
     }
 
+    c = (char)res;
+
     // get string up to space
-    while (count < MAX_STRING_SIZE && c!=EOF && !isspace((char)c))
+    while (count < MAX_STRING_SIZE && res != EOF && !isspace(c))
     {
-        buf[count++] = (char) c;
-        c = __GetChar();
+        buf[count++] = c;
+        res = __GetChar();
+        c = (char)res;
     }
+
+    buf[count] = '\0';
 
     int ret = sscanf(buf, "%d", p);
     monitor->V();

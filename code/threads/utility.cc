@@ -115,6 +115,7 @@ DEBUG (char flag, const char *format, ...)
 	  va_list ap;
 	  // You will get an unused variable message here -- ignore it.
 	  va_start (ap, format);
+      printf("%p - %p\n", format, ap);
 	  vfprintf (stdout, format, ap);
 	  va_end (ap);
 	  fflush (stdout);

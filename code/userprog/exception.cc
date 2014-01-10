@@ -90,14 +90,14 @@ ExceptionHandler (ExceptionType which)
                     DEBUG('a', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
                     // Stop current thread
                     AddrSpace::nbProcess --;
-		    if ( AddrSpace::nbProcess == 0 )
-		    {
-		      interrupt->Halt ();
-		    }
-		    else
-		    {
-		      currentThread->Finish();
-		    }
+                    if ( AddrSpace::nbProcess == 0 )
+                    {
+                        interrupt->Halt ();
+                    }
+                    else
+                    {
+                        currentThread->Finish();
+                    }
                     break;
                 }
                 case SC_PutChar:
@@ -110,10 +110,10 @@ ExceptionHandler (ExceptionType which)
                 }
                 case SC_GetChar:
                 {
-                   
+
                     int c = synchconsole->SynchGetChar();//change to int to make it work to EOF
-		            machine->WriteRegister(2,c);
-		            DEBUG('a', "Getchar %c\n",c);
+                    machine->WriteRegister(2,c);
+                    DEBUG('a', "Getchar %c\n",c);
                     break;
                 }
                 case SC_PutString:
@@ -124,50 +124,52 @@ ExceptionHandler (ExceptionType which)
                     c[really_write] = '\0';
                     DEBUG('a', "Putstring %s\n", c);
                     synchconsole->SynchPutString(c);
-                    delete c;
+                    delete [] c;
                     break;
                 }
                 case SC_GetString:
                 {
                     int n = (int)machine->ReadRegister(5);
                     char* buffer = new char[n];
-					if (synchconsole->SynchGetString(buffer, n) == NULL)
-					{	
-						machine->WriteRegister(2, (int)NULL);
-					}
-					else
-					{
-                    	//copy buffer to string
-						copyStringToMachine(machine->ReadRegister(4), buffer, n);
-						machine->WriteRegister(2, machine->ReadRegister(4));
-                    	DEBUG('a', "GetString %s\n", buffer);
-					}	
-                    
-					delete buffer;
- 	                break;
+                    if (synchconsole->SynchGetString(buffer, n) == NULL)
+                    {
+                        machine->WriteRegister(2, (int)NULL);
+                    }
+                    else
+                    {
+                        //copy buffer to string
+                        copyStringToMachine(machine->ReadRegister(4), buffer, n);
+                        machine->WriteRegister(2, machine->ReadRegister(4));
+                        DEBUG('a', "GetString %s\n", buffer);
+                    }
+
+                    delete buffer;
+                    break;
                 }
                 case SC_GetInt:
                 {
                     int p =  machine->ReadRegister(4);
                     int num;
+
                     //Try to write at @p before consume input
-                    if(!machine->WriteMem(p, sizeof(int), 0)){
+                    if(!machine->WriteMem(p, sizeof(int), (int)0))
+                    {
                         //-2 convention for non valid adress memory
                         machine->WriteRegister(2,-2);
-                        DEBUG('a', "GetInt : bad adress %n\n", p);
+                        DEBUG('a', "GetInt : bad adress %d\n", p);
                         break;
                     }
                     int error_value = synchconsole->SynchGetInt(&num);
                     machine->WriteRegister(2,error_value);
                     machine->WriteMem(p, sizeof(int), num);
-                    DEBUG('a', "GetInt %n\n", error_value);
+                    DEBUG('a', "GetInt %d\n", error_value);
                     break;
                 }
                 case SC_PutInt:
                 {
                     int num = machine->ReadRegister(4);
                     synchconsole->SynchPutInt(num);
-                    DEBUG('a', "PutInt %n\n", num);
+                    DEBUG('a', "PutInt %d\n", num);
                     break;
                 }
                 default:
