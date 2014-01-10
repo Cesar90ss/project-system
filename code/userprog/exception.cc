@@ -119,8 +119,9 @@ ExceptionHandler (ExceptionType which)
                 case SC_PutString:
                 {
                     int from = machine->ReadRegister(4);
-                    char* c = new char[MAX_STRING_SIZE];
-                    copyStringFromMachine(from,c,MAX_STRING_SIZE);
+                    char* c = new char[MAX_STRING_SIZE + 1];
+                    int really_write = copyStringFromMachine(from,c,MAX_STRING_SIZE);
+                    c[really_write] = '\0';
                     DEBUG('a', "Putstring %s\n", c);
                     synchconsole->SynchPutString(c);
                     delete c;
