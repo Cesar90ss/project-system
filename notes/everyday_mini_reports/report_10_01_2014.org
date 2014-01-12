@@ -1,0 +1,25 @@
+* Report :
+  We had two objectives : reading step 3 to make a TODO list and create
+  regression test system, feeding it with automated test for step 1/2.
+
+  Step 3 documents has been read rapidly but no TODO list was made so far. It is
+  postponed to Monday.
+
+  The regression test system has been made on top of the Makefile system. See
+  README.regression to know how to use it. Then all team members created to
+  which allows us to spot bug in our implementation, which are :
+  * CopyStringFromMachine with long string now add \0 at the end of string (used
+    by GetString to detect end of string.
+  * GetInt handle EOF correctly (does not confuse with ascii 255)
+  * DEBUG printf message using %n can cause memory corruption hard to detect. %d
+    or %i must be used for integer.
+
+  16 tests was created and each test has a .desc file describing it. We found
+  that having such system after completing step2 is a little too late. By-hand
+  test are useful to spot obvious error but automated tests are better. To fully
+  validate such implementation, a fuzzer to generate code stressing syscall can
+  be used. But we think it's out of scope & it should ask too much work.
+
+  To end this week, we can say that each of us has a greater understanding of
+  Nachos but some parts remain obscure. Step 1 and step 2 are well finish. We
+  are on schedule to week 3 where we should finish step 3 and step 4.
