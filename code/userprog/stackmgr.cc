@@ -1,0 +1,103 @@
+// stackmgr.cc
+//      Routines to manage user stacks
+//
+// Copyright (c) 1992-1993 The Regents of the University of California.
+// All rights reserved.  See copyright.h for copyright notice and limitation
+// of liability and disclaimer of warranty provisions.
+
+#include "copyright.h"
+
+#include "stackmgr.h"
+#include "system.h"
+#include "addrspace.h"
+
+/**
+ * data_end_at indicate where the data segment end.
+ * Suppose code & segment contiguous and code start at 0x0
+ **/
+StackMgr::StackMgr(unsigned int data_end_at)
+{
+    unsigned int total_memory_size;
+    unsigned int total_free_size;
+
+    // Total memory size
+    total_memory_size = NumPhysPages * PageSize;
+
+    // Total memory allowed for stack
+    total_free_size = total_memory_size - data_end_at;
+
+    // Compute number of possible stacks
+    number_of_stack = total_free_size / UserStackSize;
+
+    // Create bitmap
+    bitmap = new BitMap(number_of_stack);
+
+    // Mark the first stack
+    bitmap->Mark(0);
+
+    // Keep first stack addr
+    first_stack_addr = data_end_at;
+}
+
+StackMgr::~StackMgr()
+{
+    // De-alocate bitmap
+    delete bitmap;
+}
+
+/**
+ * GetNewStack return address in user space corresponding to user stack, NULL if
+ * no more memory
+ **/
+unsigned int StackMgr::GetNewStack()
+{
+    int index;
+    unsigned int stack_addr;
+
+    // Find the first bit which is clear
+    index = bitmap->Find();
+
+    // If error, return NULL
+    if (index == -1)
+        return 0;
+
+    // Compute stack addr
+    stack_addr = first_stack_addr + index * UserStackSize;
+
+    // Clear stack
+    bzero(machine->mainMemory + stack_addr, UserStackSize);
+
+    return stack_addr;
+}
+
+/**
+ * FreeStack
+ * address : int corresponding to the stack freed
+ * return -1 if invalid addr
+ **/
+int StackMgr::FreeStack(unsigned int addr)
+{
+    unsigned int stack_index;
+
+    // Check if addr does not goes out memory
+    if (addr < first_stack_addr &&
+        addr > (first_stack_addr + (number_of_stack - 1) * UserStackSize))
+        return -1;
+
+    // Check if it is the begin of a stack
+    if ((addr - first_stack_addr) % UserStackSize != 0)
+        return -1;
+
+    // Compute stack index
+    stack_index = (addr - first_stack_addr) / UserStackSize;
+
+    // Check if stack is used
+    if (!bitmap->Test(stack_index))
+        return -1;
+
+    // Clean stack
+    bitmap->Clear(stack_index);
+
+    return 0;
+}
+

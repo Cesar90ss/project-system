@@ -41,7 +41,7 @@ SwapHeader (NoffHeader * noffH)
     noffH->initData.inFileAddr = WordToHost (noffH->initData.inFileAddr);
     noffH->uninitData.size = WordToHost (noffH->uninitData.size);
     noffH->uninitData.virtualAddr =
-	WordToHost (noffH->uninitData.virtualAddr);
+        WordToHost (noffH->uninitData.virtualAddr);
     noffH->uninitData.inFileAddr = WordToHost (noffH->uninitData.inFileAddr);
 }
 
@@ -68,8 +68,8 @@ AddrSpace::AddrSpace (OpenFile * executable)
 
     executable->ReadAt ((char *) &noffH, sizeof (noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
-	(WordToHost (noffH.noffMagic) == NOFFMAGIC))
-	SwapHeader (&noffH);
+        (WordToHost (noffH.noffMagic) == NOFFMAGIC))
+        SwapHeader (&noffH);
     ASSERT (noffH.noffMagic == NOFFMAGIC);
 
 // how big is address space?
@@ -84,43 +84,57 @@ AddrSpace::AddrSpace (OpenFile * executable)
     // virtual memory
 
     DEBUG ('a', "Initializing address space, num pages %d, size %d\n",
-	   numPages, size);
+           numPages, size);
 // first, set up the translation
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++)
-      {
-	  pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-	  pageTable[i].physicalPage = i;
-	  pageTable[i].valid = TRUE;
-	  pageTable[i].use = FALSE;
-	  pageTable[i].dirty = FALSE;
-	  pageTable[i].readOnly = FALSE;	// if the code segment was entirely on
-	  // a separate page, we could set its
-	  // pages to be read-only
-      }
+    {
+        pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+        pageTable[i].physicalPage = i;
+        pageTable[i].valid = TRUE;
+        pageTable[i].use = FALSE;
+        pageTable[i].dirty = FALSE;
+        pageTable[i].readOnly = FALSE;	// if the code segment was entirely on
+        // a separate page, we could set its
+        // pages to be read-only
+    }
 
 // zero out the entire address space, to zero the unitialized data segment
 // and the stack segment
     bzero (machine->mainMemory, size);
 
+    unsigned int program_end = 0;
+
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0)
-      {
-	  DEBUG ('a', "Initializing code segment, at 0x%x, size %d\n",
-		 noffH.code.virtualAddr, noffH.code.size);
-	  executable->ReadAt (&(machine->mainMemory[noffH.code.virtualAddr]),
-			      noffH.code.size, noffH.code.inFileAddr);
-      }
+    {
+        DEBUG ('a', "Initializing code segment, at 0x%x, size %d\n",
+               noffH.code.virtualAddr, noffH.code.size);
+        executable->ReadAt (&(machine->mainMemory[noffH.code.virtualAddr]),
+                            noffH.code.size, noffH.code.inFileAddr);
+
+        program_end = noffH.code.virtualAddr;
+    }
     if (noffH.initData.size > 0)
-      {
-	  DEBUG ('a', "Initializing data segment, at 0x%x, size %d\n",
-		 noffH.initData.virtualAddr, noffH.initData.size);
-	  executable->ReadAt (&
-			      (machine->mainMemory
-			       [noffH.initData.virtualAddr]),
-			      noffH.initData.size, noffH.initData.inFileAddr);
-      }
-  AddrSpace::nbProcess ++;
+    {
+        DEBUG ('a', "Initializing data segment, at 0x%x, size %d\n",
+               noffH.initData.virtualAddr, noffH.initData.size);
+        executable->ReadAt (&
+                            (machine->mainMemory
+                             [noffH.initData.virtualAddr]),
+                            noffH.initData.size, noffH.initData.inFileAddr);
+
+        program_end = noffH.initData.virtualAddr;
+    }
+
+#ifdef USERPROG
+    // Init stack mgr
+    stackMgr = new StackMgr(program_end);
+#else
+    program_end = program_end;
+#endif
+
+    AddrSpace::nbProcess ++;
 }
 
 //----------------------------------------------------------------------
@@ -130,10 +144,15 @@ AddrSpace::AddrSpace (OpenFile * executable)
 
 AddrSpace::~AddrSpace ()
 {
-  // LB: Missing [] for delete
-  // delete pageTable;
-  delete [] pageTable;
-  // End of modification
+    // LB: Missing [] for delete
+    // delete pageTable;
+    delete [] pageTable;
+    // End of modification
+
+#ifdef USERPROG
+    // Free stack mgr
+    delete stackMgr;
+#endif
 }
 
 //----------------------------------------------------------------------
@@ -152,7 +171,7 @@ AddrSpace::InitRegisters ()
     int i;
 
     for (i = 0; i < NumTotalRegs; i++)
-	machine->WriteRegister (i, 0);
+        machine->WriteRegister (i, 0);
 
     // Initial program counter -- must be location of "Start"
     machine->WriteRegister (PCReg, 0);
@@ -166,7 +185,7 @@ AddrSpace::InitRegisters ()
     // accidentally reference off the end!
     machine->WriteRegister (StackReg, numPages * PageSize - 16);
     DEBUG ('a', "Initializing stack register to %d\n",
-	   numPages * PageSize - 16);
+           numPages * PageSize - 16);
 }
 
 //----------------------------------------------------------------------
@@ -195,4 +214,24 @@ AddrSpace::RestoreState ()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
+}
+
+// Wrapper around StackMgr
+int AddrSpace::GetNewUserStack()
+{
+#ifdef USERPROG
+    return stackMgr->GetNewStack();
+#else
+    return 0;
+#endif
+}
+
+// Wrapper around StackMgr
+int AddrSpace::FreeUserStack(unsigned int addr)
+{
+#ifdef USERPROG
+    return stackMgr->FreeStack(addr);
+#else
+    return -1;
+#endif
 }
