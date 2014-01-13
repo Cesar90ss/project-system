@@ -13,6 +13,7 @@ void fun(void* arg)
 int main()
 {
 	UserThreadCreate(&fun, 0);
+	while (1000);
 	PutInt(5);
 	return 0;
 }

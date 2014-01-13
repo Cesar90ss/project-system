@@ -31,8 +31,12 @@ typedef struct
 void StartUserThread(int f)
 {
     userfunc *uf = (userfunc*)f;
-    machine->WriteRegister(PCReg,uf->func); //put the function to the PC register  
+    machine->WriteRegister(PCReg,uf->func); //put the function to the PC register
+    machine->WriteRegister(NextPCReg,uf->func+sizeof(int));
     machine->WriteRegister(4,uf->arg);	//put the arg to register 4
+    printf("value of function : %d",uf->func); // TODO :To be removed, just to see if function address is coherent
+    machine->Run();
+    return;
 }
 
 int do_UserThreadCreate(int f, int arg)
