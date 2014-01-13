@@ -1,0 +1,37 @@
+* Meeting on 13/01/14
+** Step 3
+   Organization of Nachos memory (see AddrSpace::AddrSpace) :
+   No heap on Nachos !
+   _________________
+   |  code segment   | 0x0
+   |_________________|
+   |  data segment   |
+   |_________________|
+   |      ...        |
+   |_________________|
+   | stack thread 2  |
+   |_________________|
+   | protection page |
+   |_________________|
+   | stack thread 1  |
+   |_________________| NUM_PHYS_PAGE
+
+   Allowed to add more physical memory, but must handle case where not enough
+   space. Take care of reusing resources.
+
+   Must provides documentation explaining what implementation choices are done.
+   , what model (user-level kernel, using kernel-thread for one user-thread -
+   better-) ?
+
+   To handle free page inside memory, use BitMap class (it's here for this).
+
+   /!\ Whatever usercall arguments are, kernel must not crash /!\
+
+   Must also choose what we want to do with Join behavior, handling thread
+   id. Exit syscall should stop each launched threads. So maybee handle
+   parent-child relation now ?
+   
+** Step 4
+   Virtual memory.
+   Manage correspondance between virtual pages & physical ones.
+   After that implements ForkExec syscall.
