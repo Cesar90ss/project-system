@@ -25,7 +25,11 @@
 #include "system.h"
 #include "syscall.h"
 #include "synchconsole.h"
+//TODO uncomment  when do_UserThreadCreate is done
+//#include "userthread.h"
+
 extern SynchConsole *synchconsole;
+
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -43,13 +47,13 @@ UpdatePC ()
 //----------------------------------------------------------------------
 // Here are all the syscall functions we call with the sycall type switch 
 //----------------------------------------------------------------------
-void do_halt()
+void do_Halt()
 {
 	DEBUG ('m', "Shutdown, initiated by user program.\n");
 	interrupt->Halt ();
 }
 //----------------------//
-void do_exit()
+void do_Exit()
 {
 	DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
 	// Stop current thread
@@ -64,21 +68,21 @@ void do_exit()
 	}
 }
 //----------------------//
-void do_putchar()
+void do_Putchar()
 {
     char c = (char)machine->ReadRegister(4);//order of the bit endian
     DEBUG('a', "Putchar \n", machine->ReadRegister(4));
     synchconsole->SynchPutChar(c);
 }
 //----------------------//
-void do_getchar()
+void do_Getchar()
 {
     int c = synchconsole->SynchGetChar();//change to int to make it work to EOF
     machine->WriteRegister(2,c);
     DEBUG('a', "Getchar %c\n",c);
 }
 //----------------------//
-void do_putstring()
+void do_Putstring()
 {
     int from = machine->ReadRegister(4);
     char* c = new char[MAX_STRING_SIZE + 1];
@@ -89,7 +93,7 @@ void do_putstring()
     delete [] c;
 }
 //----------------------//
-void do_getstring()
+void do_Getstring()
 {
     int n = (int)machine->ReadRegister(5);
     char* buffer = new char[n];
@@ -108,7 +112,14 @@ void do_getstring()
     delete buffer;
 }
 //----------------------//
-void do_getint()
+void do_Putint()
+{
+    int num = machine->ReadRegister(4);
+    synchconsole->SynchPutInt(num);
+    DEBUG('a', "PutInt %d\n", num);
+}
+//----------------------//
+void do_Getint()
 {
     int p =  machine->ReadRegister(4);
     int num;
@@ -127,19 +138,42 @@ void do_getint()
     DEBUG('a', "GetInt %d\n", error_value);
 }
 //----------------------//
-void do_putint()
-{
-    int num = machine->ReadRegister(4);
-    synchconsole->SynchPutInt(num);
-    DEBUG('a', "PutInt %d\n", num);
-}
-//----------------------//
-void do_create()
+void do_UserThreadCreate()
 {
 	int fn = machine->ReadRegister(4);
 	int arg = machine->ReadRegister(5);
 	DEBUG('t', "Create user thread on function at address %i and arg at address %i\n", fn, arg);
-	//currentThread->Fork(do_UserThreadCreate(), int arg);
+	//TODO uncomment  when do_UserThreadCreate is done
+	/*
+	if(do_UserThreadCreate(fn, arg)) 
+	{
+		//creation failed
+		DEBUG('t', "Syscall failed to create a new user thread\n");
+		machine->WriteRegister(2,-1);
+	}
+	else
+	{
+		//creation succeed
+		machine->WriteRegister(2,0);
+	}
+	*/
+}
+//----------------------//
+void do_UserThreadJoin()
+{
+	//TODO
+	//must be synchronous to use the children variable
+	//a thread should have a variable to count his children
+	//this thread go in sleep mode if children!=0
+	//else nothing
+}
+//----------------------//
+void do_UserThreadExit()
+{
+	//TODO
+	//must be synchronous to modifiy the children number and the state of the parent
+	//decrease the children number of the parent
+	//if children==0 set the parent to readyToRun, the scheduler can now restart this thread
 }
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -180,47 +214,57 @@ ExceptionHandler (ExceptionType which)
             {
                 case SC_Halt:
                 {
-					do_halt();
+					do_Halt();
                     break;
                 }
                 case SC_Exit:
                 {
-					do_exit();
+					do_Exit();
                     break;
                 }
                 case SC_PutChar:
                 {
-                    do_putchar();
+                    do_Putchar();
                     break;
                 }
                 case SC_GetChar:
                 {
-					do_getchar();
+					do_Getchar();
                     break;
                 }
                 case SC_PutString:
                 {
-					do_putstring();
+					do_Putstring();
                     break;
                 }
                 case SC_GetString:
                 {
-					do_getstring();
-                    break;
-                }
-                case SC_GetInt:
-                {
-					do_getint();
+					do_Getstring();
                     break;
                 }
                 case SC_PutInt:
                 {
-					do_putint();
+					do_Putint();
                     break;
                 }
-                case SC_Create:
+                case SC_GetInt:
                 {
-					do_create();
+					do_Getint();
+                    break;
+                }
+                case SC_ThreadCreate:
+                {
+					do_UserThreadCreate();
+					break;
+                }
+                case SC_ThreadJoin:
+                {
+					do_UserThreadJoin();
+					break;
+                }
+                case SC_ThreadExit:
+                {
+					do_UserThreadExit();
 					break;
                 }
                 default:

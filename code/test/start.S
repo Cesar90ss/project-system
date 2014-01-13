@@ -40,7 +40,7 @@ __start:
  *  convention on the MIPS.
  * -------------------------------------------------------------
  */
-
+/* ----------------------*/
     .globl Halt
     .ent	Halt
 Halt:
@@ -48,7 +48,7 @@ Halt:
     syscall
     j	$31
     .end Halt
-
+/* ----------------------*/
     .globl Exit
     .ent	Exit
 Exit:
@@ -56,7 +56,7 @@ Exit:
     syscall
     j	$31
     .end Exit
-
+/* ----------------------*/
     .globl Exec
     .ent	Exec
 Exec:
@@ -64,23 +64,31 @@ Exec:
     syscall
     j	$31
     .end Exec
-
-    .globl Join
-    .ent	Join
-Join:
-    addiu $2,$0,SC_Join
+/* ----------------------*/
+    .globl ThreadCreate
+    .ent	ThreadCreate
+ThreadCreate:
+    addiu $2,$0,SC_ThreadCreate
     syscall
     j	$31
-    .end Join
-
-    .globl Create
-    .ent	Create
-Create:
-    addiu $2,$0,SC_Create
+    .end ThreadCreate
+/* ----------------------*/
+    .globl ThreadExit
+    .ent	ThreadExit
+ThreadExit:
+    addiu $2,$0,SC_ThreadExit
     syscall
     j	$31
-    .end Create
-
+    .end ThreadExit
+/* ----------------------*/
+    .globl ThreadJoin
+    .ent	ThreadJoin
+ThreadJoin:
+    addiu $2,$0,SC_ThreadJoin
+    syscall
+    j	$31
+    .end ThreadJoin
+/* ----------------------*/
     .globl Open
     .ent	Open
 Open:
@@ -88,7 +96,7 @@ Open:
     syscall
     j	$31
     .end Open
-
+/* ----------------------*/
     .globl Read
     .ent	Read
 Read:
@@ -96,7 +104,7 @@ Read:
     syscall
     j	$31
     .end Read
-
+/* ----------------------*/
     .globl Write
     .ent	Write
 Write:
@@ -104,7 +112,7 @@ Write:
     syscall
     j	$31
     .end Write
-
+/* ----------------------*/
     .globl Close
     .ent	Close
 Close:
@@ -112,7 +120,7 @@ Close:
     syscall
     j	$31
     .end Close
-
+/* ----------------------*/
     .globl Fork
     .ent	Fork
 Fork:
@@ -120,7 +128,7 @@ Fork:
     syscall
     j	$31
     .end Fork
-
+/* ----------------------*/
     .globl Yield
     .ent	Yield
 Yield:
@@ -128,7 +136,7 @@ Yield:
     syscall
     j	$31
     .end Yield
-
+/* ----------------------*/
     .globl PutChar
     .ent	PutChar
 PutChar:
@@ -136,7 +144,7 @@ PutChar:
     syscall
     j	$31
     .end PutChar
-
+/* ----------------------*/
     .globl GetChar
     .ent	GetChar
 GetChar:
@@ -144,7 +152,7 @@ GetChar:
     syscall
     j	$31
     .end GetChar
-
+/* ----------------------*/
     .globl PutString
     .ent PutString
 PutString:
@@ -152,7 +160,7 @@ PutString:
     syscall
     j	$31
     .end PutString
-
+/* ----------------------*/
     .globl GetString
     .ent	GetString
 GetString:
@@ -160,7 +168,7 @@ GetString:
     syscall
     j	$31
     .end GetString
-
+/* ----------------------*/
     .globl PutInt
     .ent PutInt
 PutInt:
@@ -168,7 +176,7 @@ PutInt:
     syscall
     j	$31
     .end PutInt
-
+/* ----------------------*/
     .globl GetInt
     .ent	GetInt
 GetInt:
@@ -176,7 +184,7 @@ GetInt:
     syscall
     j	$31
     .end GetInt
-
+/* ----------------------*/
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main
