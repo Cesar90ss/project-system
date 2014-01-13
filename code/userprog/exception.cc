@@ -40,8 +40,107 @@ UpdatePC ()
     pc += 4;
     machine->WriteRegister (NextPCReg, pc);
 }
+//----------------------------------------------------------------------
+// Here are all the syscall functions we call with the sycall type switch 
+//----------------------------------------------------------------------
+void do_halt()
+{
+	DEBUG ('m', "Shutdown, initiated by user program.\n");
+	interrupt->Halt ();
+}
+//----------------------//
+void do_exit()
+{
+	DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
+	// Stop current thread
+	AddrSpace::nbProcess --;
+	if ( AddrSpace::nbProcess == 0 )
+	{
+		interrupt->Halt ();
+	}
+	else
+	{
+		currentThread->Finish();
+	}
+}
+//----------------------//
+void do_putchar()
+{
+    char c = (char)machine->ReadRegister(4);//order of the bit endian
+    DEBUG('a', "Putchar \n", machine->ReadRegister(4));
+    synchconsole->SynchPutChar(c);
+}
+//----------------------//
+void do_getchar()
+{
+    int c = synchconsole->SynchGetChar();//change to int to make it work to EOF
+    machine->WriteRegister(2,c);
+    DEBUG('a', "Getchar %c\n",c);
+}
+//----------------------//
+void do_putstring()
+{
+    int from = machine->ReadRegister(4);
+    char* c = new char[MAX_STRING_SIZE + 1];
+    int really_write = copyStringFromMachine(from,c,MAX_STRING_SIZE);
+    c[really_write] = '\0';
+    DEBUG('a', "Putstring %s\n", c);
+    synchconsole->SynchPutString(c);
+    delete [] c;
+}
+//----------------------//
+void do_getstring()
+{
+    int n = (int)machine->ReadRegister(5);
+    char* buffer = new char[n];
+    if (synchconsole->SynchGetString(buffer, n) == NULL)
+    {
+        machine->WriteRegister(2, (int)NULL);
+    }
+    else
+    {
+        //copy buffer to string
+        copyStringToMachine(machine->ReadRegister(4), buffer, n);
+        machine->WriteRegister(2, machine->ReadRegister(4));
+        DEBUG('a', "GetString %s\n", buffer);
+    }
 
+    delete buffer;
+}
+//----------------------//
+void do_getint()
+{
+    int p =  machine->ReadRegister(4);
+    int num;
 
+    //Try to write at @p before consume input
+    if(!machine->WriteMem(p, sizeof(int), (int)0))
+    {
+        //-2 convention for non valid adress memory
+        machine->WriteRegister(2,-2);
+        DEBUG('a', "GetInt : bad adress %d\n", p);
+        return;
+    }
+    int error_value = synchconsole->SynchGetInt(&num);
+    machine->WriteRegister(2,error_value);
+    machine->WriteMem(p, sizeof(int), num);
+    DEBUG('a', "GetInt %d\n", error_value);
+}
+//----------------------//
+void do_putint()
+{
+    int num = machine->ReadRegister(4);
+    synchconsole->SynchPutInt(num);
+    DEBUG('a', "PutInt %d\n", num);
+}
+//----------------------//
+void do_create()
+{
+	int fn = machine->ReadRegister(4);
+	int arg = machine->ReadRegister(5);
+	DEBUG('t', "Create user thread on function at address %i and arg at address %i\n", fn, arg);
+	//currentThread->Fork(do_UserThreadCreate(), int arg);
+}
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -81,96 +180,48 @@ ExceptionHandler (ExceptionType which)
             {
                 case SC_Halt:
                 {
-                    DEBUG ('a', "Shutdown, initiated by user program.\n");
-                    interrupt->Halt ();
+					do_halt();
                     break;
                 }
                 case SC_Exit:
                 {
-                    DEBUG('a', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
-                    // Stop current thread
-                    AddrSpace::nbProcess --;
-                    if ( AddrSpace::nbProcess == 0 )
-                    {
-                        interrupt->Halt ();
-                    }
-                    else
-                    {
-                        currentThread->Finish();
-                    }
+					do_exit();
                     break;
                 }
                 case SC_PutChar:
                 {
-                    char c = (char)machine->ReadRegister(4);//order of the bit endian
-                    DEBUG('a', "Putchar \n", machine->ReadRegister(4));
-                    synchconsole->SynchPutChar(c);
-
+                    do_putchar();
                     break;
                 }
                 case SC_GetChar:
                 {
-
-                    int c = synchconsole->SynchGetChar();//change to int to make it work to EOF
-                    machine->WriteRegister(2,c);
-                    DEBUG('a', "Getchar %c\n",c);
+					do_getchar();
                     break;
                 }
                 case SC_PutString:
                 {
-                    int from = machine->ReadRegister(4);
-                    char* c = new char[MAX_STRING_SIZE + 1];
-                    int really_write = copyStringFromMachine(from,c,MAX_STRING_SIZE);
-                    c[really_write] = '\0';
-                    DEBUG('a', "Putstring %s\n", c);
-                    synchconsole->SynchPutString(c);
-                    delete [] c;
+					do_putstring();
                     break;
                 }
                 case SC_GetString:
                 {
-                    int n = (int)machine->ReadRegister(5);
-                    char* buffer = new char[n];
-                    if (synchconsole->SynchGetString(buffer, n) == NULL)
-                    {
-                        machine->WriteRegister(2, (int)NULL);
-                    }
-                    else
-                    {
-                        //copy buffer to string
-                        copyStringToMachine(machine->ReadRegister(4), buffer, n);
-                        machine->WriteRegister(2, machine->ReadRegister(4));
-                        DEBUG('a', "GetString %s\n", buffer);
-                    }
-
-                    delete buffer;
+					do_getstring();
                     break;
                 }
                 case SC_GetInt:
                 {
-                    int p =  machine->ReadRegister(4);
-                    int num;
-
-                    //Try to write at @p before consume input
-                    if(!machine->WriteMem(p, sizeof(int), (int)0))
-                    {
-                        //-2 convention for non valid adress memory
-                        machine->WriteRegister(2,-2);
-                        DEBUG('a', "GetInt : bad adress %d\n", p);
-                        break;
-                    }
-                    int error_value = synchconsole->SynchGetInt(&num);
-                    machine->WriteRegister(2,error_value);
-                    machine->WriteMem(p, sizeof(int), num);
-                    DEBUG('a', "GetInt %d\n", error_value);
+					do_getint();
                     break;
                 }
                 case SC_PutInt:
                 {
-                    int num = machine->ReadRegister(4);
-                    synchconsole->SynchPutInt(num);
-                    DEBUG('a', "PutInt %d\n", num);
+					do_putint();
                     break;
+                }
+                case SC_Create:
+                {
+					do_create();
+					break;
                 }
                 default:
                 {
