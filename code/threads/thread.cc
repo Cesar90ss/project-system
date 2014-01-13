@@ -340,18 +340,19 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     stack[StackSize - 1] = STACK_FENCEPOST;
 #else
     // i386 & MIPS & SPARC stack works from high addresses to low addresses
-#ifdef HOST_SPARC
-    // SPARC stack must contains at least 1 activation record to start with.
-    stackTop = stack + StackSize - 96;
-#else // HOST_MIPS  || HOST_i386
-    stackTop = stack + StackSize - 4;	// -4 to be on the safe side!
-#ifdef HOST_i386
-    // the 80386 passes the return address on the stack.  In order for
-    // SWITCH() to go to ThreadRoot when we switch to this thread, the
-    // return addres used in SWITCH() must be the starting address of
-    // ThreadRoot.
-    *(--stackTop) = (int) ThreadRoot;
-#endif
+    
+  #ifdef HOST_SPARC
+      // SPARC stack must contains at least 1 activation record to start with.
+      stackTop = stack + StackSize - 96;
+  #else // HOST_MIPS  || HOST_i386
+      stackTop = stack + StackSize - 4;	// -4 to be on the safe side!
+  #ifdef HOST_i386
+      // the 80386 passes the return address on the stack.  In order for
+      // SWITCH() to go to ThreadRoot when we switch to this thread, the
+      // return addres used in SWITCH() must be the starting address of
+      // ThreadRoot.
+      *(--stackTop) = (int) ThreadRoot;
+  #endif
 #endif // HOST_SPARC
     *stack = STACK_FENCEPOST;
 #endif // HOST_SNAKE
@@ -367,7 +368,7 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     machineState[InitialPCState] = (int) func;
     machineState[InitialArgState] = arg;
     machineState[WhenDonePCState] = (int) ThreadFinish;
-}
+}		
 
 #ifdef USER_PROGRAM
 #include "machine.h"

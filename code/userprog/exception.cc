@@ -25,11 +25,10 @@
 #include "system.h"
 #include "syscall.h"
 #include "synchconsole.h"
-//TODO uncomment  when do_UserThreadCreate is done
-//#include "userthread.h"
-
+#ifdef USER_PROGRAM
+#include "userthread.h"
+#endif
 extern SynchConsole *synchconsole;
-
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -138,14 +137,14 @@ void do_Getint()
     DEBUG('a', "GetInt %d\n", error_value);
 }
 //----------------------//
+
 void do_UserThreadCreate()
 {
+#ifdef USER_PROGRAM
 	int fn = machine->ReadRegister(4);
 	int arg = machine->ReadRegister(5);
 	DEBUG('t', "Create user thread on function at address %i and arg at address %i\n", fn, arg);
-	//TODO uncomment  when do_UserThreadCreate is done
-	/*
-	if(do_UserThreadCreate(fn, arg)) 
+	if(UserThreadCreate(fn, arg)) 
 	{
 		//creation failed
 		DEBUG('t', "Syscall failed to create a new user thread\n");
@@ -155,8 +154,9 @@ void do_UserThreadCreate()
 	{
 		//creation succeed
 		machine->WriteRegister(2,0);
-	}
-	*/
+	}	
+
+#endif
 }
 //----------------------//
 void do_UserThreadJoin()
@@ -170,10 +170,13 @@ void do_UserThreadJoin()
 //----------------------//
 void do_UserThreadExit()
 {
+#ifdef USER_PROGRAM
 	//TODO
 	//must be synchronous to modifiy the children number and the state of the parent
 	//decrease the children number of the parent
 	//if children==0 set the parent to readyToRun, the scheduler can now restart this thread
+	UserThreadExit();
+#endif
 }
 //----------------------------------------------------------------------
 // ExceptionHandler
