@@ -127,7 +127,7 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0)
         program_end = noffH.initData.virtualAddr;
     }
 
-#ifdef USERPROG
+#ifdef USER_PROGRAM
     // Init stack mgr
     stackMgr = new StackMgr(program_end);
 #else
@@ -150,7 +150,7 @@ AddrSpace::~AddrSpace ()
     delete [] pageTable;
     // End of modification
 
-#ifdef USERPROG
+#ifdef USER_PROGRAM
     // Free stack mgr
     delete stackMgr;
 #endif
@@ -220,7 +220,7 @@ AddrSpace::RestoreState ()
 // Wrapper around StackMgr
 int AddrSpace::GetNewUserStack()
 {
-#ifdef USERPROG
+#ifdef USER_PROGRAM
     return stackMgr->GetNewStack();
 #else
     return 0;
@@ -230,7 +230,7 @@ int AddrSpace::GetNewUserStack()
 // Wrapper around StackMgr
 int AddrSpace::FreeUserStack(unsigned int addr)
 {
-#ifdef USERPROG
+#ifdef USER_PROGRAM
     return stackMgr->FreeStack(addr);
 #else
     return -1;

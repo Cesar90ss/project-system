@@ -34,8 +34,10 @@ void StartUserThread(int f)
     machine->WriteRegister(PCReg,uf->func); //put the function to the PC register
     machine->WriteRegister(NextPCReg,uf->func+sizeof(int));
     machine->WriteRegister(4,uf->arg);	//put the arg to register 4
-    printf("value of function : %d",uf->func); // TODO :To be removed, just to see if function address is coherent
-    machine->Run();
+    printf("value of stack : %d\n",machine->ReadRegister(StackReg)); // TODO :To be removed, just to see if function address is coherent
+    int * ptr = (int*) &machine->mainMemory[machine->ReadRegister(StackReg)];
+        printf("Value at stack bottom : %d\n", *ptr);
+		machine->Run();
     return;
 }
 
@@ -47,16 +49,16 @@ int do_UserThreadCreate(int f, int arg)
     
     uf->func=f;							//pack the function
     uf->arg=arg;    						//pack the argument
-    
+		t->space = currentThread -> space;
     int stack = t->space->GetNewUserStack();
     if(stack == -1)
       return -1;
-    
     t->userRegisters[StackReg]=stack;
     t->userStack=stack;
+    printf("value of stack : %d\n",stack); // TODO :To be removed, just to see if function address is coherent
     
-    t->Fork(StartUserThread,(int)uf);
-        
+		t->Fork(StartUserThread,(int)uf);
+		
     (void) interrupt->SetLevel (oldLevel);
     return t->GetTid();
 }

@@ -58,14 +58,15 @@ unsigned int StackMgr::GetNewStack()
 
     // Find the first bit which is clear
     index = bitmap->Find();
-
     // If error, return NULL
     if (index == -1)
+		{
         return 0;
+		}
 
     // Compute stack addr
     stack_addr = first_stack_addr + index * real_page_size;
-
+		
     // Clear stack
     bzero(machine->mainMemory + stack_addr, UserStackSize);
 
