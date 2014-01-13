@@ -24,7 +24,7 @@
 
 
 void StartUserThread(int f);
-extern int UserThreadCreate(int f, int arg);
-void UserThreadExit();
+extern int do_UserThreadCreate(int f, int arg);
+void do_UserThreadExit();
 
 #endif

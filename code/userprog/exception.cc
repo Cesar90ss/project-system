@@ -175,7 +175,7 @@ void switch_UserThreadExit()
 	//must be synchronous to modifiy the children number and the state of the parent
 	//decrease the children number of the parent
 	//if children==0 set the parent to readyToRun, the scheduler can now restart this thread
-	UserThreadExit();
+	do_UserThreadExit();
 }
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------

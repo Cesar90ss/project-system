@@ -35,7 +35,7 @@ void StartUserThread(int f)
     machine->WriteRegister(4,uf->arg);	//put the arg to register 4
 }
 
-int UserThreadCreate(int f, int arg)
+int do_UserThreadCreate(int f, int arg)
 {
     IntStatus oldLevel = interrupt->SetLevel (IntOff); 		//Block Interrupt to be atomic
     Thread* t = new  Thread("NewThread");
@@ -54,10 +54,10 @@ int UserThreadCreate(int f, int arg)
     t->Fork(StartUserThread,(int)uf);
         
     (void) interrupt->SetLevel (oldLevel);
-    return 0;
+    return t->GetTid();
 }
 
-void UserThreadExit()
+void do_UserThreadExit()
 {
     currentThread->Finish();
 }
