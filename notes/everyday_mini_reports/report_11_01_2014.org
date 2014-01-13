@@ -1,0 +1,39 @@
+Monday morning : 
+    -->Staring part 3, part 2 is finished and "fully tested".
+
+---- TODO LIST ----
+- SysCall UserThreadCreate(fn, arg)
+    --> Thread::Fork(StartUp Thread, fn + arg( struct ))
+
+- StartUp thread : 
+    - Init user thread : 
+        - @ space
+        - stack
+        - registers
+
+- Handling stacks (Bitmap)
+
+- Parent-Child relations (thread-safe)
+
+- Join + Parent exit
+
+- Thread Exit syscall  : 
+    - Example + test
+        -> SynchConsole
+        -> Productor/Consumer
+-------------------
+
+---- ABOUT STACK AND THREADS RELATION (PARENT-CHILD) ---- 
+
+- To handle stack : we let a page to trigger a page fault in case of overflow.
+  We need to take care of it while implementing virtual memory.
+
+- For threads : we decided to use a HashMap in which we store all alive threads in
+  current adress space. Plus, we use a static variable to give unique ID to
+threads.
+--------------------------------------------------------- 
+
+------ SysCall UserThreadCreate ------
+We have linked SysCalls about thread creation, thread join and thread exit. We
+have clean the exception handler switch by moving contents into function (much
+more readeable now).
