@@ -46,13 +46,13 @@ UpdatePC ()
 //----------------------------------------------------------------------
 // Here are all the syscall functions we call with the sycall type switch 
 //----------------------------------------------------------------------
-void do_Halt()
+void switch_Halt()
 {
 	DEBUG ('m', "Shutdown, initiated by user program.\n");
 	interrupt->Halt ();
 }
 //----------------------//
-void do_Exit()
+void switch_Exit()
 {
 	DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
 	// Stop current thread
@@ -67,21 +67,22 @@ void do_Exit()
 	}
 }
 //----------------------//
-void do_Putchar()
+#ifdef USER_PROGRAM
+void switch_Putchar()
 {
     char c = (char)machine->ReadRegister(4);//order of the bit endian
     DEBUG('a', "Putchar \n", machine->ReadRegister(4));
     synchconsole->SynchPutChar(c);
 }
 //----------------------//
-void do_Getchar()
+void switch_Getchar()
 {
     int c = synchconsole->SynchGetChar();//change to int to make it work to EOF
     machine->WriteRegister(2,c);
     DEBUG('a', "Getchar %c\n",c);
 }
 //----------------------//
-void do_Putstring()
+void switch_Putstring()
 {
     int from = machine->ReadRegister(4);
     char* c = new char[MAX_STRING_SIZE + 1];
@@ -92,7 +93,7 @@ void do_Putstring()
     delete [] c;
 }
 //----------------------//
-void do_Getstring()
+void switch_Getstring()
 {
     int n = (int)machine->ReadRegister(5);
     char* buffer = new char[n];
@@ -111,14 +112,14 @@ void do_Getstring()
     delete buffer;
 }
 //----------------------//
-void do_Putint()
+void switch_Putint()
 {
     int num = machine->ReadRegister(4);
     synchconsole->SynchPutInt(num);
     DEBUG('a', "PutInt %d\n", num);
 }
 //----------------------//
-void do_Getint()
+void switch_Getint()
 {
     int p =  machine->ReadRegister(4);
     int num;
@@ -137,14 +138,15 @@ void do_Getint()
     DEBUG('a', "GetInt %d\n", error_value);
 }
 //----------------------//
-
-void do_UserThreadCreate()
+void switch_UserThreadCreate()
 {
-#ifdef USER_PROGRAM
 	int fn = machine->ReadRegister(4);
 	int arg = machine->ReadRegister(5);
 	DEBUG('t', "Create user thread on function at address %i and arg at address %i\n", fn, arg);
-	if(UserThreadCreate(fn, arg)) 
+	//TODO uncomment the if
+	int id = 0;
+	//if((id = do_UserThreadCreate(fn, arg)) == -1) 
+	if(0)
 	{
 		//creation failed
 		DEBUG('t', "Syscall failed to create a new user thread\n");
@@ -153,13 +155,12 @@ void do_UserThreadCreate()
 	else
 	{
 		//creation succeed
-		machine->WriteRegister(2,0);
+		DEBUG('t', "Thread creation succesfull with id %i\n", id);
+		machine->WriteRegister(2,id);
 	}	
-
-#endif
 }
 //----------------------//
-void do_UserThreadJoin()
+void switch_UserThreadJoin()
 {
 	//TODO
 	//must be synchronous to use the children variable
@@ -168,16 +169,15 @@ void do_UserThreadJoin()
 	//else nothing
 }
 //----------------------//
-void do_UserThreadExit()
+void switch_UserThreadExit()
 {
-#ifdef USER_PROGRAM
 	//TODO
 	//must be synchronous to modifiy the children number and the state of the parent
 	//decrease the children number of the parent
 	//if children==0 set the parent to readyToRun, the scheduler can now restart this thread
 	UserThreadExit();
-#endif
 }
+#endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -217,59 +217,61 @@ ExceptionHandler (ExceptionType which)
             {
                 case SC_Halt:
                 {
-					do_Halt();
+					switch_Halt();
                     break;
                 }
                 case SC_Exit:
                 {
-					do_Exit();
+					switch_Exit();
                     break;
                 }
+				#ifdef USER_PROGRAM
                 case SC_PutChar:
                 {
-                    do_Putchar();
+                    switch_Putchar();
                     break;
                 }
                 case SC_GetChar:
                 {
-					do_Getchar();
+					switch_Getchar();
                     break;
                 }
                 case SC_PutString:
                 {
-					do_Putstring();
+					switch_Putstring();
                     break;
                 }
                 case SC_GetString:
                 {
-					do_Getstring();
+					switch_Getstring();
                     break;
                 }
                 case SC_PutInt:
                 {
-					do_Putint();
+					switch_Putint();
                     break;
                 }
                 case SC_GetInt:
                 {
-					do_Getint();
+					switch_Getint();
                     break;
                 }
-                case SC_ThreadCreate:
+                case SC_UserThreadCreate:
                 {
-					do_UserThreadCreate();
+					switch_UserThreadCreate();
 					break;
                 }
-                case SC_ThreadJoin:
+                case SC_UserThreadJoin:
                 {
-					do_UserThreadJoin();
+					switch_UserThreadJoin();
 					break;
                 }
-                case SC_ThreadExit:
+                case SC_UserThreadExit:
                 {
-					do_UserThreadExit();
+					switch_UserThreadExit();
 					break;
                 }
+				#endif
                 default:
                 {
                     printf ("Unexpected syscall type %d\n", type);

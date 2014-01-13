@@ -65,29 +65,21 @@ Exec:
     j	$31
     .end Exec
 /* ----------------------*/
-    .globl ThreadCreate
-    .ent	ThreadCreate
-ThreadCreate:
-    addiu $2,$0,SC_ThreadCreate
+    .globl Join
+    .ent	Join
+Join:
+    addiu $2,$0,SC_Join
     syscall
     j	$31
-    .end ThreadCreate
+    .end Join
 /* ----------------------*/
-    .globl ThreadExit
-    .ent	ThreadExit
-ThreadExit:
-    addiu $2,$0,SC_ThreadExit
+    .globl Create
+    .ent	Create
+Create:
+    addiu $2,$0,SC_Create
     syscall
     j	$31
-    .end ThreadExit
-/* ----------------------*/
-    .globl ThreadJoin
-    .ent	ThreadJoin
-ThreadJoin:
-    addiu $2,$0,SC_ThreadJoin
-    syscall
-    j	$31
-    .end ThreadJoin
+    .end Create
 /* ----------------------*/
     .globl Open
     .ent	Open
@@ -184,6 +176,30 @@ GetInt:
     syscall
     j	$31
     .end GetInt
+/* ----------------------*/
+    .globl UserThreadCreate
+    .ent	UserThreadCreate
+UserThreadCreate:
+    addiu $2,$0,SC_UserThreadCreate
+    syscall
+    j	$31
+    .end UserThreadCreate
+/* ----------------------*/
+    .globl UserThreadExit
+    .ent	UserThreadExit
+UserThreadExit:
+    addiu $2,$0,SC_UserThreadExit
+    syscall
+    j	$31
+    .end UserThreadExit
+/* ----------------------*/
+    .globl UserThreadJoin
+    .ent	UserThreadJoin
+UserThreadJoin:
+    addiu $2,$0,SC_UserThreadJoin
+    syscall
+    j	$31
+    .end UserThreadJoin
 /* ----------------------*/
 /* dummy function to keep gcc happy */
         .globl  __main

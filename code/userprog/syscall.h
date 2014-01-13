@@ -22,22 +22,23 @@
 #define SC_Halt			0
 #define SC_Exit			1
 #define SC_Exec			2
-#define SC_ThreadCreate	3
-#define SC_ThreadExit	4
-#define SC_ThreadJoin	5
-#define SC_Open			6
-#define SC_Read			7
-#define SC_Write		8
-#define SC_Close		9
-#define SC_Fork			10
-#define SC_Yield		11
-#define SC_PutChar		12
-#define SC_GetChar		13
-#define SC_PutString	14
-#define SC_GetString	15
-#define SC_GetInt		16
-#define SC_PutInt		17
-
+#define SC_Join			3
+#define SC_Create		4
+#define SC_Open			5
+#define SC_Read			6
+#define SC_Write		7
+#define SC_Close		8
+#define SC_Fork			9
+#define SC_Yield		10
+#define SC_PutChar		11
+#define SC_GetChar		12
+#define SC_PutString	13
+#define SC_GetString	14
+#define SC_GetInt		15
+#define SC_PutInt		16
+#define SC_UserThreadCreate	17
+#define SC_UserThreadExit	18
+#define SC_UserThreadJoin	19
 
 #ifdef IN_USER_MODE
 
@@ -137,17 +138,37 @@ void Fork (void (*func) ());
  */
 void Yield ();
 
+/* PutChar write the character c to the console. */
 void PutChar(char c);
 
+/* GetChar get a character from the console. 
+ * Return the character or EOF if no more character to read.
+ */
 int GetChar();
 
+/* Putstring reads at most n character in the console. return s if there is no error 
+ * otherwise it will return NULL if there is error or EOF.
+ */
 void PutString(char s[]);
 
+/* GetString writes the string s to the console. If the string given is longer
+ * than MAX_STRING_SIZE then the remaining part is not printed in the console.
+ */
 char* GetString(char *s, int n);
 
+/* PutInt is the function that use to write the int i to the console */
 void PutInt(int i);
 
+/* GetInt is the function that read an int from the input buffer to the p pointer adress.
+ * Return 0 when everything is ok, -1 when the input cannot be read as an int
+ * and -2 when the adress p cannot be wroten by the caller.
+ */
 int GetInt();
+
+//TODO document this !
+int UserThreadCreate(void f(void *arg), void *arg);
+void UserThreadExit();
+int UserThreadJoin(int id); //may not be an int, we have to create id's in threads to know who wait for who
 
 #endif // IN_USER_MODE
 
