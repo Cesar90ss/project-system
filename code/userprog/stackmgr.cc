@@ -19,6 +19,7 @@ StackMgr::StackMgr(unsigned int data_end_at)
 {
     unsigned int total_memory_size;
     unsigned int total_free_size;
+    unsigned int real_page_size = UserStackSize + PROTECTION_PAGE * PageSize;
 
     // Total memory size
     total_memory_size = NumPhysPages * PageSize;
@@ -27,7 +28,7 @@ StackMgr::StackMgr(unsigned int data_end_at)
     total_free_size = total_memory_size - data_end_at;
 
     // Compute number of possible stacks
-    number_of_stack = total_free_size / UserStackSize;
+    number_of_stack = total_free_size / real_page_size;
 
     // Create bitmap
     bitmap = new BitMap(number_of_stack);
@@ -53,6 +54,7 @@ unsigned int StackMgr::GetNewStack()
 {
     int index;
     unsigned int stack_addr;
+    unsigned int real_page_size = UserStackSize + PROTECTION_PAGE * PageSize;
 
     // Find the first bit which is clear
     index = bitmap->Find();
@@ -62,11 +64,12 @@ unsigned int StackMgr::GetNewStack()
         return 0;
 
     // Compute stack addr
-    stack_addr = first_stack_addr + index * UserStackSize;
+    stack_addr = first_stack_addr + index * real_page_size;
 
     // Clear stack
     bzero(machine->mainMemory + stack_addr, UserStackSize);
 
+    // TODO: mark PROTECTION_PAGE to trigger page-fault
     return stack_addr;
 }
 
@@ -78,18 +81,19 @@ unsigned int StackMgr::GetNewStack()
 int StackMgr::FreeStack(unsigned int addr)
 {
     unsigned int stack_index;
+    unsigned int real_page_size = UserStackSize + PROTECTION_PAGE * PageSize;
 
     // Check if addr does not goes out memory
     if (addr < first_stack_addr &&
-        addr > (first_stack_addr + (number_of_stack - 1) * UserStackSize))
+        addr > (first_stack_addr + (number_of_stack - 1) * real_page_size))
         return -1;
 
     // Check if it is the begin of a stack
-    if ((addr - first_stack_addr) % UserStackSize != 0)
+    if ((addr - first_stack_addr) % real_page_size != 0)
         return -1;
 
     // Compute stack index
-    stack_index = (addr - first_stack_addr) / UserStackSize;
+    stack_index = (addr - first_stack_addr) / real_page_size;
 
     // Check if stack is used
     if (!bitmap->Test(stack_index))

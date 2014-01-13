@@ -11,6 +11,9 @@
 #include "copyright.h"
 #include "bitmap.h"
 
+// Num of page after real stack (to trigger page fault)
+#define PROTECTION_PAGE 2
+
 class StackMgr
 {
     public:
