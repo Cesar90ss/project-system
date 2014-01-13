@@ -61,7 +61,7 @@ SwapHeader (NoffHeader * noffH)
 //----------------------------------------------------------------------
 
 unsigned int AddrSpace::nbProcess = 0;
-AddrSpace::AddrSpace (OpenFile * executable)
+AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0)
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -131,6 +131,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
     // Init stack mgr
     stackMgr = new StackMgr(program_end);
 #else
+    // Compiler warning avoid
     program_end = program_end;
 #endif
 
@@ -234,4 +235,43 @@ int AddrSpace::FreeUserStack(unsigned int addr)
 #else
     return -1;
 #endif
+}
+
+/**
+ * Return all threads inside this @ space as a list
+ **/
+std::map<unsigned int, Thread*> AddrSpace::GetThreads()
+{
+    return threads;
+}
+
+/**
+ * Suppose not inside threads
+ **/
+void AddrSpace::AddThread(Thread *child)
+{
+    // Insert with new tid
+    threads[max_tid++] = child;
+    child->SetTid(max_tid - 1);
+}
+
+/**
+ * Suppose already inside threads 
+ **/
+void AddrSpace::RemoveThread(Thread *child)
+{
+    // Erase it
+    threads.erase(child->GetTid());
+}
+
+/**
+ * Get thread by tid
+ * Return NULL if non existence
+ **/
+Thread *AddrSpace::GetThreadById(unsigned int tid)
+{
+    if (threads.find(tid) == threads.end())
+        return NULL;
+
+    return threads[tid];
 }

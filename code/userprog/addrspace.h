@@ -17,8 +17,11 @@
 #include "filesys.h"
 #include "stackmgr.h"
 
+#include <map>
+
 #define UserStackSize		1024	// increase this as necessary!
 
+class Thread;
 class AddrSpace
 {
   public:
@@ -37,6 +40,12 @@ class AddrSpace
     int FreeUserStack(unsigned int addr);
     int GetNewUserStack();
 
+    // Keep track of threads inside this @ space
+    std::map<unsigned int, Thread*> GetThreads();
+    void AddThread(Thread *child);
+    void RemoveThread(Thread *child);
+    Thread *GetThreadById(unsigned int tid);
+
     static unsigned int nbProcess;
   private:
     TranslationEntry * pageTable;	// Assume linear page table translation
@@ -44,6 +53,9 @@ class AddrSpace
     unsigned int numPages;	// Number of pages in the virtual
     // StackMgr helpers to manage user stack
     StackMgr *stackMgr;
+    // Keep track of threads inside this @space
+    std::map<unsigned int, Thread*> threads;
+    unsigned int max_tid;
 
     // address space
 };

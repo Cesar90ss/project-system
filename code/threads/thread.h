@@ -140,6 +140,12 @@ class Thread
     void RestoreUserState ();	// restore user-level register state
 
     AddrSpace *space;		// User code this thread is running.
+
+    unsigned int GetTid();
+    void SetTid(unsigned int id);
+
+  private:
+    unsigned int tid;
 #endif
 };
 
