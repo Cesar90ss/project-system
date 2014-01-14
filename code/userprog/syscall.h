@@ -168,7 +168,7 @@ int GetInt();
 //TODO document this !
 int UserThreadCreate(void f(void *arg), void *arg);
 void UserThreadExit();
-int UserThreadJoin(int id); //may not be an int, we have to create id's in threads to know who wait for who
+int UserThreadJoin(int tid, void **retval);
 
 #endif // IN_USER_MODE
 

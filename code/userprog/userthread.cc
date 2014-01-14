@@ -15,6 +15,7 @@
 #include "addrspace.h"
 #include "synch.h"
 #include "userthread.h"
+#include "thread.h"
 
 
 //----------------------------------------------------------------------
@@ -33,7 +34,7 @@ void StartUserThread(int f)
     userfunc *uf = (userfunc*)f;
     machine->WriteRegister(PCReg,uf->func); //put the function to the PC register
     machine->WriteRegister(NextPCReg,uf->func+sizeof(int));
-    
+
     machine->WriteRegister(4,uf->arg);	//put the arg to register 4
     DEBUG('a', "value of stack : %d\n",machine->ReadRegister(StackReg));
     int * ptr = (int*) &machine->mainMemory[machine->ReadRegister(StackReg)];
@@ -71,4 +72,23 @@ int do_UserThreadCreate(int f, int arg)
 void do_UserThreadExit()
 {
     currentThread->Finish();
+}
+
+int do_UserThreadJoin()
+{
+    // Get thread id
+    int tid = machine->ReadRegister(4);
+
+    // Get return @ for exit code
+    // int retval = machine->ReadRegister(5);
+
+    // Find thread with this id
+    Thread* target = currentThread->space->GetThreadById(tid);
+    if (target == NULL)
+        return -1;
+
+    // Semaphore are interruptible, can join here
+    target->Join(currentThread);
+
+    return 0;
 }

@@ -44,27 +44,27 @@ UpdatePC ()
     machine->WriteRegister (NextPCReg, pc);
 }
 //----------------------------------------------------------------------
-// Here are all the syscall functions we call with the sycall type switch 
+// Here are all the syscall functions we call with the sycall type switch
 //----------------------------------------------------------------------
 void switch_Halt()
 {
-	DEBUG ('m', "Shutdown, initiated by user program.\n");
-	interrupt->Halt ();
+    DEBUG ('m', "Shutdown, initiated by user program.\n");
+    interrupt->Halt ();
 }
 //----------------------//
 void switch_Exit()
 {
-	DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
-	// Stop current thread
-	AddrSpace::nbProcess --;
-	if ( AddrSpace::nbProcess == 0 )
-	{
-		interrupt->Halt ();
-	}
-	else
-	{
-		currentThread->Finish();
-	}
+    DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
+    // Stop current thread
+    AddrSpace::nbProcess --;
+    if ( AddrSpace::nbProcess == 0 )
+    {
+        interrupt->Halt ();
+    }
+    else
+    {
+        currentThread->Finish();
+    }
 }
 //----------------------//
 #ifdef USER_PROGRAM
@@ -140,40 +140,36 @@ void switch_Getint()
 //----------------------//
 void switch_UserThreadCreate()
 {
-	int fn = machine->ReadRegister(4);
-	int arg = machine->ReadRegister(5);
-	DEBUG('t', "Create user thread on function at address %i and arg at address %i\n", fn, arg);
-	int id;
-	if((id = do_UserThreadCreate(fn, arg)) == -1)
-	{
-		//creation failed
-		DEBUG('t', "Syscall failed to create a new user thread\n");
-		machine->WriteRegister(2,-1);
-	}
-	else
-	{
-		//creation succeed
-		DEBUG('t', "Thread creation succesfull with id %i\n", id);
-		machine->WriteRegister(2,id);
-	}	
+    int fn = machine->ReadRegister(4);
+    int arg = machine->ReadRegister(5);
+    DEBUG('t', "Create user thread on function at address %i and arg at address %i\n", fn, arg);
+    int id;
+    if((id = do_UserThreadCreate(fn, arg)) == -1)
+    {
+        //creation failed
+        DEBUG('t', "Syscall failed to create a new user thread\n");
+        machine->WriteRegister(2,-1);
+    }
+    else
+    {
+        //creation succeed
+        DEBUG('t', "Thread creation succesfull with id %i\n", id);
+        machine->WriteRegister(2,id);
+    }
 }
 //----------------------//
 void switch_UserThreadJoin()
 {
-	//TODO
-	//must be synchronous to use the children variable
-	//a thread should have a variable to count his children
-	//this thread go in sleep mode if children!=0
-	//else nothing
+    machine->WriteRegister(2, do_UserThreadJoin());
 }
 //----------------------//
 void switch_UserThreadExit()
 {
-	//TODO
-	//must be synchronous to modifiy the children number and the state of the parent
-	//decrease the children number of the parent
-	//if children==0 set the parent to readyToRun, the scheduler can now restart this thread
-	do_UserThreadExit();
+    //TODO
+    //must be synchronous to modifiy the children number and the state of the parent
+    //decrease the children number of the parent
+    //if children==0 set the parent to readyToRun, the scheduler can now restart this thread
+    do_UserThreadExit();
 }
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
@@ -215,15 +211,15 @@ ExceptionHandler (ExceptionType which)
             {
                 case SC_Halt:
                 {
-					switch_Halt();
+                    switch_Halt();
                     break;
                 }
                 case SC_Exit:
                 {
-					switch_Exit();
+                    switch_Exit();
                     break;
                 }
-				#ifdef USER_PROGRAM
+                #ifdef USER_PROGRAM
                 case SC_PutChar:
                 {
                     switch_Putchar();
@@ -231,45 +227,45 @@ ExceptionHandler (ExceptionType which)
                 }
                 case SC_GetChar:
                 {
-					switch_Getchar();
+                    switch_Getchar();
                     break;
                 }
                 case SC_PutString:
                 {
-					switch_Putstring();
+                    switch_Putstring();
                     break;
                 }
                 case SC_GetString:
                 {
-					switch_Getstring();
+                    switch_Getstring();
                     break;
                 }
                 case SC_PutInt:
                 {
-					switch_Putint();
+                    switch_Putint();
                     break;
                 }
                 case SC_GetInt:
                 {
-					switch_Getint();
+                    switch_Getint();
                     break;
                 }
                 case SC_UserThreadCreate:
                 {
-					switch_UserThreadCreate();
-					break;
+                    switch_UserThreadCreate();
+                    break;
                 }
                 case SC_UserThreadJoin:
                 {
-					switch_UserThreadJoin();
-					break;
+                    switch_UserThreadJoin();
+                    break;
                 }
                 case SC_UserThreadExit:
                 {
-					switch_UserThreadExit();
-					break;
+                    switch_UserThreadExit();
+                    break;
                 }
-				#endif
+                #endif
                 default:
                 {
                     printf ("Unexpected syscall type %d\n", type);

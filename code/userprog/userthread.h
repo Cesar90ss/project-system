@@ -13,18 +13,10 @@
 #ifndef USERTHREAD_H
 #define USERTHREAD_H
 
-#include "copyright.h"
-#include "utility.h"
-
-#ifdef USER_PROGRAM
-#include "machine.h"
-#include "addrspace.h"
-#include "thread.h"
-#endif
-
-
 void StartUserThread(int f);
-extern int do_UserThreadCreate(int f, int arg);
+
+int do_UserThreadCreate(int f, int arg);
 void do_UserThreadExit();
+int do_UserThreadJoin();
 
 #endif

@@ -38,6 +38,8 @@ Thread::Thread (const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    joinSemaphore = new Semaphore("join thread", 0);
+
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
@@ -163,6 +165,10 @@ Thread::Finish ()
     // is ever lost
     ASSERT (threadToBeDestroyed == NULL);
     // End of addition
+
+    // Notify threads joining on this
+    DEBUG('t', "Thread %s alert for join\n", getName());
+    joinSemaphore->V();
 
     threadToBeDestroyed = currentThread;
     Sleep ();			// invokes SWITCH
@@ -367,6 +373,18 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     machineState[InitialPCState] = (int) func;
     machineState[InitialArgState] = arg;
     machineState[WhenDonePCState] = (int) ThreadFinish;
+}
+
+/**
+ * Join on this specific thread using semaphore.
+ *
+ * As pthread_join, If multiple threads simultaneously try to join with the same
+ * thread, the results are undefined.
+ **/
+void Thread::Join(Thread* who)
+{
+    DEBUG('t', "%s joining on %s\n", who->getName(), this->getName());
+    joinSemaphore->P();
 }
 
 #ifdef USER_PROGRAM

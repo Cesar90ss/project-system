@@ -39,6 +39,7 @@
 
 #include "copyright.h"
 #include "utility.h"
+#include "synch.h"
 
 #ifdef USER_PROGRAM
 #include "machine.h"
@@ -97,20 +98,21 @@ class Thread
     void Sleep ();		// Put the thread to sleep and
     // relinquish the processor
     void Finish ();		// The thread is done executing
+    void Join(Thread* who);     // Join on this thread for termination
 
     void CheckOverflow ();	// Check if thread has
     // overflowed its stack
     void setStatus (ThreadStatus st)
     {
-	status = st;
+    status = st;
     }
     const char *getName ()
     {
-	return (name);
+    return (name);
     }
     void Print ()
     {
-	printf ("%s, ", name);
+    printf ("%s, ", name);
     }
 
   private:
@@ -121,6 +123,7 @@ class Thread
     // (If NULL, don't deallocate stack)
     ThreadStatus status;	// ready, running or blocked
     const char *name;
+    Semaphore *joinSemaphore;
 
     void StackAllocate (VoidFunctionPtr func, int arg);
     // Allocate a stack for thread.
@@ -131,7 +134,7 @@ class Thread
 // one for its state while executing user code, one for its state
 // while executing kernel code.
 
-    
+
 
   public:
     int userRegisters[NumTotalRegs];	// user-level CPU register state, need to be able to modify it
