@@ -1,0 +1,1 @@
+With two threads, using get string on 10 char with long string. Should not be mixed up.
