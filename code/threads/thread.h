@@ -124,6 +124,7 @@ class Thread
     ThreadStatus status;	// ready, running or blocked
     const char *name;
     Semaphore *joinSemaphore;
+    Thread *joinerThread;
 
     void StackAllocate (VoidFunctionPtr func, int arg);
     // Allocate a stack for thread.
@@ -146,9 +147,12 @@ class Thread
 
     unsigned int GetTid();
     void SetTid(unsigned int id);
+    int GetUserReturn();
+    void SetUserReturn(int ret);
 
   private:
     unsigned int tid;
+    int userReturn;
 #endif
 };
 

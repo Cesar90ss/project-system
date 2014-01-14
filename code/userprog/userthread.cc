@@ -71,6 +71,7 @@ int do_UserThreadCreate(int f, int arg)
 
 void do_UserThreadExit()
 {
+    currentThread->SetUserReturn(machine->ReadRegister(4));
     currentThread->Finish();
 }
 
@@ -80,7 +81,7 @@ int do_UserThreadJoin()
     int tid = machine->ReadRegister(4);
 
     // Get return @ for exit code
-    // int retval = machine->ReadRegister(5);
+    int retval = machine->ReadRegister(5);
 
     // Find thread with this id
     Thread* target = currentThread->space->GetThreadById(tid);
@@ -89,6 +90,11 @@ int do_UserThreadJoin()
 
     // Semaphore are interruptible, can join here
     target->Join(currentThread);
+
+    // Fill retval with return value if not null
+    DEBUG('t', "Thread exit with return %d for address %d\n", currentThread->GetUserReturn(), retval);
+    if (retval != 0)
+        machine->WriteMem(retval, 4, currentThread->GetUserReturn());
 
     return 0;
 }

@@ -5,7 +5,7 @@ void fun(void* arg)
 	PutString("Child start\n");
 	PutInt(*(int*)arg);
 	PutString("\nChild finish\n");
-	UserThreadExit();
+	UserThreadExit(0);
 }
 
 int main()

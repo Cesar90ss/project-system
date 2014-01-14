@@ -165,12 +165,9 @@ void switch_UserThreadJoin()
 //----------------------//
 void switch_UserThreadExit()
 {
-    //TODO
-    //must be synchronous to modifiy the children number and the state of the parent
-    //decrease the children number of the parent
-    //if children==0 set the parent to readyToRun, the scheduler can now restart this thread
     do_UserThreadExit();
 }
+
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler

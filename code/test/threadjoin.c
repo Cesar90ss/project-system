@@ -11,7 +11,7 @@ void fun(void* arg)
 	for(j=0; j< *i; j++);
 
     PutString("Ending thread\n");
-    UserThreadExit();
+    UserThreadExit(0);
 }
 
 int main()

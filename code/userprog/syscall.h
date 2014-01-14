@@ -167,7 +167,7 @@ int GetInt();
 
 //TODO document this !
 int UserThreadCreate(void f(void *arg), void *arg);
-void UserThreadExit();
+void UserThreadExit(void *ret);
 int UserThreadJoin(int tid, void **retval);
 
 #endif // IN_USER_MODE

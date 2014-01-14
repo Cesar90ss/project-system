@@ -9,7 +9,7 @@ void fun(void* arg)
 	int *i = (int*) arg;
 	int j;
 	for(j=0; j< *i; j++);
-	UserThreadExit();
+	UserThreadExit(0);
 }
 
 int main()
