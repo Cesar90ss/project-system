@@ -6,16 +6,17 @@
 
 void fun(void* arg)
 {
-	int i = 0;
-	for(i=0; i< 1000000; i++);
 	PutInt(7);
 	UserThreadExit();
 }
 
 int main()
 {
-	
+    int i;
+
 	UserThreadCreate(&fun, 0);
 	PutInt(5);
+    for (i = 1; i < 10000; i++);
+
 	return 0;
 }
