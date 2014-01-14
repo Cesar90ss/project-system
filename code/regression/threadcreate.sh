@@ -6,7 +6,7 @@ cd $NACHOS_DIR
 RESULT_STRING="NewThread"
 
 
-OUTPUT=$( ./nachos-step3  -rs2 -d m -x threadcreate| grep -P $RESULT_STRING)
+OUTPUT=$( ./nachos-step3 -rs 2 -d m -x threadcreate| grep -P $RESULT_STRING)
 
 if [ -n "$OUTPUT" ]; then
     exit 0
