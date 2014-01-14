@@ -2,16 +2,19 @@
 
 void fun(void* arg)
 {
-	int i;
-	for(i=0;i<10000;i++);
-	PutString("Child finish\n");
+	PutString("Child\n");
 	UserThreadExit();
 }
 
 int main()
 {
 	PutString("Parent start\n");
-	UserThreadJoin(UserThreadCreate(&fun, 0));
+	int i;
+	for(i=0;i<10;i++)
+	{
+		UserThreadCreate(&fun, 0);
+	}
+	for(i=0;i<10000;i++);
 	PutString("Parent finish\n");
 	return 0;
 }
