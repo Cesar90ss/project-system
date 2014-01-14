@@ -32,13 +32,17 @@
 #define SC_Yield		10
 #define SC_PutChar		11
 #define SC_GetChar		12
-#define SC_PutString	13
-#define SC_GetString	14
+#define SC_PutString		13
+#define SC_GetString		14
 #define SC_GetInt		15
 #define SC_PutInt		16
 #define SC_UserThreadCreate	17
 #define SC_UserThreadExit	18
 #define SC_UserThreadJoin	19
+#define SC_UserSemaphoreCreate	20
+#define SC_UserSemaphoreP	21
+#define SC_UserSemaphoreV	22
+#define SC_UserSemaphoreDestroy	23
 
 #ifdef IN_USER_MODE
 
@@ -169,6 +173,12 @@ int GetInt();
 int UserThreadCreate(void f(void *arg), void *arg);
 void UserThreadExit(void *ret);
 int UserThreadJoin(int tid, void **retval);
+
+//TODO document this also	!
+int UserSemaphoreCreate(char* name, int value); //create semaphore in the user level
+void UserSemaphoreP(int id); 			//Semaphore to lock the thread
+void UserSemaphoreV(int id); 			//Semaphore to unlock the thread
+void UserSemaphoreDestroy(int id);		//To destroy the semaphore syscall
 
 #endif // IN_USER_MODE
 

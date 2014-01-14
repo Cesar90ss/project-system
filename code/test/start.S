@@ -200,7 +200,39 @@ UserThreadJoin:
     syscall
     j	$31
     .end UserThreadJoin
+    
+    .globl UserSemaphoreCreate
+    .ent	UserSemaphoreCreate
+UserSemaphoreCreate:
+    addiu $2,$0,SC_UserSemaphoreCreate
+    syscall
+    j	$31
+    .end UserSemaphoreCreate
 /* ----------------------*/
+    .globl UserSemaphoreP
+    .ent	UserSemaphoreP
+UserSemaphoreP:
+    addiu $2,$0,SC_UserSemaphoreP
+    syscall
+    j	$31
+    .end UserSemaphoreP
+/* ----------------------*/
+    .globl UserSemaphoreV
+    .ent	UserSemaphoreV
+UserSemaphoreV:
+    addiu $2,$0,SC_UserSemaphoreV
+    syscall
+    j	$31
+    .end UserSemaphoreV
+ 
+    .globl UserSemaphoreDestroy
+    .ent	UserSemaphoreDestroy
+UserSemaphoreDestroy:
+    addiu $2,$0,SC_UserSemaphoreDestroy
+    syscall
+    j	$31
+    .end UserSemaphoreDestroy
+    /* ----------------------*/
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main

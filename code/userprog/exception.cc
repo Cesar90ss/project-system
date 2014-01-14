@@ -168,6 +168,42 @@ void switch_UserThreadExit()
     do_UserThreadExit();
 }
 
+
+void switch_UserSemaphoreCreate()
+{
+	int from = machine->ReadRegister(4);
+	int value =  machine->ReadRegister(5);
+	char* name = new char[MAX_STRING_SIZE + 1];
+	int really_write = copyStringFromMachine(from,name,MAX_STRING_SIZE);
+	name[really_write] = '\0';
+	DEBUG('a', "Semaphore %s\n", name);
+	Semaphore *semaphore= new Semaphore(name,value);
+	machine->WriteRegister(2,(int)semaphore);
+	
+	delete [] name; 
+}
+
+void switch_UserSemaphoreP()
+{
+	Semaphore *semaphore= (Semaphore*)machine->ReadRegister(4);
+	semaphore->P();
+}
+
+void switch_UserSemaphoreV()
+{
+	Semaphore *semaphore= (Semaphore*)machine->ReadRegister(4);
+	semaphore->V();
+}
+
+void switch_UserSemaphoreDestroy()
+{
+	Semaphore *semaphore= (Semaphore*)machine->ReadRegister(4);
+	delete semaphore;
+}
+
+
+
+
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -262,7 +298,31 @@ ExceptionHandler (ExceptionType which)
                     switch_UserThreadExit();
                     break;
                 }
+
                 #endif
+
+                case SC_UserSemaphoreCreate:
+                {
+					switch_UserSemaphoreCreate();
+					break;
+                }
+                case SC_UserSemaphoreP:
+                {
+					switch_UserSemaphoreP();
+					break;
+                }
+                case SC_UserSemaphoreV:
+                {
+					switch_UserSemaphoreV();
+					break;
+                }
+                case SC_UserSemaphoreDestroy:
+                {
+					switch_UserSemaphoreDestroy();
+					break;
+                }
+				#endif
+>>>>>>> Create the Semaphore System calls (create,P,V,Destroy) compiled success...
                 default:
                 {
                     printf ("Unexpected syscall type %d\n", type);
