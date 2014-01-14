@@ -22,6 +22,7 @@ Statistics::Statistics()
     numDiskReads = numDiskWrites = 0;
     numConsoleCharsRead = numConsoleCharsWritten = 0;
     numPageFaults = numPacketsSent = numPacketsRecvd = 0;
+    totalThreads = 0;
 }
 
 //----------------------------------------------------------------------
@@ -46,4 +47,5 @@ Statistics::Print()
     printf("Paging: faults %d\n", numPageFaults);
     printf("Network I/O: packets received %d, sent %d\n", numPacketsRecvd,
 	numPacketsSent);
+    printf("Total thread actually running at end %d\n", totalThreads);
 }

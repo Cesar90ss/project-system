@@ -57,14 +57,12 @@ void switch_Exit()
     DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
     // Stop current thread
     AddrSpace::nbProcess --;
-    if ( AddrSpace::nbProcess == 0 )
-    {
-        interrupt->Halt ();
-    }
-    else
-    {
-        currentThread->Finish();
-    }
+
+    // Get all threads inside @space && finished it
+    currentThread->space->KillAllThreads();
+
+    if (AddrSpace::nbProcess == 0)
+        interrupt->Halt();
 }
 //----------------------//
 #ifdef USER_PROGRAM

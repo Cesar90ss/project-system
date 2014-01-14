@@ -1,0 +1,1 @@
+When process call exit, all children should killed.

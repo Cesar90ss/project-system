@@ -45,6 +45,7 @@ class AddrSpace
     void AttachThread(Thread *child);
     void DetachThread(Thread *child);
     Thread *GetThreadById(unsigned int tid);
+    void KillAllThreads();      // Kill all threads inside current @ space
 
     static unsigned int nbProcess;
   private:

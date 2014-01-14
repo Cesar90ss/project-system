@@ -247,6 +247,28 @@ std::map<unsigned int, Thread*> AddrSpace::GetThreads()
 }
 
 /**
+ * Mark all thread as finished when exit
+ **/
+void AddrSpace::KillAllThreads()
+{
+    std::map<unsigned int, Thread*>::iterator elem;
+    Thread *t;
+
+    // Each thread will call DetachThread, so compute iterator begin each time
+    while (threads.size() >= 2)
+    {
+        elem = threads.begin();
+        t = elem->second;
+
+        // Not the current as we need it for last context switch
+        if (t == currentThread)
+            t = (++elem)->second;
+
+        delete t;
+    }
+}
+
+/**
  * Suppose not inside threads
  **/
 void AddrSpace::AttachThread(Thread *child)

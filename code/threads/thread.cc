@@ -40,6 +40,8 @@ Thread::Thread (const char *threadName)
     status = JUST_CREATED;
     joinSemaphore = new Semaphore("join thread", 0);
 
+    stats->totalThreads++;
+
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
@@ -69,6 +71,7 @@ Thread::~Thread ()
     if (space != NULL)
         space->DetachThread(this);
 #endif
+    stats->totalThreads--;
 }
 
 //----------------------------------------------------------------------
@@ -173,7 +176,8 @@ Thread::Finish ()
 #ifdef USER_PROGRAM
     // Set user ret of joinner thread
     // Need to do this because this thread may not be available when other thread will be scheduled
-    joinerThread->SetUserReturn(this->GetUserReturn());
+    if (joinerThread != NULL)
+        joinerThread->SetUserReturn(this->GetUserReturn());
 #endif
 
     threadToBeDestroyed = currentThread;
