@@ -326,10 +326,43 @@ ExceptionHandler (ExceptionType which)
             }
             break;
         }
-        /**
-         * TODO : handle other type of exception
-         **/
-        default:
+        case PageFaultException:
+		{
+			// No valid translation found
+			printf("Page fault exception %d %d\n", which, type);
+			break;
+		}
+		case ReadOnlyException:
+		{
+			// Write attempted to page marked "read-only"
+			printf("Read Only exception %d %d\n", which, type);
+			break;
+		}
+		case BusErrorException:
+		{
+			// Translation resulted in an invalid physical address
+			printf("Bus error exception %d %d\n", which, type);
+			break;
+		}
+		case AddressErrorException:
+		{
+			// Unaligned reference or one that was beyond the end of the address space
+			printf("Address error exception %d %d\n", which, type);
+			break;
+		}
+		case OverflowException:
+		{
+			// Integer overflow in add or sub.
+			printf("Overflow exception %d %d\n", which, type);
+			break;
+		}
+		case IllegalInstrException:
+		{
+			// Unimplemented or reserved instr.
+			printf("Illegal instruction exception %d %d\n", which, type);
+			break;
+		}
+		default:
         {
             printf ("Unexpected user mode exception %d %d\n", which, type);
             ASSERT (FALSE);
