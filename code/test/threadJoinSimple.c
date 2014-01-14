@@ -4,14 +4,21 @@ void fun(void* arg)
 {
 	int i;
 	for(i=0;i<10000;i++);
-	PutString("Child finish\n");
 	UserThreadExit();
 }
 
 int main()
 {
 	PutString("Parent start\n");
-	UserThreadJoin(UserThreadCreate(&fun, 0));
+	int tid = UserThreadCreate(&fun, 0);
+	if(UserThreadJoin(tid, 0) == -1)
+	{
+		PutString("joined failed !\n");
+	}
+	else
+	{
+		PutString("joined successful\n");
+	}
 	PutString("Parent finish\n");
 	return 0;
 }
