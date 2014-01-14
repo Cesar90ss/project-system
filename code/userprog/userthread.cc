@@ -56,11 +56,12 @@ int do_UserThreadCreate(int f, int arg)
     int stack = currentThread->space->GetNewUserStack();
     if(stack == -1)
         return -1;
+
     t->userRegisters[StackReg]=stack;
     t->userStack=stack;
     printf("value of stack : %d\n",stack); // TODO :To be removed, just to see if function address is coherent
 
-    t->Fork(StartUserThread,(int)uf);
+    t->Fork(StartUserThread, (int)uf);
 
     (void) interrupt->SetLevel (oldLevel);
     return t->GetTid();

@@ -74,8 +74,9 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0)
 
 // how big is address space?
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize;	// we need to increase the size
-    // to leave room for the stack
-    numPages = divRoundUp (size, PageSize);
+
+    // For now take all memory (uni-process). Virtual memory will handle this later
+    numPages = NumPhysPages;//divRoundUp (size, PageSize);
     size = numPages * PageSize;
 
     ASSERT (numPages <= NumPhysPages);	// check we're not trying

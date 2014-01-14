@@ -21,8 +21,8 @@
 #include "system.h"
 
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
-					// execution stack, for detecting
-					// stack overflows
+                    // execution stack, for detecting
+                    // stack overflows
 
 //----------------------------------------------------------------------
 // Thread::Thread
@@ -61,7 +61,7 @@ Thread::~Thread ()
 
     ASSERT (this != currentThread);
     if (stack != NULL)
-	DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
+    DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
 
 #ifdef USER_PROGRAM
     if (space != NULL)
@@ -93,7 +93,7 @@ void
 Thread::Fork (VoidFunctionPtr func, int arg)
 {
     DEBUG ('t', "Forking thread \"%s\" with func = 0x%x, arg = %d\n",
-	   name, (int) func, arg);
+       name, (int) func, arg);
 
     StackAllocate (func, arg);
 
@@ -129,9 +129,9 @@ Thread::CheckOverflow ()
 {
     if (stack != NULL)
 #ifdef HOST_SNAKE		// Stacks grow upward on the Snakes
-	ASSERT (stack[StackSize - 1] == STACK_FENCEPOST);
+    ASSERT (stack[StackSize - 1] == STACK_FENCEPOST);
 #else
-	ASSERT (*stack == (int) STACK_FENCEPOST);
+    ASSERT (*stack == (int) STACK_FENCEPOST);
 #endif
 }
 
@@ -200,8 +200,8 @@ Thread::Yield ()
     nextThread = scheduler->FindNextToRun ();
     if (nextThread != NULL)
       {
-	  scheduler->ReadyToRun (this);
-	  scheduler->Run (nextThread);
+      scheduler->ReadyToRun (this);
+      scheduler->Run (nextThread);
       }
     (void) interrupt->SetLevel (oldLevel);
 }
@@ -237,7 +237,7 @@ Thread::Sleep ()
 
     status = BLOCKED;
     while ((nextThread = scheduler->FindNextToRun ()) == NULL)
-	interrupt->Idle ();	// no one to run, wait for an interrupt
+    interrupt->Idle ();	// no one to run, wait for an interrupt
 
     scheduler->Run (nextThread);	// returns when we've been signalled
 }
@@ -339,7 +339,7 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     stack[StackSize - 1] = STACK_FENCEPOST;
 #else
     // i386 & MIPS & SPARC stack works from high addresses to low addresses
-    
+
   #ifdef HOST_SPARC
       // SPARC stack must contains at least 1 activation record to start with.
       stackTop = stack + StackSize - 96;
@@ -367,7 +367,7 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     machineState[InitialPCState] = (int) func;
     machineState[InitialArgState] = arg;
     machineState[WhenDonePCState] = (int) ThreadFinish;
-}		
+}
 
 #ifdef USER_PROGRAM
 #include "machine.h"
@@ -385,7 +385,7 @@ void
 Thread::SaveUserState ()
 {
     for (int i = 0; i < NumTotalRegs; i++)
-	userRegisters[i] = machine->ReadRegister (i);
+    userRegisters[i] = machine->ReadRegister (i);
 }
 
 //----------------------------------------------------------------------
@@ -401,7 +401,7 @@ void
 Thread::RestoreUserState ()
 {
     for (int i = 0; i < NumTotalRegs; i++)
-	machine->WriteRegister (i, userRegisters[i]);
+    machine->WriteRegister (i, userRegisters[i]);
 }
 
 unsigned int Thread::GetTid()
