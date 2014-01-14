@@ -42,8 +42,8 @@ class AddrSpace
 
     // Keep track of threads inside this @ space
     std::map<unsigned int, Thread*> GetThreads();
-    void AddThread(Thread *child);
-    void RemoveThread(Thread *child);
+    void AttachThread(Thread *child);
+    void DetachThread(Thread *child);
     Thread *GetThreadById(unsigned int tid);
 
     static unsigned int nbProcess;

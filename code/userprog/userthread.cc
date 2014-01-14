@@ -24,8 +24,8 @@
 //----------------------------------------------------------------------
 typedef struct
 {
-  int func;
-  int arg;
+    int func;
+    int arg;
 }userfunc;
 
 void StartUserThread(int f)
@@ -36,29 +36,32 @@ void StartUserThread(int f)
     machine->WriteRegister(4,uf->arg);	//put the arg to register 4
     printf("value of stack : %d\n",machine->ReadRegister(StackReg)); // TODO :To be removed, just to see if function address is coherent
     int * ptr = (int*) &machine->mainMemory[machine->ReadRegister(StackReg)];
-        printf("Value at stack bottom : %d\n", *ptr);
-		machine->Run();
+    printf("Value at stack bottom : %d\n", *ptr);
+    machine->Run();
     return;
 }
 
 int do_UserThreadCreate(int f, int arg)
 {
-    IntStatus oldLevel = interrupt->SetLevel (IntOff); 		//Block Interrupt to be atomic
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);      //Block Interrupt to be atomic
     Thread* t = new  Thread("NewThread");
     userfunc *uf = new userfunc;				//define the struct
-    
+
     uf->func=f;							//pack the function
-    uf->arg=arg;    						//pack the argument
-		t->space = currentThread -> space;
-    int stack = t->space->GetNewUserStack();
+    uf->arg=arg;                            //pack the argument
+
+    // Space will be attached to the new thread insinde Thread::Fork
+    // t->space = currentThread -> space;
+
+    int stack = currentThread->space->GetNewUserStack();
     if(stack == -1)
-      return -1;
+        return -1;
     t->userRegisters[StackReg]=stack;
     t->userStack=stack;
     printf("value of stack : %d\n",stack); // TODO :To be removed, just to see if function address is coherent
-    
-		t->Fork(StartUserThread,(int)uf);
-		
+
+    t->Fork(StartUserThread,(int)uf);
+
     (void) interrupt->SetLevel (oldLevel);
     return t->GetTid();
 }

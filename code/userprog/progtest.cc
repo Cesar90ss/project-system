@@ -33,7 +33,7 @@ StartProcess (char *filename)
         return;
     }
     space = new AddrSpace (executable);
-    currentThread->space = space;
+    space->AttachThread(currentThread);
 
     delete executable;		// close file
 

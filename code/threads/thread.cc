@@ -62,6 +62,11 @@ Thread::~Thread ()
     ASSERT (this != currentThread);
     if (stack != NULL)
 	DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
+
+#ifdef USER_PROGRAM
+    if (space != NULL)
+        space->DetachThread(this);
+#endif
 }
 
 //----------------------------------------------------------------------
@@ -93,14 +98,8 @@ Thread::Fork (VoidFunctionPtr func, int arg)
     StackAllocate (func, arg);
 
 #ifdef USER_PROGRAM
-
-    // LB: The addrspace should be tramsitted here, instead of later in
-    // StartProcess, so that the pageTable can be restored at
-    // launching time. This is crucial if the thread is launched with
-    // an already running program, as in the "fork" Unix system call.
-
-    // LB: Observe that currentThread->space may be NULL at that time.
-    this->space = currentThread->space;
+    // Attach thread to the adress space
+    currentThread->space->AttachThread(this);
 
 #endif // USER_PROGRAM
 

@@ -248,20 +248,22 @@ std::map<unsigned int, Thread*> AddrSpace::GetThreads()
 /**
  * Suppose not inside threads
  **/
-void AddrSpace::AddThread(Thread *child)
+void AddrSpace::AttachThread(Thread *child)
 {
     // Insert with new tid
     threads[max_tid++] = child;
     child->SetTid(max_tid - 1);
+    child->space = this;
 }
 
 /**
- * Suppose already inside threads 
+ * Suppose already inside threads
  **/
-void AddrSpace::RemoveThread(Thread *child)
+void AddrSpace::DetachThread(Thread *child)
 {
     // Erase it
     threads.erase(child->GetTid());
+    child->space = NULL;
 }
 
 /**
