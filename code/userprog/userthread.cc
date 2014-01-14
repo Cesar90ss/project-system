@@ -33,6 +33,7 @@ void StartUserThread(int f)
     userfunc *uf = (userfunc*)f;
     machine->WriteRegister(PCReg,uf->func); //put the function to the PC register
     machine->WriteRegister(NextPCReg,uf->func+sizeof(int));
+    
     machine->WriteRegister(4,uf->arg);	//put the arg to register 4
     DEBUG('a', "value of stack : %d\n",machine->ReadRegister(StackReg));
     int * ptr = (int*) &machine->mainMemory[machine->ReadRegister(StackReg)];
