@@ -18,7 +18,8 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
     SynchConsole_readAvail = new Semaphore("SynchConsole_read avail", 0);
     SynchConsole_writeDone = new Semaphore("SynchConsole_write done", 0);
     console = new Console(readFile, writeFile, SynchConsole_ReadAvail, SynchConsole_WriteDone, 0);
-    monitor = new Semaphore("SynchConsole internal monitor", 1);
+    monitorRead = new Semaphore("SynchConsole read internal monitor", 1);
+    monitorWrite = new Semaphore("SynchConsole write internal monitor", 1);
 }
 
 SynchConsole::~SynchConsole()
@@ -26,7 +27,8 @@ SynchConsole::~SynchConsole()
     delete console;
     delete SynchConsole_writeDone;
     delete SynchConsole_readAvail;
-    delete monitor;
+    delete monitorRead;
+    delete monitorWrite;
 }
 
 
@@ -39,9 +41,9 @@ void SynchConsole::__PutChar(const char ch)
 
 void SynchConsole::SynchPutChar(const char ch)
 {
-    monitor->P();
+    monitorWrite->P();
     __PutChar(ch);
-    monitor->V();
+    monitorWrite->V();
 }
 
 int SynchConsole::__GetChar()
@@ -53,27 +55,27 @@ int SynchConsole::__GetChar()
 
 int SynchConsole::SynchGetChar()
 {
-    monitor->P();
+    monitorRead->P();
     int res = __GetChar();
-    monitor->V();
+    monitorRead->V();
     return res;
 }
 
 void SynchConsole::SynchPutString(const char s[])
 {
-    monitor->P();
+    monitorWrite->P();
 
     int i = 0;
     //simulate strlen
     while (s[i] != '\0')
         __PutChar(s[i++]);
 
-    monitor->V();
+    monitorWrite->V();
 }
 
 char *SynchConsole::SynchGetString(char *s, int n)
 {
-    monitor->P();
+    monitorRead->P();
 
     int i;
 
@@ -84,14 +86,14 @@ char *SynchConsole::SynchGetString(char *s, int n)
         if (console->isEOF())
         {
             s[i] = '\0';
-            monitor->V();
+            monitorRead->V();
             return i == 0 ? NULL : s;
         }
     }
 
     //add end of string
     s[i] = '\0';
-    monitor->V();
+    monitorRead->V();
     return s;
 }
 
@@ -106,7 +108,7 @@ void SynchConsole::SynchPutInt(int i)
 
 int SynchConsole::SynchGetInt(int* p)
 {
-    monitor->P();
+    monitorRead->P();
 
     int res = __GetChar();
     char c;
@@ -115,7 +117,7 @@ int SynchConsole::SynchGetInt(int* p)
 
     if(res == EOF)
     {
-        monitor->V();
+        monitorRead->V();
         return EOF;
     }
 
@@ -132,6 +134,6 @@ int SynchConsole::SynchGetInt(int* p)
     buf[count] = '\0';
 
     int ret = sscanf(buf, "%d", p);
-    monitor->V();
+    monitorRead->V();
     return ret;
 }

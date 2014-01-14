@@ -10,7 +10,7 @@ class SynchConsole {
   public:
     SynchConsole(char *readFile, char *writeFile);	// initialize the hardware console device
     ~SynchConsole();	// clean up console emulation
-    void SynchPutChar(const char ch);	// Unix putchar(3S) 
+    void SynchPutChar(const char ch);	// Unix putchar(3S)
     int SynchGetChar();	// Unix getchar(3S)
     void SynchPutString(const char *s);	// Unix puts(3S)
     char *SynchGetString(char *s, int n);	// Unix fgets(3S)
@@ -20,7 +20,8 @@ class SynchConsole {
   private:
     void __PutChar(const char ch);
     int __GetChar();
-    Semaphore *monitor;
+    Semaphore *monitorRead;
+    Semaphore *monitorWrite;
   private:
     Console *console;
 };
