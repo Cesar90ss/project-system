@@ -6,7 +6,7 @@ void fun(void* arg)
 	int i;
 	for(i=0;i<10000;i++);
 	PutString("Child finish\n");
-	UserThreadExit();
+	UserThreadExit(0);
 }
 
 int main()

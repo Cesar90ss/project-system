@@ -4,7 +4,7 @@ void fun(void* arg)
 {
 	int i;
 	for(i=0;i<10000;i++);
-	UserThreadExit();
+	UserThreadExit(0);
 }
 
 int main()
