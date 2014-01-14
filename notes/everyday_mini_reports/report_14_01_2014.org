@@ -1,0 +1,8 @@
+- Fixed the code to startup threads (still need some debug)
+
+- Starting to create some TEST FOR REGRESSION : 
+    - thread create : bad adress function
+    - thread create : find more test
+    - exit : 2 cases, simple and multithread
+    - threadJoin : simple and multithread
+    (- thread return : what happens in case of return before the end of the others threads)
