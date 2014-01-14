@@ -14,7 +14,7 @@ void fun(void* arg)
 
 int main()
 {
-	int arg = 100000;
+	int arg = 1000;
 	UserThreadCreate(&fun, &arg);
 	PutString("GoodBye ");
 	return 0;
