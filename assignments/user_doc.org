@@ -47,7 +47,6 @@
 	GetInt is the function that read an int from the input buffer to the p pointer adress.
 	Return 0 when everything is ok, -1 when the input cannot be read as an int
 	and -2 when the adress p cannot be wroten by the caller.
-
 	
 *** NAME 
 	PutString
@@ -64,3 +63,52 @@
     DESCRIPTION
 	It reads at most n character in the console. return s if there is no error 
 	otherwise it will return NULL if there is error or EOF.
+	
+*** NAME 
+	UserThreadCreate
+    SYNOPSIS
+	int UserThreadCreate(void f(void *arg), void *arg)
+    DESCRIPTION
+	This function create a new thread, executing the function f with the argument arg 
+	
+*** NAME 
+	UserThreadExit
+    SYNOPSIS
+	void UserThreadExit(void *ret)
+    DESCRIPTION
+	This function use to destroy the thread and puts the return value in ret
+	
+*** NAME 
+	UserThreadJoin
+    SYNOPSIS
+	int UserThreadJoin(int tid, void **retval)
+    DESCRIPTION
+	This function use to join childs threads 
+	
+*** NAME 
+	UserSemaphoreCreate
+    SYNOPSIS
+	int UserSemaphoreCreate(char* name, int value)
+    DESCRIPTION
+	Initialize and return a semaphore with tha nama "name" and initial value "value"
+	
+*** NAME 
+	UserSemaphoreP
+    SYNOPSIS
+	void UserSemaphoreP(int id)
+    DESCRIPTION
+	Takes the lock on the semaphore pointed by id
+
+*** NAME 
+	UserSemaphoreV
+    SYNOPSIS
+	void UserSemaphoreV(int id)
+    DESCRIPTION
+	Release the lock (unlock) the semaphore pointed by id
+
+*** NAME 
+	UserSemaphoreDestroy
+    SYNOPSIS
+	void UserSemaphoreDestroy(int id)
+    DESCRIPTION
+	Destroy the semaphore pointed by id
