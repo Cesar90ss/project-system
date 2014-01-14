@@ -4,5 +4,17 @@
     - thread create : bad adress function
     - thread create : find more test
     - exit : 2 cases, simple and multithread
-    - threadJoin : simple and multithread
-    (- thread return : what happens in case of return before the end of the others threads)
+    - threadJoin : simple and multithread (- thread return : what happens in
+      case of return before the end of the others threads)
+
+- A bit more documentation have been made : threads & semaphore syscalls.
+
+---- STILL TODO ----
+- We still need to add a test about recursive threads.
+- Semaphore test (producer & consumer) isnt finished.
+- Finish sh and desc for all tests we made.
+- What about parent exit : made or not? --> still need to make tests about it.
+- Question : console is protected for one thread, what about 2 threads : 
+    - use 2 semaphores : one to read and one to write in order to not block all
+      writing threads during reading.
+--------------------
