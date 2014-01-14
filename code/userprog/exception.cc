@@ -299,8 +299,6 @@ ExceptionHandler (ExceptionType which)
                     break;
                 }
 
-                #endif
-
                 case SC_UserSemaphoreCreate:
                 {
 					switch_UserSemaphoreCreate();
@@ -322,7 +320,6 @@ ExceptionHandler (ExceptionType which)
 					break;
                 }
 				#endif
->>>>>>> Create the Semaphore System calls (create,P,V,Destroy) compiled success...
                 default:
                 {
                     printf ("Unexpected syscall type %d\n", type);
