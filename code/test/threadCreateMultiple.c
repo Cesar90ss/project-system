@@ -3,7 +3,7 @@
 void fun(void* arg)
 {
 	PutString("Child\n");
-	UserThreadExit();
+	UserThreadExit(0);
 }
 
 int main()
