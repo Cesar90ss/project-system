@@ -1,1 +1,3 @@
-This test use to ensure that thread creation is succeed and complete it with allocation of stack and register
+This test ensure the following :
+    - We can create one or more thread
+    - The function UserThreadExit really exit a thread
