@@ -1,0 +1,1 @@
+Try to join twice on the same thread. Second time should raise error.
