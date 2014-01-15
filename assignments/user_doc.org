@@ -1,3 +1,4 @@
+
 * User Documentation
 
 ** Syscalls :
@@ -69,7 +70,8 @@
     SYNOPSIS
     int UserThreadCreate(void f(void *arg), void *arg)
     DESCRIPTION
-    This function create a new thread, executing the function f with the argument arg
+    This function create a new thread, executing the function f with the argument arg.
+    Return 0 on success, -1 if no space left
 
 *** NAME
     UserThreadExit
@@ -84,6 +86,8 @@
     int UserThreadJoin(int tid, void **retval)
     DESCRIPTION
     This function use to join childs threads
+    Return -1 if bad tid & -2 if another thread is already joining on thread tid.
+    Return 0 on success.
 
 *** NAME
     UserSemaphoreCreate
