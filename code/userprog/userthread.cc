@@ -59,7 +59,7 @@ int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
     // t->space = currentThread -> space;
 
     int stack = currentThread->space->GetNewUserStack();
-    if(stack == -1)
+    if(stack == 0)
         return -1;
 
     t->userRegisters[StackReg]=stack;

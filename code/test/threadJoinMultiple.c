@@ -1,14 +1,14 @@
 #include "syscall.h"
-#define NB_THREADS 3
+#define NB_THREADS 12
 
 void* fun()
 {
-	int i;
-	for(i=0; i<2;i ++)
-    {
-        PutInt(i);
-    }
-	return 0;
+  int i;
+  for(i=0; i<2;i ++)
+  {
+    PutInt(i);
+  }
+  return 0;
 }
 
 int main()
