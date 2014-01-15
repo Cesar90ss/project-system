@@ -5,7 +5,7 @@ cd $NACHOS_DIR
 
 RESULT_STRING="We are in the child thread We are in the first thread We are in the main thread"
 
-OUTPUT=$(./nachos-step3 -x test_recursive_threads | grep "$RESULT_STRING")
+OUTPUT=$(./nachos-step3 -rs 2  -x test_recursive_threads | grep "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
 	exit 0

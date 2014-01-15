@@ -26,5 +26,6 @@ int main()
   UserThreadJoin(UserThreadCreate(&thread1, NULL),NULL);
   PutString("We are in the main thread");
   PutChar(' ');
+  UserThreadExit(0);
   return 0;
 }
