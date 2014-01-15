@@ -1,0 +1,56 @@
+* Step 3 : answer to questions & notes
+  A Nachos thread is created either when application start (a process have one
+  thread per default) or when user program use syscall UserThreadCreate. A
+  thread share the same address space as his process. Stack & Registers are
+  specifics to thread.
+
+  User threads are implemented using kernel thread. One user thread for one user
+  kernel. This allows kernel to manage scheduling & resources as well as threads
+  operations.
+
+  A Nachos kernel thread is seen as a UNIX user-level thread. Nachos handle
+  scheduling & switch between kernel threads, unlike GNU pthread
+  implementation. Thus, a nachos kernel thread as well as a user thread can't
+  take advantage of parallelism inside computer (e.g:
+  multi-processors). However, user thread can be preempted randomly using the
+  "-rs seed" flag, allowing to test concurrency and synchronization problems.
+
+  As Nachos handle kernel thread scheduling, switching from one kernel thread to
+  another may switch user thread also (the one which is handle by the kernel
+  thread).
+
+  Concerning stacks management, the first kernel thread (created at Nachos
+  start) use the UNIX-process stack. Other kernel threads use heap-allocated
+  stack. For user thread, each thread as his own stack, from bottom of the
+  memory up to the top. All user thread stacks are handled inside StackMgr
+  class. If UserThreadCreate is called and no space for stack is available, the
+  function return -1.
+
+  A word about thread hierarchy. There is none. This mean that every thread
+  belongs to a process. A thread can create other threads but the behavior (e.g
+  exit) does not influence others.
+
+  A user thread can exit in two way. Either in calling UserThreadExit(void *ret)
+  where ret is a generic pointer to the returned data, or returning from the
+  thread function (also a generic pointer). One exception is for the first
+  thread (the one with the main function). As pthread implementation, calling
+  UserThreadExit with main thread let other threads finish. After the last
+  thread end, it will exit the process.
+
+  As threads are light-weight processes, calling Exit in any threads kill the
+  process with all threads belonging to it. This is the same if the main thread
+  reach the return of the main function. It will implicitly call Exit. Thus does
+  not wait for threads termination.
+
+  UserThreadJoin(unsigned int tid, void **retval) allows one thread to wait for
+  another. Inside retval (if not NULL) you can get the value return either by
+  UserThreadExit or by the return value of thread function. If that thread has
+  already terminated, then UserThreadExit returns immediately. If multiple
+  threads simultaneously try to join with the same thread, only the first one
+  will be able to join on it. For others, syscall will return error code -2.
+
+  About semaphores, they are now available to user program using
+  UserSemaphoreCreate syscall. This return a semaphore id process-specific. To
+  wait for resource being available, UserSemaphoreP is here. To notify
+  resource availability, it's UserSemaphoreV. Finally, UserSemaphoreDestroy
+  destroy a semaphore. All semaphores are destroyed at the end of a process.
