@@ -1,0 +1,1 @@
+Test if join is successfull and if the main thread is really waiting for the child to finish. (handling multiple threads)
