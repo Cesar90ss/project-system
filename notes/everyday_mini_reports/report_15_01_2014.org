@@ -16,12 +16,13 @@
 ---- TODO LIST ----
 - Add some regression test about stack (with current Address space we should be
   able to add only 12 threads).
+- Fix all missing .desc & .sh in regression test.
+
+- Read part 4 assignement.
 
 - Planning for next week (more or less) + explanation about how we decided to
   organize our work.
 
 - User documentation until threads.
-
-- Read part 4 assignement.
 -------------------
 
