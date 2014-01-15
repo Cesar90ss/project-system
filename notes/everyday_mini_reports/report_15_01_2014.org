@@ -1,0 +1,27 @@
+---- TODO LIST FROM 14/01----
+- (DONE) Semaphore test (producer & consumer) isnt finished.
+
+- (DONE nothing to do) What about parent exit : made or not? --> still need to make tests about it.
+    --> Nothing to implement : all threads are linked to a process, there is no hierarchy notion between threads!
+
+- (DONE) Question : console is protected for one thread, what about 2 threads : 
+    - use 2 semaphores : one to read and one to write in order to not block all
+      writing threads during reading.
+
+- We still need to add a test about "recursive threads". (?)
+
+- (DONE) Finish sh and desc for all tests we made.
+--------------------
+
+---- TODO LIST ----
+- Add some regression test about stack (with current Address space we should be
+  able to add only 12 threads).
+
+- Planning for next week (more or less) + explanation about how we decided to
+  organize our work.
+
+- User documentation until threads.
+
+- Read part 4 assignement.
+-------------------
+
