@@ -1,0 +1,1 @@
+Parent can get return of thread using UserThreadExit inside another function.
