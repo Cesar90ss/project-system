@@ -137,6 +137,9 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0)
 #endif
 
     AddrSpace::nbProcess ++;
+
+	semaphore_list = NULL;
+	semaphore_counter = 0;
 }
 
 //----------------------------------------------------------------------
@@ -226,6 +229,103 @@ int AddrSpace::GetNewUserStack()
 #else
     return 0;
 #endif
+}
+
+/**
+ * Create a new semaphore named name and return the id of the semaphore
+ **/
+int AddrSpace::CreateSemaphore(char *name, int val)
+{
+	//create a new semaphore
+	sem_list new_sem = new struct slist;
+	new_sem->id = semaphore_counter;
+	new_sem->sem = new Semaphore(name,val);
+
+	//add it to the list
+	new_sem->next = semaphore_list;
+	semaphore_list = new_sem;
+	
+	//increment the id counter and return the id of the new semaphore
+	semaphore_counter++;
+	return new_sem->id;
+}
+
+/**
+ * Return -1 if this semaphore does not exist
+ **/
+int AddrSpace::SemaphoreP(int id)
+{
+	sem_list cursor = semaphore_list;
+	while(cursor!=NULL && cursor->id!=id)
+	{
+		cursor = cursor->next;
+	}
+
+	if(cursor == NULL)
+	{
+		//the semaphore doesn't exist
+		return -1;
+	}
+
+	cursor->sem->P();
+	return 0;
+}
+
+/**
+ * Return -1 if this semaphore does not exist
+ **/
+int AddrSpace::SemaphoreV(int id)
+{
+	sem_list cursor = semaphore_list;
+	while(cursor!=NULL && cursor->id!=id)
+	{
+		cursor = cursor->next;
+	}
+
+	if(cursor == NULL)
+	{
+		//the semaphore doesn't exist
+		return -1;
+	}
+
+	cursor->sem->V();
+	return 0;
+}
+
+/**
+ * Remove the corresponding semaphore from the list or return -1 if it doesn't exist
+ **/
+int AddrSpace::SemaphoreDestroy(int id)
+{
+	sem_list current = semaphore_list;
+	sem_list previous = NULL;
+
+	while(current!=NULL && current->id!=id)
+	{
+		previous = current;
+		current = current->next;
+	}
+
+	if(current == NULL)
+	{
+		//the semaphore doesn't exist
+		return -1;
+	}
+
+	if(previous == NULL)
+	{
+		semaphore_list = current->next;
+		delete current->sem;
+		delete current;
+	}
+	else
+	{
+		previous->next = current->next;
+		delete current->sem;
+		delete current;
+	}
+
+	return 0;
 }
 
 // Wrapper around StackMgr

@@ -165,43 +165,40 @@ void switch_UserThreadExit()
 {
     do_UserThreadExit();
 }
-
-
+//----------------------//
 void switch_UserSemaphoreCreate()
 {
 	int from = machine->ReadRegister(4);
 	int value =  machine->ReadRegister(5);
 	char* name = new char[MAX_STRING_SIZE + 1];
-	int really_write = copyStringFromMachine(from,name,MAX_STRING_SIZE);
-	name[really_write] = '\0';
-	DEBUG('a', "Semaphore %s\n", name);
-	Semaphore *semaphore= new Semaphore(name,value);
-	machine->WriteRegister(2,(int)semaphore);
+	int name_size = copyStringFromMachine(from,name,MAX_STRING_SIZE);
+	name[name_size] = '\0';
+	DEBUG('t', "Creation of semaphore %s\n", name);
+
+	//Semaphore *semaphore= new Semaphore(name,value);
+
+	//create a semaphore list in addrspace
 	
+	int semaphore_id = currentThread->space->CreateSemaphore(name,value);
+	
+	machine->WriteRegister(2,semaphore_id);
 	delete [] name; 
 }
-
+//----------------------//
 void switch_UserSemaphoreP()
 {
-	Semaphore *semaphore= (Semaphore*)machine->ReadRegister(4);
-	semaphore->P();
+	currentThread->space->SemaphoreP(machine->ReadRegister(4));
 }
-
+//----------------------//
 void switch_UserSemaphoreV()
 {
-	Semaphore *semaphore= (Semaphore*)machine->ReadRegister(4);
-	semaphore->V();
+	currentThread->space->SemaphoreV(machine->ReadRegister(4));
 }
-
+//----------------------//
 void switch_UserSemaphoreDestroy()
 {
-	Semaphore *semaphore= (Semaphore*)machine->ReadRegister(4);
-	delete semaphore;
+	currentThread->space->SemaphoreDestroy(machine->ReadRegister(4));
 }
-
-
-
-
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler

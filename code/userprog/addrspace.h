@@ -16,10 +16,18 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "stackmgr.h"
+#include "synch.h"
 
 #include <map>
 
 #define UserStackSize		1024	// increase this as necessary!
+
+typedef struct slist
+{
+	int id;
+	Semaphore *sem;
+	struct slist* next;
+} *sem_list;
 
 class Thread;
 class AddrSpace
@@ -35,6 +43,11 @@ class AddrSpace
 
     void SaveState ();		// Save/restore address space-specific
     void RestoreState ();	// info on a context switch
+
+	int CreateSemaphore(char *name, int val);
+	int SemaphoreP(int id);
+	int SemaphoreV(int id);
+	int SemaphoreDestroy(int id);
 
     // Wrappers around StackMgr
     int FreeUserStack(unsigned int addr);
@@ -57,6 +70,9 @@ class AddrSpace
     // Keep track of threads inside this @space
     std::map<unsigned int, Thread*> threads;
     unsigned int max_tid;
+
+	sem_list semaphore_list;
+	unsigned int semaphore_counter;
 
     // address space
 };
