@@ -92,7 +92,9 @@ int do_UserThreadJoin()
         return -1;
 
     // Semaphore are interruptible, can join here
-    target->Join(currentThread);
+    // If already thread joining, can't join also
+    if (!target->Join(currentThread))
+        return -2;
 
     // Fill retval with return value if not null
     DEBUG('t', "Thread exit with return %d for address %d\n", currentThread->GetUserReturn(), retval);

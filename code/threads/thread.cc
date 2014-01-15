@@ -39,6 +39,7 @@ Thread::Thread (const char *threadName)
     stack = NULL;
     status = JUST_CREATED;
     joinSemaphore = new Semaphore("join thread", 0);
+    joinerThread = NULL;
 
     stats->totalThreads++;
 
@@ -390,12 +391,21 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
  *
  * As pthread_join, If multiple threads simultaneously try to join with the same
  * thread, the results are undefined.
+ *
+ * Return false if already another joining thread
  **/
-void Thread::Join(Thread* who)
+bool Thread::Join(Thread* who)
 {
+    if (joinerThread != NULL)
+    {
+        DEBUG('t', "%s try to join on already joined thread %s\n", who->getName(), this->getName());
+        return false;
+    }
+
     DEBUG('t', "%s joining on %s\n", who->getName(), this->getName());
     joinerThread = who;
     joinSemaphore->P();
+    return true;
 }
 
 #ifdef USER_PROGRAM

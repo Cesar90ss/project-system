@@ -1,0 +1,1 @@
+Multiple therads joining on the same thread should raise error.

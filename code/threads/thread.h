@@ -98,7 +98,7 @@ class Thread
     void Sleep ();		// Put the thread to sleep and
     // relinquish the processor
     void Finish ();		// The thread is done executing
-    void Join(Thread* who);     // Join on this thread for termination
+    bool Join(Thread* who);     // Join on this thread for termination
 
     void CheckOverflow ();	// Check if thread has
     // overflowed its stack
