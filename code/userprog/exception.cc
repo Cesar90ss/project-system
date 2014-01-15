@@ -61,6 +61,9 @@ void switch_Exit()
     // Get all threads inside @space && finished it
     currentThread->space->KillAllThreads();
 
+    // Delete @ space for memory
+    delete currentThread->space;
+
     if (AddrSpace::nbProcess == 0)
         interrupt->Halt();
 }

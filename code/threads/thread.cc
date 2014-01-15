@@ -68,6 +68,8 @@ Thread::~Thread ()
     if (stack != NULL)
     DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
 
+    delete joinSemaphore;
+
 #ifdef USER_PROGRAM
     if (space != NULL)
         space->DetachThread(this);
