@@ -176,9 +176,9 @@ int UserThreadJoin(int tid, void **retval);
 
 //TODO document this also	!
 int UserSemaphoreCreate(char* name, int value); //create semaphore in the user level
-void UserSemaphoreP(int id); 			//Semaphore to lock the thread
-void UserSemaphoreV(int id); 			//Semaphore to unlock the thread
-void UserSemaphoreDestroy(int id);		//To destroy the semaphore syscall
+int UserSemaphoreP(int id); 			//Semaphore to lock the thread
+int UserSemaphoreV(int id); 			//Semaphore to unlock the thread
+int UserSemaphoreDestroy(int id);		//To destroy the semaphore syscall
 
 #endif // IN_USER_MODE
 
