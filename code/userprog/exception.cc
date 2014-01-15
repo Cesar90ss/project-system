@@ -54,18 +54,7 @@ void switch_Halt()
 //----------------------//
 void switch_Exit()
 {
-    DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
-    // Stop current thread
-    AddrSpace::nbProcess --;
-
-    // Get all threads inside @space && finished it
-    currentThread->space->KillAllThreads();
-
-    // Delete @ space for memory
-    delete currentThread->space;
-
-    if (AddrSpace::nbProcess == 0)
-        interrupt->Halt();
+    AddrSpace::Exit();
 }
 //----------------------//
 #ifdef USER_PROGRAM

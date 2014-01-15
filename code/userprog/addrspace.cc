@@ -61,7 +61,7 @@ SwapHeader (NoffHeader * noffH)
 //----------------------------------------------------------------------
 
 unsigned int AddrSpace::nbProcess = 0;
-AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0)
+AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -389,6 +389,8 @@ void AddrSpace::AttachThread(Thread *child)
     threads[max_tid++] = ti;
     child->SetTid(max_tid - 1);
     child->space = this;
+
+    num_threads++;
 }
 
 /**
@@ -401,6 +403,7 @@ void AddrSpace::DetachThread(Thread *child)
     ti.status = THREAD_ENDED;
     threads[child->GetTid()] = ti;
     child->space = NULL;
+    num_threads--;
 }
 
 /**
@@ -447,4 +450,31 @@ int AddrSpace::GetThreadReturn(unsigned int tid)
         return 0;
 
     return threads[tid].ret;
+}
+
+/**
+ * Get number of currently running threads
+ **/
+unsigned int AddrSpace::CurrentThreadNumber()
+{
+    return num_threads;
+}
+
+/**
+ * Exit process
+ **/
+void AddrSpace::Exit()
+{
+    DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
+    // Stop current thread
+    AddrSpace::nbProcess --;
+
+    // Get all threads inside @space && finished it
+    currentThread->space->KillAllThreads();
+
+    // Delete @ space for memory
+    delete currentThread->space;
+
+    if (AddrSpace::nbProcess == 0)
+        interrupt->Halt();
 }

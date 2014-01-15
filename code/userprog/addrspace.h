@@ -79,6 +79,8 @@ class AddrSpace
     void KillAllThreads();      // Kill all threads inside current @ space
     void SetThreadReturn(unsigned int tid, int ret); // Set return for thread
     int GetThreadReturn(unsigned int tid); // Get return for thread
+    unsigned int CurrentThreadNumber();
+    static void Exit();
 
     static unsigned int nbProcess;
   private:
@@ -90,6 +92,7 @@ class AddrSpace
     // Keep track of threads inside this @space
     std::map<unsigned int, ThreadInfo> threads;
     unsigned int max_tid;
+    unsigned int num_threads; // Number of threads running currently
 
 	sem_list semaphore_list;
 	unsigned int semaphore_counter;

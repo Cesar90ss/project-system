@@ -76,7 +76,12 @@ void do_UserThreadExit()
 {
     currentThread->space->SetThreadReturn(currentThread->GetTid(), machine->ReadRegister(4));
     DEBUG('t', "Setting return val of thread %d with %d\n", currentThread->GetTid(), currentThread->space->GetThreadReturn(currentThread->GetTid()));
-    currentThread->Finish();
+
+    // If last thread, call exit
+    if (currentThread->space->CurrentThreadNumber() > 1)
+        currentThread->Finish();
+    else
+        AddrSpace::Exit();
 }
 
 int do_UserThreadJoin()
