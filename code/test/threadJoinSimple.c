@@ -1,12 +1,13 @@
 #include "syscall.h"
 
-void fun(void* arg)
+void *fun(void* arg)
 {
 	int i;
 	for(i=0; i<10; i++){
         PutInt(i);
     }
 	UserThreadExit(0);
+    return 0;
 }
 
 int main()

@@ -4,12 +4,13 @@
  * Test PutString concurrently
  **/
 
-void fn()
+void *fn()
 {
     int i = 0;
     for (i = 0; i < 100; i++)
         PutString("abcdefgijklmnopqrstuvwxyz\n");
     UserThreadExit(0);
+    return 0;
 }
 
 int main()

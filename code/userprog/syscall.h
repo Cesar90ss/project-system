@@ -170,7 +170,7 @@ void PutInt(int i);
 int GetInt();
 
 //TODO document this !
-int UserThreadCreate(void f(void *arg), void *arg);
+int UserThreadCreate(void *(*f) (void *arg), void *arg);
 void UserThreadExit(void *ret);
 int UserThreadJoin(int tid, void **retval);
 

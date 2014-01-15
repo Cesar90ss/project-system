@@ -5,11 +5,12 @@
  * Need to launch & wait before typding 2 char
  **/
 
-void fn()
+void *fn()
 {
     char c = GetChar();
     c = c;
     UserThreadExit(0);
+    return 0;
 }
 
 int main()

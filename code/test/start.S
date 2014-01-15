@@ -5,13 +5,10 @@
  *	what we need for a user program here, namely Start and the system
  *	calls.
  */
-
-#include "syscall.h"
-
-        .text
+ #include "syscall.h"
+         .text
         .align  2
-
-/* -------------------------------------------------------------
+ /* -------------------------------------------------------------
  * __start
  *	Initialize running a C program, by calling "main".
  *
@@ -19,16 +16,14 @@
  *	The Nachos kernel always starts a program by jumping to location 0.
  * -------------------------------------------------------------
  */
-
-    .globl __start
+     .globl __start
     .ent	__start
 __start:
     jal	main
     move	$4,$2
     jal	Exit     /* if we return from main, call exit syscall */
     .end __start
-
-/* -------------------------------------------------------------
+ /* -------------------------------------------------------------
  * System call stubs:
  *	Assembly language assist to make system calls to the Nachos kernel.
  *	There is one stub per system call, that places the code for the
@@ -177,9 +172,22 @@ GetInt:
     j	$31
     .end GetInt
 /* ----------------------*/
+    .globl ThreadCreateWrapper
+    .ent	ThreadCreateWrapper
+ThreadCreateWrapper:
+    move	$6, $4
+    move    $4, $5
+    jal $6
+    move    $4, $2
+    jal	UserThreadExit     /* if we return from user thread function, call UserThreadExit */
+    .end ThreadCreateWrapper
+/* ----------------------*/
     .globl UserThreadCreate
     .ent	UserThreadCreate
 UserThreadCreate:
+    move    $6, $5
+    move    $5, $4
+    la      $4, ThreadCreateWrapper
     addiu $2,$0,SC_UserThreadCreate
     syscall
     j	$31
@@ -200,8 +208,7 @@ UserThreadJoin:
     syscall
     j	$31
     .end UserThreadJoin
-    
-    .globl UserSemaphoreCreate
+     .globl UserSemaphoreCreate
     .ent	UserSemaphoreCreate
 UserSemaphoreCreate:
     addiu $2,$0,SC_UserSemaphoreCreate
@@ -224,8 +231,7 @@ UserSemaphoreV:
     syscall
     j	$31
     .end UserSemaphoreV
- 
-    .globl UserSemaphoreDestroy
+     .globl UserSemaphoreDestroy
     .ent	UserSemaphoreDestroy
 UserSemaphoreDestroy:
     addiu $2,$0,SC_UserSemaphoreDestroy

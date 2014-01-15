@@ -1,16 +1,18 @@
 #include "syscall.h"
 
-void fun(void* arg)
+void *fun(void* arg)
 {
 	int i;
 	for(i=0;i<10000;i++);
 	PutString("error\n");
 	UserThreadExit(0);
+    return 0;
 }
 
-void killer(void* arg)
+void *killer(void* arg)
 {
 	Exit(0);
+    return 0;
 }
 
 int main()

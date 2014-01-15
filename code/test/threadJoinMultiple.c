@@ -1,12 +1,13 @@
 #include "syscall.h"
 #define NB_THREADS 5
 
-void fun(void* arg)
+void *fun(void* arg)
 {
 	int i;
 	for(i=0;i<10000;i++);
 	PutString("Child finish\n");
 	UserThreadExit(0);
+    return 0;
 }
 
 int main()

@@ -138,11 +138,13 @@ void switch_Getint()
 //----------------------//
 void switch_UserThreadCreate()
 {
-    int fn = machine->ReadRegister(4);
-    int arg = machine->ReadRegister(5);
-    DEBUG('t', "Create user thread on function at address %i and arg at address %i\n", fn, arg);
+    int fnWrapper = machine->ReadRegister(4);
+    int fnUser = machine->ReadRegister(5);
+    int arg = machine->ReadRegister(6);
+
+    DEBUG('t', "Create user thread on function at address %i and arg at address %i\n", fnUser, arg);
     int id;
-    if((id = do_UserThreadCreate(fn, arg)) == -1)
+    if((id = do_UserThreadCreate(fnWrapper, fnUser, arg)) == -1)
     {
         //creation failed
         DEBUG('t', "Syscall failed to create a new user thread\n");

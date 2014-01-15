@@ -1,0 +1,1 @@
+Parent can get return of child thread function where child function use return statement.

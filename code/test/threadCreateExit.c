@@ -1,10 +1,11 @@
 #include "syscall.h"
 
-void fun(void* arg)
+void *fun(void* arg)
 {
 	PutString("Child\n");
 	UserThreadExit(0);
 	PutString("Child error\n");
+    return 0;
 }
 
 int main()

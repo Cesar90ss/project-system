@@ -6,8 +6,7 @@ void *fun(void* arg)
 
     for(i=0;i<10000;i++);
 
-	UserThreadExit((void *)42);
-    return 0;
+    return (void*)42;
 }
 
 int main()

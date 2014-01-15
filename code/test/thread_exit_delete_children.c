@@ -1,12 +1,13 @@
 #include "syscall.h"
 
-void fun(void* arg)
+void *fun(void* arg)
 {
     int i;
 
 	PutString("Child\n");
     for (i = 0; i < 1000; i++);
 	Exit(0);
+    return 0;
 }
 
 int main()

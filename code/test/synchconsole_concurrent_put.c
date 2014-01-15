@@ -4,7 +4,7 @@
  * Test GetString concurrently
  **/
 
-void fn()
+void *fn()
 {
     int i = 0;
     char c[12];
@@ -17,6 +17,7 @@ void fn()
     }
 
     UserThreadExit(0);
+    return 0;
 }
 
 int main()

@@ -25,17 +25,19 @@
 //----------------------------------------------------------------------
 typedef struct
 {
-    int func;
+    int funcWrapper;
+    int funcUser;
     int arg;
 }userfunc;
 
 void StartUserThread(int f)
 {
     userfunc *uf = (userfunc*)f;
-    machine->WriteRegister(PCReg,uf->func); //put the function to the PC register
-    machine->WriteRegister(NextPCReg,uf->func+sizeof(int));
+    machine->WriteRegister(PCReg,uf->funcWrapper); //put the function to the PC register
+    machine->WriteRegister(NextPCReg,uf->funcWrapper+sizeof(int));
 
-    machine->WriteRegister(4,uf->arg);	//put the arg to register 4
+    machine->WriteRegister(4, uf->funcUser);	//put the user function to register 4
+    machine->WriteRegister(5, uf->arg);	        //put the arg to register 5
     DEBUG('a', "value of stack : %d\n",machine->ReadRegister(StackReg));
     int * ptr = (int*) &machine->mainMemory[machine->ReadRegister(StackReg)];
     DEBUG('a', "Value at stack bottom : %d\n", *ptr);
@@ -43,14 +45,15 @@ void StartUserThread(int f)
     return;
 }
 
-int do_UserThreadCreate(int f, int arg)
+int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
 {
     IntStatus oldLevel = interrupt->SetLevel (IntOff);      //Block Interrupt to be atomic
     Thread* t = new  Thread("NewThread");
     userfunc *uf = new userfunc;				//define the struct
 
-    uf->func=f;							//pack the function
-    uf->arg=arg;                            //pack the argument
+    uf->funcWrapper = fnWrapper;                                 //pack the functionWrapper
+    uf->funcUser = fnUser;
+    uf->arg = arg;                                //pack the argument
 
     // Space will be attached to the new thread insinde Thread::Fork
     // t->space = currentThread -> space;
