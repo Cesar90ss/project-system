@@ -72,24 +72,29 @@
         int UserThreadCreate(void f(void *arg), void *arg)
 **** DESCRIPTION :
         This function create a new thread, executing the function f with the argument arg.
-        Return 0 on success, -1 if no space left
+        Return 0 on success, -1 if no space left for stack.
 
 
-*** NAME : UserThreadExit 
+*** NAME : UserThreadExit
 **** SYNOPSIS : void UserThreadExit(void *ret)
 **** DESCRIPTION :
-        This function is used to destroy the thread and puts the return value in ret.  When
-        main thread call UserThreadExit, other threads continue to run. The last
-        thread will call Exit
+        This function is used to destroy the thread and puts the return value in
+        ret.  When main thread call UserThreadExit, other threads continue to
+        run. The last thread will call Exit. When a thread function reach a
+        return statement, it will be converted to this syscall with return value
+        as argument.
 
 
 *** NAME : UserThreadJoin
 **** SYNOPSIS :
         int UserThreadJoin(int tid, void **retval)
 **** DESCRIPTION :
-        This function is used to join childs threads
-        Return -1 if bad tid & -2 if another thread is already joining on thread tid.
-        Return 0 on success.
+        This function is used to join another thread.  If multiple threads tries
+        to join on the same thread, only the first one will effectly join on
+        it. Others will have return code -2.  If retval is not null, it contains
+        the return value of exit thread, either calling UserThreadExit or by
+        reaching the end of thread function.
+        Return -1 if bad tid & -2 if another thread is already joining on thread tid.  Return 0 on success.
 
 
 *** NAME : UserSemaphoreCreate
