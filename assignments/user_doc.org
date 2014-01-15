@@ -99,20 +99,20 @@
 *** NAME
     UserSemaphoreP
     SYNOPSIS
-    void UserSemaphoreP(int id)
+    int UserSemaphoreP(int id)
     DESCRIPTION
-    Takes the lock on the semaphore pointed by id
+    Takes the lock on the semaphore pointed by id and return -1 if error and 0 if it works
 
 *** NAME
     UserSemaphoreV
     SYNOPSIS
-    void UserSemaphoreV(int id)
+    int UserSemaphoreV(int id)
     DESCRIPTION
-    Release the lock (unlock) the semaphore pointed by id
+    Release the lock (unlock) the semaphore pointed by id and return -1 if error and 0 if it works
 
 *** NAME
     UserSemaphoreDestroy
     SYNOPSIS
-    void UserSemaphoreDestroy(int id)
+    int UserSemaphoreDestroy(int id)
     DESCRIPTION
-    Destroy the semaphore pointed by id
+    Destroy the semaphore pointed by id and return -1 if error and 0 if it works
