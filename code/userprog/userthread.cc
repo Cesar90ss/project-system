@@ -86,6 +86,10 @@ int do_UserThreadJoin()
     // Get return @ for exit code
     int retval = machine->ReadRegister(5);
 
+    // If thread already ended, return no error
+    if (currentThread->space->ThreadEnded(tid))
+        return 0;
+
     // Find thread with this id
     Thread* target = currentThread->space->GetThreadById(tid);
     if (target == NULL)

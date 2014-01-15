@@ -351,18 +351,25 @@ std::map<unsigned int, Thread*> AddrSpace::GetThreads()
  **/
 void AddrSpace::KillAllThreads()
 {
-    std::map<unsigned int, Thread*>::iterator elem;
+    /**
+     * Each thread will call DetachThread, which modify threads
+     * So make a copy
+     **/
+    std::map<unsigned int, Thread*> copy(threads);
+    std::map<unsigned int, Thread*>::iterator it;
     Thread *t;
 
-    // Each thread will call DetachThread, so compute iterator begin each time
-    while (threads.size() >= 2)
+    for (it = copy.begin(); it != copy.end(); ++it)
     {
-        elem = threads.begin();
-        t = elem->second;
+        t = it->second;
 
         // Not the current as we need it for last context switch
         if (t == currentThread)
-            t = (++elem)->second;
+            continue;
+
+        // Not thread marked as ended
+        if (t == THREAD_ENDED)
+            continue;
 
         delete t;
     }
@@ -384,8 +391,8 @@ void AddrSpace::AttachThread(Thread *child)
  **/
 void AddrSpace::DetachThread(Thread *child)
 {
-    // Erase it
-    threads.erase(child->GetTid());
+    // Mark as NULL to join on it later
+    threads[child->GetTid()] = THREAD_ENDED;
     child->space = NULL;
 }
 
@@ -399,4 +406,12 @@ Thread *AddrSpace::GetThreadById(unsigned int tid)
         return NULL;
 
     return threads[tid];
+}
+
+/**
+ * Check if a thread is ended previously
+ **/
+bool AddrSpace::ThreadEnded(unsigned int tid)
+{
+    return GetThreadById(tid) == THREAD_ENDED;
 }

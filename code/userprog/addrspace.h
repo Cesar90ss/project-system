@@ -21,6 +21,7 @@
 #include <map>
 
 #define UserStackSize		1024	// increase this as necessary!
+#define THREAD_ENDED        ((Thread *)0xdeadbeef) // to mark a thread as ended
 
 typedef struct slist
 {
@@ -58,6 +59,7 @@ class AddrSpace
     void AttachThread(Thread *child);
     void DetachThread(Thread *child);
     Thread *GetThreadById(unsigned int tid);
+    bool ThreadEnded(unsigned int tid);
     void KillAllThreads();      // Kill all threads inside current @ space
 
     static unsigned int nbProcess;
