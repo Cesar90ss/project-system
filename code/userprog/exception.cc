@@ -189,17 +189,18 @@ void switch_UserSemaphoreCreate()
 //----------------------//
 void switch_UserSemaphoreP()
 {
-	currentThread->space->SemaphoreP(machine->ReadRegister(4));
+	machine->WriteRegister(2,currentThread->space->SemaphoreP(machine->ReadRegister(4)));
 }
 //----------------------//
 void switch_UserSemaphoreV()
 {
-	currentThread->space->SemaphoreV(machine->ReadRegister(4));
+	machine->WriteRegister(2,currentThread->space->SemaphoreV(machine->ReadRegister(4)));
 }
 //----------------------//
 void switch_UserSemaphoreDestroy()
 {
-	currentThread->space->SemaphoreDestroy(machine->ReadRegister(4));
+	machine->WriteRegister(2,currentThread->space->SemaphoreDestroy(machine->ReadRegister(4)));
+  
 }
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
