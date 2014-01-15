@@ -102,7 +102,7 @@ char *SynchConsole::SynchGetString(char *s, int n)
 void SynchConsole::SynchPutInt(int i)
 {
     char *ToBeWritten = new char[MAX_INT_NUM + 1];
-    snprintf(ToBeWritten, MAX_INT_NUM, "%i", i);
+    sprintf(ToBeWritten, "%i", i);
     SynchPutString(ToBeWritten);
 }
 

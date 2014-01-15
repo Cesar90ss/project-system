@@ -206,7 +206,5 @@ Cleanup ()
     delete scheduler;
     delete interrupt;
 
-    delete stats;
-
     Exit (0);
 }
