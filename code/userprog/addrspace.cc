@@ -341,7 +341,7 @@ int AddrSpace::FreeUserStack(unsigned int addr)
 /**
  * Return all threads inside this @ space as a list
  **/
-std::map<unsigned int, Thread*> AddrSpace::GetThreads()
+std::map<unsigned int, ThreadInfo> AddrSpace::GetThreads()
 {
     return threads;
 }
@@ -355,23 +355,23 @@ void AddrSpace::KillAllThreads()
      * Each thread will call DetachThread, which modify threads
      * So make a copy
      **/
-    std::map<unsigned int, Thread*> copy(threads);
-    std::map<unsigned int, Thread*>::iterator it;
-    Thread *t;
+    std::map<unsigned int, ThreadInfo> copy(threads);
+    std::map<unsigned int, ThreadInfo>::iterator it;
+    struct ThreadInfo t;
 
     for (it = copy.begin(); it != copy.end(); ++it)
     {
         t = it->second;
 
         // Not the current as we need it for last context switch
-        if (t == currentThread)
+        if (t.ptr == currentThread)
             continue;
 
         // Not thread marked as ended
-        if (t == THREAD_ENDED)
+        if (t.status == THREAD_ENDED)
             continue;
 
-        delete t;
+        delete t.ptr;
     }
 }
 
@@ -380,8 +380,13 @@ void AddrSpace::KillAllThreads()
  **/
 void AddrSpace::AttachThread(Thread *child)
 {
+    struct ThreadInfo ti;
+
+    ti.status = THREAD_RUNNING;
+    ti.ptr = child;
+
     // Insert with new tid
-    threads[max_tid++] = child;
+    threads[max_tid++] = ti;
     child->SetTid(max_tid - 1);
     child->space = this;
 }
@@ -391,8 +396,10 @@ void AddrSpace::AttachThread(Thread *child)
  **/
 void AddrSpace::DetachThread(Thread *child)
 {
-    // Mark as NULL to join on it later
-    threads[child->GetTid()] = THREAD_ENDED;
+    struct ThreadInfo ti;
+    ti = threads[child->GetTid()];
+    ti.status = THREAD_ENDED;
+    threads[child->GetTid()] = ti;
     child->space = NULL;
 }
 
@@ -405,7 +412,7 @@ Thread *AddrSpace::GetThreadById(unsigned int tid)
     if (threads.find(tid) == threads.end())
         return NULL;
 
-    return threads[tid];
+    return threads[tid].ptr;
 }
 
 /**
@@ -413,5 +420,31 @@ Thread *AddrSpace::GetThreadById(unsigned int tid)
  **/
 bool AddrSpace::ThreadEnded(unsigned int tid)
 {
-    return GetThreadById(tid) == THREAD_ENDED;
+    if (threads.find(tid) == threads.end())
+        return false;
+
+    return threads[tid].status == THREAD_ENDED;
+}
+
+/**
+ * Set return value for a given thread
+ **/
+void AddrSpace::SetThreadReturn(unsigned int tid, int ret)
+{
+    struct ThreadInfo ti;
+
+    ti = threads[tid];
+    ti.ret = ret;
+    threads[tid] = ti;
+}
+
+/**
+ * Get return value for a given thread
+ **/
+int AddrSpace::GetThreadReturn(unsigned int tid)
+{
+    if (threads.find(tid) == threads.end())
+        return 0;
+
+    return threads[tid].ret;
 }

@@ -74,7 +74,8 @@ int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
 
 void do_UserThreadExit()
 {
-    currentThread->SetUserReturn(machine->ReadRegister(4));
+    currentThread->space->SetThreadReturn(currentThread->GetTid(), machine->ReadRegister(4));
+    DEBUG('t', "Setting return val of thread %d with %d\n", currentThread->GetTid(), currentThread->space->GetThreadReturn(currentThread->GetTid()));
     currentThread->Finish();
 }
 
@@ -86,24 +87,28 @@ int do_UserThreadJoin()
     // Get return @ for exit code
     int retval = machine->ReadRegister(5);
 
-    // If thread already ended, return no error
-    if (currentThread->space->ThreadEnded(tid))
-        return 0;
-
     // Find thread with this id
     Thread* target = currentThread->space->GetThreadById(tid);
     if (target == NULL)
         return -1;
 
-    // Semaphore are interruptible, can join here
-    // If already thread joining, can't join also
-    if (!target->Join(currentThread))
-        return -2;
+    // If thread not already ended, wait for it
+    if (!currentThread->space->ThreadEnded(tid))
+    {
+        // Semaphore are interruptible, can join here
+        // If already thread joining, can't join also
+        if (!target->Join(currentThread))
+            return -2;
+    }
+
+    // Fill user return
+    int retThread = currentThread->space->GetThreadReturn(tid);
 
     // Fill retval with return value if not null
-    DEBUG('t', "Thread exit with return %d for address %d\n", currentThread->GetUserReturn(), retval);
+    DEBUG('t', "Thread exit with return %d for address %d\n", retThread, retval);
     if (retval != 0)
-        machine->WriteMem(retval, 4, currentThread->GetUserReturn());
+        machine->WriteMem(retval, 4, retThread);
+
 
     return 0;
 }

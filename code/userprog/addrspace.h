@@ -20,8 +20,9 @@
 
 #include <map>
 
+class Thread;
+
 #define UserStackSize		1024	// increase this as necessary!
-#define THREAD_ENDED        ((Thread *)0xdeadbeef) // to mark a thread as ended
 
 typedef struct slist
 {
@@ -30,7 +31,22 @@ typedef struct slist
 	struct slist* next;
 } *sem_list;
 
-class Thread;
+/**
+ * Thread structure inside addrspace map
+ **/
+enum ThreadStatusEnum
+{
+    THREAD_RUNNING,
+    THREAD_ENDED
+};
+
+struct ThreadInfo
+{
+    enum ThreadStatusEnum status;
+    int ret;
+    Thread* ptr;
+};
+
 class AddrSpace
 {
   public:
@@ -55,12 +71,14 @@ class AddrSpace
     int GetNewUserStack();
 
     // Keep track of threads inside this @ space
-    std::map<unsigned int, Thread*> GetThreads();
+    std::map<unsigned int, ThreadInfo> GetThreads();
     void AttachThread(Thread *child);
     void DetachThread(Thread *child);
     Thread *GetThreadById(unsigned int tid);
     bool ThreadEnded(unsigned int tid);
     void KillAllThreads();      // Kill all threads inside current @ space
+    void SetThreadReturn(unsigned int tid, int ret); // Set return for thread
+    int GetThreadReturn(unsigned int tid); // Get return for thread
 
     static unsigned int nbProcess;
   private:
@@ -70,7 +88,7 @@ class AddrSpace
     // StackMgr helpers to manage user stack
     StackMgr *stackMgr;
     // Keep track of threads inside this @space
-    std::map<unsigned int, Thread*> threads;
+    std::map<unsigned int, ThreadInfo> threads;
     unsigned int max_tid;
 
 	sem_list semaphore_list;

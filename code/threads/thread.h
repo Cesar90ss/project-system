@@ -147,12 +147,9 @@ class Thread
 
     unsigned int GetTid();
     void SetTid(unsigned int id);
-    int GetUserReturn();
-    void SetUserReturn(int ret);
 
   private:
     unsigned int tid;
-    int userReturn;
 #endif
 };
 

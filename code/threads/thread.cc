@@ -174,13 +174,6 @@ Thread::Finish ()
     DEBUG('t', "Thread %s alert for join\n", getName());
     joinSemaphore->V();
 
-#ifdef USER_PROGRAM
-    // Set user ret of joinner thread
-    // Need to do this because this thread may not be available when other thread will be scheduled
-    if (joinerThread != NULL)
-        joinerThread->SetUserReturn(this->GetUserReturn());
-#endif
-
     threadToBeDestroyed = currentThread;
     Sleep ();			// invokes SWITCH
     // not reached
@@ -451,16 +444,6 @@ unsigned int Thread::GetTid()
 void Thread::SetTid(unsigned int id)
 {
     this->tid = id;
-}
-
-int Thread::GetUserReturn()
-{
-    return userReturn;
-}
-
-void Thread::SetUserReturn(int ret)
-{
-    userReturn = ret;
 }
 
 #endif
