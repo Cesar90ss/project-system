@@ -13,7 +13,7 @@ void* fun()
 
 int main()
 {
-	PutString("Parent start\n");
+	//PutString("Parent start\n");
 	int id[NB_THREADS];
 
     int i;
@@ -33,11 +33,11 @@ int main()
         //Joining all threads
 		if(UserThreadJoin(id[i], 0) == -1)
 		{
-			PutString(" joined failed!\n");
+			PutString(" joined failed! ");
 		}
 		else
 		{
-			PutString(" joined successfull!\n");
+			PutString(" joined successfull! ");
 		}
 	}
 
