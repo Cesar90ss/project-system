@@ -76,7 +76,8 @@
 
 
 *** NAME : UserThreadExit
-**** SYNOPSIS : void UserThreadExit(void *ret)
+**** SYNOPSIS :
+        void UserThreadExit(void *ret)
 **** DESCRIPTION :
         This function is used to destroy the thread and puts the return value in
         ret.  When main thread call UserThreadExit, other threads continue to
@@ -93,8 +94,8 @@
         to join on the same thread, only the first one will effectly join on
         it. Others will have return code -2.  If retval is not null, it contains
         the return value of exit thread, either calling UserThreadExit or by
-        reaching the end of thread function.
-        Return -1 if bad tid & -2 if another thread is already joining on thread tid.  Return 0 on success.
+        reaching the end of thread function.  Return -1 if bad tid & -2 if
+        another thread is already joining on thread tid.  Return 0 on success.
 
 
 *** NAME : UserSemaphoreCreate

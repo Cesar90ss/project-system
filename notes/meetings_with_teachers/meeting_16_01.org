@@ -1,0 +1,6 @@
+* Meeting 16/01/2014
+
+** TODO
+*** DONE:Add notes for uniqness of tid usage as well as for semaphore.
+*** Add max upper bound for max thread.
+*** Test if threads are removed from scheduled list when killed.

@@ -42,15 +42,24 @@
   reach the return of the main function. It will implicitly call Exit. Thus does
   not wait for threads termination.
 
+  It is noticeable that thread id (tid) are uniq to a process during is
+  lifetime. A tid will never be re-used. This allows us to implement
+  UserThreadJoin as discussed below.
+
   UserThreadJoin(unsigned int tid, void **retval) allows one thread to wait for
   another. Inside retval (if not NULL) you can get the value return either by
   UserThreadExit or by the return value of thread function. If that thread has
   already terminated, then UserThreadExit returns immediately. If multiple
   threads simultaneously try to join with the same thread, only the first one
-  will be able to join on it. For others, syscall will return error code -2.
+  will be able to join on it. For others, syscall will return error code -2. If
+  threads join multiple time on the same thread (not at the same time), each
+  call will be successful and if retval is not NULL, it will be filled with the
+  return value of thread.
 
   About semaphores, they are now available to user program using
   UserSemaphoreCreate syscall. This return a semaphore id process-specific. To
-  wait for resource being available, UserSemaphoreP is here. To notify
-  resource availability, it's UserSemaphoreV. Finally, UserSemaphoreDestroy
-  destroy a semaphore. All semaphores are destroyed at the end of a process.
+  wait for resource being available, UserSemaphoreP is here. To notify resource
+  availability, it's UserSemaphoreV. Finally, UserSemaphoreDestroy destroy a
+  semaphore. Semaphore id are process-uniq and not re-used. If a
+  UserSemaphore[P|V] is used after the semaphore was destroyed, these syscall
+  will return -1. All semaphores are destroyed at the end of a process.
