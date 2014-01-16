@@ -1,0 +1,1 @@
+Try to use SemaphoreP and SemaphoreV after destroying the semaphore, fail if the calls does not return -1
