@@ -48,6 +48,14 @@ void StartUserThread(int f)
 int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
 {
     IntStatus oldLevel = interrupt->SetLevel (IntOff);      //Block Interrupt to be atomic
+
+    // Does not go above MAX_TOTAL_THREADS
+    if (currentThread->space->GetMaxTid() + 1 > MAX_TOTAL_THREADS)
+    {
+        (void) interrupt->SetLevel (oldLevel);
+        return -2;
+    }
+
     Thread* t = new  Thread("NewThread");
     userfunc *uf = new userfunc;				//define the struct
 
@@ -55,12 +63,12 @@ int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
     uf->funcUser = fnUser;
     uf->arg = arg;                                //pack the argument
 
-    // Space will be attached to the new thread insinde Thread::Fork
-    // t->space = currentThread -> space;
-
     int stack = currentThread->space->GetNewUserStack();
     if(stack == 0)
+    {
+        (void) interrupt->SetLevel (oldLevel);
         return -1;
+    }
 
     t->userRegisters[StackReg]=stack;
     t->userStack=stack;

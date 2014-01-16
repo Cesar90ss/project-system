@@ -495,3 +495,10 @@ void AddrSpace::Exit()
         interrupt->Halt();
 }
 //------------------------------------------------------------//
+/**
+ * Get current max tid
+ **/
+unsigned int AddrSpace::GetMaxTid()
+{
+    return max_tid;
+}

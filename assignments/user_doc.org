@@ -71,8 +71,9 @@
 **** SYNOPSIS :
         int UserThreadCreate(void f(void *arg), void *arg)
 **** DESCRIPTION :
-        This function create a new thread, executing the function f with the argument arg.
-        Return 0 on success, -1 if no space left for stack.
+        This function create a new thread, executing the function f with the
+        argument arg.  Return 0 on success, -1 if no space left for stack, -2 if
+        MAX_TOTAL_THREADS (20 per default) has been reach.
 
 
 *** NAME : UserThreadExit

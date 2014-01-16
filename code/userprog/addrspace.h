@@ -23,6 +23,7 @@
 class Thread;
 
 #define UserStackSize		1024	// increase this as necessary!
+#define MAX_TOTAL_THREADS   20      // total number of threads in program lifetime
 
 typedef struct slist
 {
@@ -80,6 +81,7 @@ class AddrSpace
     void SetThreadReturn(unsigned int tid, int ret); // Set return for thread
     int GetThreadReturn(unsigned int tid); // Get return for thread
     unsigned int CurrentThreadNumber();
+    unsigned int GetMaxTid();
     static void Exit();
 
     static unsigned int nbProcess;
