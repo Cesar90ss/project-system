@@ -167,12 +167,8 @@ void switch_UserSemaphoreCreate()
 	char* name = new char[MAX_STRING_SIZE + 1];
 	int name_size = copyStringFromMachine(from,name,MAX_STRING_SIZE);
 	name[name_size] = '\0';
+
 	DEBUG('t', "Creation of semaphore %s\n", name);
-
-	//Semaphore *semaphore= new Semaphore(name,value);
-
-	//create a semaphore list in addrspace
-	
 	int semaphore_id = currentThread->space->CreateSemaphore(name,value);
 	
 	machine->WriteRegister(2,semaphore_id);
@@ -192,8 +188,16 @@ void switch_UserSemaphoreV()
 void switch_UserSemaphoreDestroy()
 {
 	machine->WriteRegister(2,currentThread->space->SemaphoreDestroy(machine->ReadRegister(4)));
-  
 }
+//----------------------//
+void switch_Fork()
+{
+	//TODO Put here a call to the function which does the fork
+	synchconsole->SynchPutString("Fork unimplemented...\n");
+	int pid = 1;
+	machine->WriteRegister(2,pid);
+}
+//----------------------//
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -288,7 +292,6 @@ ExceptionHandler (ExceptionType which)
                     switch_UserThreadExit();
                     break;
                 }
-
                 case SC_UserSemaphoreCreate:
                 {
 					switch_UserSemaphoreCreate();
@@ -307,6 +310,11 @@ ExceptionHandler (ExceptionType which)
                 case SC_UserSemaphoreDestroy:
                 {
 					switch_UserSemaphoreDestroy();
+					break;
+                }
+                case SC_Fork:
+                {
+					switch_Fork();
 					break;
                 }
 				#endif
