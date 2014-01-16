@@ -10,9 +10,9 @@ for i in {1..100}; do
     S=$S$SA$SB
 done
 
-echo -n $S | ./nachos-step3 -x synchconsole_concurrent_put -rs 2
+echo -n $S | ./nachos-step4 -x synchconsole_concurrent_put -rs 2
 
-OUTPUT=$(echo -n $S | ./nachos-step3 -x synchconsole_concurrent_put -rs 2 | head -n -10 | sort -u | wc -l)
+OUTPUT=$(echo -n $S | ./nachos-step4 -x synchconsole_concurrent_put -rs 2 | head -n -10 | sort -u | wc -l)
 if [ $OUTPUT -eq 2 ]; then
     exit 0
 else

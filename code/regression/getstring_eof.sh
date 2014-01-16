@@ -5,7 +5,7 @@ cd $NACHOS_DIR
 TEST_STRING="ABC"
 RESULT_STRING="ABC"
 
-OUTPUT=$(echo $TEST_STRING | ./nachos-step2 -x getstringeof | grep $RESULT_STRING)
+OUTPUT=$(echo $TEST_STRING | ./nachos-step4 -x getstringeof | grep $RESULT_STRING)
 
 if [ -n "$OUTPUT" ]; then
     exit 0

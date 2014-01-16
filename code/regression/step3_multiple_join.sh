@@ -4,7 +4,7 @@ cd $NACHOS_DIR
 
 RESULT_STRING="ok"
 
-OUTPUT=$(./nachos-step3 -x thread_multiple_join -rs 2 | grep "$RESULT_STRING")
+OUTPUT=$(./nachos-step4 -x thread_multiple_join -rs 2 | grep "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

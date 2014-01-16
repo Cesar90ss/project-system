@@ -4,7 +4,7 @@ cd $NACHOS_DIR
 
 RESULT_STRING="0123456789joined successfull"
 
-OUTPUT=$(./nachos-step3 -rs 2 -x threadJoinSimple | grep "$RESULT_STRING")
+OUTPUT=$(./nachos-step4 -rs 2 -x threadJoinSimple | grep "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

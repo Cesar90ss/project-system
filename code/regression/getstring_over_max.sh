@@ -17,7 +17,7 @@ do
 done
 
 echo $LONG_STRING
-OUTPUT=$(./nachos-step2 -x longstring | grep "$LONG_STRING")
+OUTPUT=$(./nachos-step4 -x longstring | grep "$LONG_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0
