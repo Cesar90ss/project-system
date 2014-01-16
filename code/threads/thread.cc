@@ -66,12 +66,13 @@ Thread::~Thread ()
 
     ASSERT (this != currentThread);
     if (stack != NULL)
-    DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
+        DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
 
 #ifdef USER_PROGRAM
     if (space != NULL)
         space->DetachThread(this);
 #endif
+    scheduler->RemoveFromList(this);
     stats->totalThreads--;
 }
 

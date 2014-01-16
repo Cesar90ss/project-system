@@ -252,3 +252,34 @@ List::SortedRemove (long long *keyPtr)
     delete element;
     return thing;
 }
+
+/**
+ * Remove a specific element
+ * Return the removed element if present, NULL otherwise
+ **/
+void *
+List::RemoveElem(void *item)
+{
+    ListElement *element = first;
+    ListElement *previous = NULL;
+
+    if (IsEmpty ())
+        return NULL;
+
+    while (element != NULL && element->item != item)
+    {
+        previous = element;
+        element = element->next;
+    }
+
+    if (element == NULL)
+        return NULL;
+
+    // First elem
+    if (previous == NULL)
+        first = element->next;
+    else
+        previous->next = element->next;
+
+    return element->item;
+}

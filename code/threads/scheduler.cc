@@ -152,3 +152,11 @@ Scheduler::Print ()
     printf ("Ready list contents:\n");
     readyList->Mapcar ((VoidFunctionPtr) ThreadPrint);
 }
+
+/**
+ * Remove a specific thread from scheduling
+ **/
+void Scheduler::RemoveFromList(Thread *thread)
+{
+    readyList->RemoveElem(thread);
+}
