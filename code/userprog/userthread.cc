@@ -70,6 +70,11 @@ int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
         return -1;
     }
 
+    int i;
+
+    for (i = 0; i < NumTotalRegs; i++)
+        t->userRegisters[i] = 0;
+
     t->userRegisters[StackReg]=stack;
     t->userStack=stack;
     DEBUG('a', "value of stack : %d\n", stack);

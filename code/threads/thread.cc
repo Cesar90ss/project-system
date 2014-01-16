@@ -68,6 +68,7 @@ Thread::~Thread ()
     if (stack != NULL)
         DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
 
+
 #ifdef USER_PROGRAM
     if (space != NULL)
         space->DetachThread(this);

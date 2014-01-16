@@ -52,6 +52,8 @@ class OpenFile {
 		}
 
     int Length() { Lseek(file, 0, 2); return Tell(file); }
+    // Read handling virtual memory
+    int ReadAtVirtual(int virtualAddr, int numBytes, int position);
 
   private:
     int file;
@@ -85,6 +87,9 @@ class OpenFile {
 					// file (this interface is simpler
 					// than the UNIX idiom -- lseek to
 					// end of file, tell, lseek back
+
+    // Read handling virtual memory
+    int ReadAtVirtual(int virtualAddr, int numBytes, int position);
 
   private:
     FileHeader *hdr;			// Header for this file

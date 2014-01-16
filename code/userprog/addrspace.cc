@@ -100,19 +100,23 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
         // pages to be read-only
     }
 
-// zero out the entire address space, to zero the unitialized data segment
-// and the stack segment
+    // Set machine page table now for loading code
+    RestoreState();
+
+    // Zero out the entire address space, to zero the unitialized data segment
+    // and the stack segment
     bzero (machine->mainMemory, size);
 
     unsigned int program_end = 0;
 
-// then, copy in the code and data segments into memory
+    // Then, copy in the code and data segments into virtual memory
     if (noffH.code.size > 0)
     {
         DEBUG ('a', "Initializing code segment, at 0x%x, size %d\n",
                noffH.code.virtualAddr, noffH.code.size);
-        executable->ReadAt (&(machine->mainMemory[noffH.code.virtualAddr]),
-                            noffH.code.size, noffH.code.inFileAddr);
+        executable->ReadAtVirtual(noffH.code.virtualAddr,
+                                  noffH.code.size,
+                                  noffH.code.inFileAddr);
 
         program_end = noffH.code.virtualAddr;
     }
@@ -120,10 +124,9 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
     {
         DEBUG ('a', "Initializing data segment, at 0x%x, size %d\n",
                noffH.initData.virtualAddr, noffH.initData.size);
-        executable->ReadAt (&
-                            (machine->mainMemory
-                             [noffH.initData.virtualAddr]),
-                            noffH.initData.size, noffH.initData.inFileAddr);
+        executable->ReadAtVirtual(noffH.initData.virtualAddr,
+                                    noffH.initData.size,
+                                    noffH.initData.inFileAddr);
 
         program_end = noffH.initData.virtualAddr;
     }

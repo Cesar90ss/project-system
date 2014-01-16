@@ -18,6 +18,7 @@
 
 #include <strings.h> /* for bzero */
 
+#ifndef FILESYS_STUB
 //----------------------------------------------------------------------
 // OpenFile::OpenFile
 // 	Open a Nachos file for reading and writing.  Bring the file header
@@ -193,4 +194,41 @@ int
 OpenFile::Length()
 {
     return hdr->FileLength();
+}
+#endif
+
+
+int OpenFile::ReadAtVirtual(int virtualAddr, int numBytes, int position)
+{
+    char *buffer = new char[numBytes];
+    int ret = 0;
+    int i = 0;
+
+    ret = ReadAt(buffer, numBytes, position);
+
+    // Error case, handle
+    if (ret < 0)
+    {
+        DEBUG('a', "Error %d with readAt\n", ret);
+        delete [] buffer;
+        return ret;
+    }
+
+    // Write buffer using WriteMem (ret : num of bytes read)
+    for (i = 0; i < ret; i++)
+    {
+        DEBUG('f', "Writing at @ %d\n", virtualAddr + i);
+        if (!machine->WriteMem(virtualAddr + i, sizeof(char), buffer[i]))
+        {
+            DEBUG('a', "Error %d with WriteMem\n", ret);
+            delete [] buffer;
+            return -1;
+        }
+    }
+
+    DEBUG('a', "Written %d bytes\n", ret);
+
+    delete [] buffer;
+
+    return ret;
 }
