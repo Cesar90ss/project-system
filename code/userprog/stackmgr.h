@@ -10,6 +10,7 @@
 
 #include "copyright.h"
 #include "bitmap.h"
+#include "frameprovider.h"
 
 // Num of page after real stack (to trigger page fault)
 #define PROTECTION_PAGE 2
@@ -17,6 +18,7 @@
 class StackMgr
 {
     public:
+			// TODO we will probably need the FrameProvider to be given to us...
     StackMgr(unsigned int data_end_at);  // Init bitmap associated to stack
     ~StackMgr(); // De-allocate btimap
 
@@ -27,6 +29,7 @@ class StackMgr
     BitMap *bitmap;
     unsigned int first_stack_addr;
     unsigned int number_of_stack;
+		FrameProvider fp; // not used yet, but now we know it compiles...
 };
 
 #endif // STACKMGR_H

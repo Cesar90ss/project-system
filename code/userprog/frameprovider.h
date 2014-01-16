@@ -16,7 +16,7 @@
 class FrameProvider
 {
     public:
-    FrameProvider(unsigned int total_frame_number);  // Init bitmap associated to physical address space
+    FrameProvider();  // Init bitmap associated to physical address space
     ~FrameProvider(); // De-allocate bitmap
 
     unsigned int GetEmptyFrame(); // Return address of new Physical address

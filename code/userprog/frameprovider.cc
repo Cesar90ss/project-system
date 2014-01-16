@@ -18,7 +18,7 @@
 FrameProvider::FrameProvider()
 {
     total_frame_number=NumPhysPages;
-    number_free_frame = total_frame_number-1;
+    number_of_free_frame = total_frame_number-1;
     // Create bitmap
     bitmap = new BitMap(total_frame_number);
     
@@ -53,7 +53,7 @@ unsigned int FrameProvider::GetEmptyFrame()
     // Clear frame
     bzero(machine->mainMemory + frame_addr,PageSize);
     
-    number_free_frame--;
+		number_of_free_frame--;
 
     return frame_addr;
 }
@@ -86,13 +86,13 @@ int FrameProvider::ReleaseFrame(unsigned int addr)
     // Clean frame
     bitmap->Clear(frame_index);
     
-    number_free_frame++;
+    number_of_free_frame++;
     
     return 0;
 }
 
 int FrameProvider::NumAvailFrame()
 {
-  return number_free_frame;
+  return number_of_free_frame;
 }
 
