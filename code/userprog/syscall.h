@@ -169,12 +169,12 @@ void PutInt(int i);
  */
 int GetInt();
 
-//TODO document this !
+//Thread managing functions (see user_doc.org)
 int UserThreadCreate(void *(*f) (void *arg), void *arg);
 void UserThreadExit(void *ret);
 int UserThreadJoin(int tid, void **retval);
 
-//TODO document this also	!
+//Semaphore managing functions (see user_doc.org)
 int UserSemaphoreCreate(char* name, int value); //create semaphore in the user level
 int UserSemaphoreP(int id); 			//Semaphore to lock the thread
 int UserSemaphoreV(int id); 			//Semaphore to unlock the thread

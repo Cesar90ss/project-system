@@ -16,8 +16,10 @@
 **** SYNOPSIS :
         void _exit(int status);
 **** DESCRIPTION :
-        The exit The parameter is used status to quit the process without shutting down the machine unless there is no other process
-        running it will end the all system. There is 2 kind of status value 0 is exit for normal condition and 1 is exit with error
+        The exit The parameter is used status to quit the process without shutting down
+		the machine unless there is no other process running it will end the all system.
+		There is 2 kind of status value 0 is exit for normal condition and 1 is exit
+		with error
 
 
 *** NAME : PutChar
@@ -46,9 +48,9 @@
 **** SYNOPSIS :
         int GetInt(int* p)
 **** DESCRIPTION :
-        GetInt is the function that read an int from the input buffer to the p pointer adress.
+        GetInt is the function that read an int from the input buffer to the p pointer address.
         Return 0 when everything is ok, -1 when the input cannot be read as an int
-        and -2 when the adress p cannot be wroten by the caller.
+        and -2 when the address p cannot be written by the caller.
 
 
 *** NAME : PutString
@@ -92,7 +94,7 @@
         int UserThreadJoin(int tid, void **retval)
 **** DESCRIPTION :
         This function is used to join another thread.  If multiple threads tries
-        to join on the same thread, only the first one will effectly join on
+        to join on the same thread, only the first one will effectually join on
         it. Others will have return code -2.  If retval is not null, it contains
         the return value of exit thread, either calling UserThreadExit or by
         reaching the end of thread function.  Return -1 if bad tid & -2 if
@@ -103,25 +105,28 @@
 **** SYNOPSIS :
         int UserSemaphoreCreate(char* name, int value)
 **** DESCRIPTION :
-        Initialize and return a semaphore with tha nama "name" and initial value "value"
-
+        Initialize and return a semaphore id named "name" with an initial value "value".
+		It do not create a semaphore with the id of a previously destroyed semaphore.
 
 *** NAME : UserSemaphoreP
 **** SYNOPSIS :
         int UserSemaphoreP(int id)
 **** DESCRIPTION :
-        Takes the lock on the semaphore pointed by id and return -1 if error and 0 if it works
+        Takes the lock on the semaphore pointed by id and return -1 if error (semaphore
+		does not exist) and 0 if it works.
 
 
 *** NAME : UserSemaphoreV
 **** SYNOPSIS :
         int UserSemaphoreV(int id)
 **** DESCRIPTION :
-        Release the lock (unlock) the semaphore pointed by id and return -1 if error and 0 if it works
+        Release the lock (unlock) the semaphore pointed by id and return -1 if error
+		(semaphore does not exist) and 0 if it works.
 
 
 *** NAME : UserSemaphoreDestroy
 **** SYNOPSIS :
         int UserSemaphoreDestroy(int id)
 **** DESCRIPTION :
-        Destroy the semaphore pointed by id and return -1 if error and 0 if it works
+        Destroy the semaphore pointed by id and return -1 if error (semaphore does not
+		exist) and 0 if it works.
