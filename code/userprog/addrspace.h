@@ -96,6 +96,7 @@ class AddrSpace
 
 	sem_list semaphore_list;
 	unsigned int semaphore_counter;
+	void CleanSemaphores();
 
     // address space
 };

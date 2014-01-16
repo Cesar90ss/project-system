@@ -153,6 +153,8 @@ AddrSpace::~AddrSpace ()
     // delete pageTable;
     delete [] pageTable;
     // End of modification
+	
+	this->CleanSemaphores();
 
 #ifdef USER_PROGRAM
     // Free stack mgr
@@ -200,7 +202,6 @@ AddrSpace::InitRegisters ()
 //
 //      For now, nothing!
 //----------------------------------------------------------------------
-
 void
 AddrSpace::SaveState ()
 {
@@ -213,14 +214,13 @@ AddrSpace::SaveState ()
 //
 //      For now, tell the machine where to find the page table.
 //----------------------------------------------------------------------
-
 void
 AddrSpace::RestoreState ()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
 }
-
+//------------------------------------------------------------//
 // Wrapper around StackMgr
 int AddrSpace::GetNewUserStack()
 {
@@ -230,7 +230,7 @@ int AddrSpace::GetNewUserStack()
     return 0;
 #endif
 }
-
+//------------------------------------------------------------//
 /**
  * Create a new semaphore named name and return the id of the semaphore
  **/
@@ -249,7 +249,7 @@ int AddrSpace::CreateSemaphore(char *name, int val)
 	semaphore_counter++;
 	return new_sem->id;
 }
-
+//------------------------------------------------------------//
 /**
  * Return -1 if this semaphore does not exist
  **/
@@ -270,7 +270,7 @@ int AddrSpace::SemaphoreP(int id)
 	cursor->sem->P();
 	return 0;
 }
-
+//------------------------------------------------------------//
 /**
  * Return -1 if this semaphore does not exist
  **/
@@ -291,7 +291,7 @@ int AddrSpace::SemaphoreV(int id)
 	cursor->sem->V();
 	return 0;
 }
-
+//------------------------------------------------------------//
 /**
  * Remove the corresponding semaphore from the list or return -1 if it doesn't exist
  **/
@@ -327,7 +327,23 @@ int AddrSpace::SemaphoreDestroy(int id)
 
 	return 0;
 }
+//------------------------------------------------------------//
+/**
+ * Delete all the semaphores in the list
+ **/
+void AddrSpace::CleanSemaphores()
+{
+	sem_list cursor = semaphore_list;
+	sem_list destructor = NULL;
 
+	while(cursor!=NULL)
+	{
+		destructor = cursor;
+		cursor = cursor->next;
+		delete destructor;
+	}
+}
+//------------------------------------------------------------//
 // Wrapper around StackMgr
 int AddrSpace::FreeUserStack(unsigned int addr)
 {
@@ -337,7 +353,7 @@ int AddrSpace::FreeUserStack(unsigned int addr)
     return -1;
 #endif
 }
-
+//------------------------------------------------------------//
 /**
  * Return all threads inside this @ space as a list
  **/
@@ -345,7 +361,7 @@ std::map<unsigned int, ThreadInfo> AddrSpace::GetThreads()
 {
     return threads;
 }
-
+//------------------------------------------------------------//
 /**
  * Mark all thread as finished when exit
  **/
@@ -374,7 +390,7 @@ void AddrSpace::KillAllThreads()
         delete t.ptr;
     }
 }
-
+//------------------------------------------------------------//
 /**
  * Suppose not inside threads
  **/
@@ -392,7 +408,7 @@ void AddrSpace::AttachThread(Thread *child)
 
     num_threads++;
 }
-
+//------------------------------------------------------------//
 /**
  * Suppose already inside threads
  **/
@@ -405,7 +421,7 @@ void AddrSpace::DetachThread(Thread *child)
     child->space = NULL;
     num_threads--;
 }
-
+//------------------------------------------------------------//
 /**
  * Get thread by tid
  * Return NULL if non existence
@@ -417,7 +433,7 @@ Thread *AddrSpace::GetThreadById(unsigned int tid)
 
     return threads[tid].ptr;
 }
-
+//------------------------------------------------------------//
 /**
  * Check if a thread is ended previously
  **/
@@ -428,7 +444,7 @@ bool AddrSpace::ThreadEnded(unsigned int tid)
 
     return threads[tid].status == THREAD_ENDED;
 }
-
+//------------------------------------------------------------//
 /**
  * Set return value for a given thread
  **/
@@ -440,7 +456,7 @@ void AddrSpace::SetThreadReturn(unsigned int tid, int ret)
     ti.ret = ret;
     threads[tid] = ti;
 }
-
+//------------------------------------------------------------//
 /**
  * Get return value for a given thread
  **/
@@ -451,7 +467,7 @@ int AddrSpace::GetThreadReturn(unsigned int tid)
 
     return threads[tid].ret;
 }
-
+//------------------------------------------------------------//
 /**
  * Get number of currently running threads
  **/
@@ -459,7 +475,7 @@ unsigned int AddrSpace::CurrentThreadNumber()
 {
     return num_threads;
 }
-
+//------------------------------------------------------------//
 /**
  * Exit process
  **/
@@ -478,3 +494,4 @@ void AddrSpace::Exit()
     if (AddrSpace::nbProcess == 0)
         interrupt->Halt();
 }
+//------------------------------------------------------------//
