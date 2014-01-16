@@ -14,8 +14,8 @@ int main()
 {
     int tid = 0;
 
-	tid = UserThreadCreate(&fun, 0);
-
+		tid = UserThreadCreate(&fun, 0);
+		tid = tid; // make gcc happy
     PutString("La ");
     UserThreadExit(0);
     PutString("Mort\n");
