@@ -175,6 +175,11 @@ Thread::Finish ()
     DEBUG('t', "Thread %s alert for join\n", getName());
     joinSemaphore->V();
 
+#ifdef USER_PROGRAM
+    // Clear stack
+    space->FreeUserStack(this->userStack);
+#endif
+
     threadToBeDestroyed = currentThread;
     Sleep ();			// invokes SWITCH
     // not reached

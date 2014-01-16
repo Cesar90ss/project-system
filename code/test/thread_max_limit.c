@@ -19,9 +19,7 @@ int main()
         //Some check for the threads creation
         if(id[i] <= 0)
         {
-            PutString("\nError ");
-            PutInt(id[i]);
-            PutString("\n");
+            PutString("-2");
         }
         else{
             j++;

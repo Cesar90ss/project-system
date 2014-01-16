@@ -50,7 +50,7 @@ int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
     IntStatus oldLevel = interrupt->SetLevel (IntOff);      //Block Interrupt to be atomic
 
     // Does not go above MAX_TOTAL_THREADS
-    if (currentThread->space->GetMaxTid() + 1 > MAX_TOTAL_THREADS)
+    if (currentThread->space->GetMaxTid() > MAX_TOTAL_THREADS)
     {
         (void) interrupt->SetLevel (oldLevel);
         return -2;
