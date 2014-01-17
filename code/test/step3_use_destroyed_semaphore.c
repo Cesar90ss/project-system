@@ -9,7 +9,5 @@ int main()
 	{
 	    PutString("ok\n");
 	}
-    int i;
-    for (i = 0; i < 10000; i++); 
 	return 0;
 }
