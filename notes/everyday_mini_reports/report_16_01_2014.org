@@ -9,12 +9,12 @@
     - Release Frame : release a page allocated with GetEmptyFrame.
     - NumAvailFrame : how many frame available.
 
-- Rewrite AddrSpace constuction to use FrameProvider. (IN PROGRESS)
-- StackMagrUpdate to use virtual memory. (IN PROGRESS)
+- Rewrite AddrSpace constuction to use FrameProvider. (IN PROGRESS) Hugo
+- StackMagrUpdate to use virtual memory. (IN PROGRESS) Hugo
 
-- Create simple test/userpages 0 which launch one or two threads with char printing.
-- Implement different page allocation strategy.
-- Implement ForkExec : create a new process & new@space.
+- Create simple test/userpages 0 which launch one or two threads with char printing. (IN PROGRESS) Simon
+- Implement different page allocation strategy. (IN PROGRESS) Lucas
+- Implement ForkExec : create a new process & new@space. (IN PROGRESS) Antoine & Fida
 - Implement pdf provided programs.
 - Handle resource cleaning at end of process.
 - Last process must halt machine.
