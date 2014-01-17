@@ -198,6 +198,18 @@ void switch_Fork()
 	machine->WriteRegister(2,pid);
 }
 //----------------------//
+void switch_ForkExec()
+{
+	Thread* t = new Thread("ThreadForkExec");
+	int from = machine->ReadRegister(4);
+	char* c = new char[MAX_STRING_SIZE + 1];
+	int write = copyStringFromMachine(from,c,MAX_STRING_SIZE);
+	c[write] = '\0';
+	t->ForkExec(c);
+	// TODO return the pid not just 0 
+	machine->WriteRegister(2,0);
+  
+}
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -315,6 +327,11 @@ ExceptionHandler (ExceptionType which)
                 case SC_Fork:
                 {
 					switch_Fork();
+					break;
+                }
+                case SC_ForkExec:
+                {
+					switch_ForkExec();
 					break;
                 }
 				#endif

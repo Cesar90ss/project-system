@@ -43,6 +43,7 @@
 #define SC_UserSemaphoreP	21
 #define SC_UserSemaphoreV	22
 #define SC_UserSemaphoreDestroy	23
+#define SC_ForkExec		24
 
 #ifdef IN_USER_MODE
 
@@ -181,6 +182,11 @@ int UserSemaphoreCreate(char* name, int value); //create semaphore in the user l
 int UserSemaphoreP(int id); 			//Semaphore to lock the thread
 int UserSemaphoreV(int id); 			//Semaphore to unlock the thread
 int UserSemaphoreDestroy(int id);		//To destroy the semaphore syscall
+
+/* Run the executable, in the thread , and return the int 
+ * and has arg s as program you want to execute 
+ */
+int ForkExec(char *s);
 
 #endif // IN_USER_MODE
 

@@ -18,5 +18,6 @@ void StartUserThread(int f);
 int do_UserThreadCreate(int fnWrapper, int fnUser, int arg);
 void do_UserThreadExit();
 int do_UserThreadJoin();
+void StartProc(int filename);
 
 #endif

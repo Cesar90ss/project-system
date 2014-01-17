@@ -44,6 +44,7 @@
 #ifdef USER_PROGRAM
 #include "machine.h"
 #include "addrspace.h"
+#include "userthread.h"
 #endif
 
 // CPU register state to be saved on context switch.
@@ -63,6 +64,7 @@ enum ThreadStatus
 
 // external function, dummy routine whose sole job is to call Thread::Print
 extern void ThreadPrint (int arg);
+
 
 // The following class defines a "thread control block" -- which
 // represents a single thread of execution.
@@ -115,6 +117,8 @@ class Thread
     printf ("%s, ", name);
     }
 
+    void ForkExec(char *s);
+
   private:
     // some of the private data for this class is listed above
 
@@ -147,7 +151,7 @@ class Thread
 
     unsigned int GetTid();
     void SetTid(unsigned int id);
-
+    
   private:
     unsigned int tid;
 #endif

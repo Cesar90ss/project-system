@@ -20,6 +20,7 @@
 #include "synch.h"
 #include "system.h"
 
+
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
                     // execution stack, for detecting
                     // stack overflows
@@ -452,5 +453,22 @@ void Thread::SetTid(unsigned int id)
 {
     this->tid = id;
 }
+
+
+void
+Thread::ForkExec (char *s)
+{
+  /*DEBUG ('t', "Execute Fork Inside Thread \"%s\" with func = 0x%x, arg = %d\n",
+       name, (int) func, arg);
+  */
+    
+    StackAllocate(StartProc,(int)s);
+    
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);
+    scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
+    // are disabled!
+    (void) interrupt->SetLevel (oldLevel);
+}
+
 
 #endif
