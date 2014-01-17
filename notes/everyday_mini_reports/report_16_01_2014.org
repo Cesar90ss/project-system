@@ -13,13 +13,12 @@
 - StackMagrUpdate to use virtual memory. (IN PROGRESS) Hugo
 
 - Create simple test/userpages 0 which launch one or two threads with char printing. (IN PROGRESS) Simon
-- Implement different page allocation strategy. (Done)
+- Implement different page allocation strategy. (DONE)
 - Implement ForkExec : create a new process & new@space. (DONE) -->Testing
-- Implement pdf provided programs. (IN PROGRESS) Lucas
+- Implement pdf provided programs.
 - Handle resource cleaning at end of process.
 - Last process must halt machine.
-- Provide test with more or less 12 processes, more or less 12 threads.
-- Redefine new & delete to check resource alloc/free.
+- Provide test with more or less 12 processes, more or less 12 threads. (IN PROGRESS) Lucas 
 - Small shell (prompt + &-bg job handle)
 - Heap handle... To be define!
 ------------------------------
