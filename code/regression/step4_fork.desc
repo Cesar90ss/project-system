@@ -1,2 +1,0 @@
-Test the fork syscall and verify if the parent and the child print a message.
-Return -1 if there is no parent after the call and -2 if there is no child after the call. 
