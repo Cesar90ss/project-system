@@ -32,6 +32,7 @@ SynchDisk *synchDisk;
 #ifdef USER_PROGRAM		// requires either FILESYS or FILESYS_STUB
 Machine *machine;		// user program memory and registers
 SynchConsole *synchconsole;	//console
+FrameProvider *frameProvider;	// declare the pysical frame provider
 #endif
 
 #ifdef NETWORK
@@ -162,6 +163,7 @@ Initialize (int argc, char **argv)
 #ifdef USER_PROGRAM
     machine = new Machine (debugUserProg);	// this must come first
     synchconsole = new SynchConsole (NULL,NULL);
+    frameProvider = new FrameProvider();
 #endif
 
 #ifdef FILESYS

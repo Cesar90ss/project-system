@@ -48,12 +48,12 @@ unsigned int FrameProvider::GetEmptyFrame()
         return 0;
 
     // Compute Physical addr
-    frame_addr = 1+index*PageSize;
+    frame_addr = index*PageSize;
 
     // Clear frame
     bzero(machine->mainMemory + frame_addr,PageSize);
     
-		number_of_free_frame--;
+    number_of_free_frame--;
 
     return frame_addr;
 }
