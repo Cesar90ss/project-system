@@ -72,8 +72,13 @@ Thread::~Thread ()
 
 #ifdef USER_PROGRAM
     if (space != NULL)
+    {
+        // Clear stack
+        space->FreeUserStack(this->userStack);
         space->DetachThread(this);
+    }
 #endif
+
     scheduler->RemoveFromList(this);
     stats->totalThreads--;
 }
@@ -176,11 +181,6 @@ Thread::Finish ()
     // Notify threads joining on this
     DEBUG('t', "Thread %s alert for join\n", getName());
     joinSemaphore->V();
-
-#ifdef USER_PROGRAM
-    // Clear stack
-    space->FreeUserStack(this->userStack);
-#endif
 
     threadToBeDestroyed = currentThread;
     Sleep ();			// invokes SWITCH

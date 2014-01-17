@@ -20,8 +20,6 @@
 #include "addrspace.h"
 #include "noff.h"
 
-#include <strings.h>		/* for bzero */
-
 //----------------------------------------------------------------------
 // SwapHeader
 //      Do little endian to big endian conversion on the bytes in the
@@ -64,7 +62,6 @@ unsigned int AddrSpace::nbProcess = 0;
 AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 {
     NoffHeader noffH;
-    unsigned int i, size;
 
     executable->ReadAt ((char *) &noffH, sizeof (noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
@@ -72,53 +69,26 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
         SwapHeader (&noffH);
     ASSERT (noffH.noffMagic == NOFFMAGIC);
 
-// how big is address space?
-    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize;	// we need to increase the size
+    // Init Page Table Translation
+    InitTranslation();
 
-    // For now take all memory (uni-process). Virtual memory will handle this later
-    numPages = NumPhysPages;//divRoundUp (size, PageSize);
-    size = numPages * PageSize;
+    // Compute size for code + data & allocate page for it
+    unsigned int codePages = noffH.code.size + noffH.initData.size + noffH.uninitData.size;
+    codePages = divRoundUp(codePages, PageSize);
 
-    ASSERT (numPages <= NumPhysPages);	// check we're not trying
-    // to run anything too big --
-    // at least until we have
-    // virtual memory
-
-    DEBUG ('a', "Initializing address space, num pages %d, size %d\n",
-           numPages, size);
-// first, set up the translation
-    pageTable = new TranslationEntry[numPages];
-    for (i = 0; i < numPages; i++)
-    {
-        pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-        pageTable[i].physicalPage = i;
-        pageTable[i].valid = TRUE;
-        pageTable[i].use = FALSE;
-        pageTable[i].dirty = FALSE;
-        pageTable[i].readOnly = FALSE;	// if the code segment was entirely on
-        // a separate page, we could set its
-        // pages to be read-only
-    }
-
-    // Set machine page table now for loading code
-    RestoreState();
-
-    // Zero out the entire address space, to zero the unitialized data segment
-    // and the stack segment
-    bzero (machine->mainMemory, size);
-
-    unsigned int program_end = 0;
+    // Allocate page for code & data (suppose data just after code)
+    AllocatePages(noffH.code.virtualAddr, codePages);
 
     // Then, copy in the code and data segments into virtual memory
     if (noffH.code.size > 0)
     {
         DEBUG ('a', "Initializing code segment, at 0x%x, size %d\n",
                noffH.code.virtualAddr, noffH.code.size);
+
         executable->ReadAtVirtual(noffH.code.virtualAddr,
                                   noffH.code.size,
                                   noffH.code.inFileAddr);
 
-        program_end = noffH.code.virtualAddr;
     }
     if (noffH.initData.size > 0)
     {
@@ -127,22 +97,20 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
         executable->ReadAtVirtual(noffH.initData.virtualAddr,
                                     noffH.initData.size,
                                     noffH.initData.inFileAddr);
-
-        program_end = noffH.initData.virtualAddr;
     }
+
+    // Mark page only code as readOnly
+    SetPageRights(noffH.code.virtualAddr, noffH.code.size/PageSize, READONLY);
 
 #ifdef USER_PROGRAM
     // Init stack mgr
-    stackMgr = new StackMgr(program_end);
-#else
-    // Compiler warning avoid
-    program_end = program_end;
+    stackMgr = new StackMgr(this, codePages * PageSize);
 #endif
 
     AddrSpace::nbProcess ++;
 
-	semaphore_list = NULL;
-	semaphore_counter = 0;
+    semaphore_list = NULL;
+    semaphore_counter = 0;
 }
 
 //----------------------------------------------------------------------
@@ -152,12 +120,11 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 
 AddrSpace::~AddrSpace ()
 {
-    // LB: Missing [] for delete
-    // delete pageTable;
-    delete [] pageTable;
-    // End of modification
-	
-	this->CleanSemaphores();
+    // Clean page table
+    CleanPageTable();
+
+    // Clean semaphore
+    CleanSemaphores();
 
 #ifdef USER_PROGRAM
     // Free stack mgr
@@ -184,18 +151,18 @@ AddrSpace::InitRegisters ()
         machine->WriteRegister (i, 0);
 
     // Initial program counter -- must be location of "Start"
-    machine->WriteRegister (PCReg, 0);
+    machine->WriteRegister(PCReg, 0);
 
     // Need to also tell MIPS where next instruction is, because
     // of branch delay possibility
-    machine->WriteRegister (NextPCReg, 4);
+    machine->WriteRegister(NextPCReg, 4);
 
-    // Set the stack register to the end of the address space, where we
-    // allocated the stack; but subtract off a bit, to make sure we don't
-    // accidentally reference off the end!
-    machine->WriteRegister (StackReg, numPages * PageSize - 16);
+    // Ask stackmgr for a stack (should be the first one)
+    int stackAddr = GetNewUserStack();
+
+    machine->WriteRegister(StackReg, stackAddr);
     DEBUG ('a', "Initializing stack register to %d\n",
-           numPages * PageSize - 16);
+           stackAddr);
 }
 
 //----------------------------------------------------------------------
@@ -239,18 +206,18 @@ int AddrSpace::GetNewUserStack()
  **/
 int AddrSpace::CreateSemaphore(char *name, int val)
 {
-	//create a new semaphore
-	sem_list new_sem = new struct slist;
-	new_sem->id = semaphore_counter;
-	new_sem->sem = new Semaphore(name,val);
+    //create a new semaphore
+    sem_list new_sem = new struct slist;
+    new_sem->id = semaphore_counter;
+    new_sem->sem = new Semaphore(name,val);
 
-	//add it to the list
-	new_sem->next = semaphore_list;
-	semaphore_list = new_sem;
-	
-	//increment the id counter and return the id of the new semaphore
-	semaphore_counter++;
-	return new_sem->id;
+    //add it to the list
+    new_sem->next = semaphore_list;
+    semaphore_list = new_sem;
+
+    //increment the id counter and return the id of the new semaphore
+    semaphore_counter++;
+    return new_sem->id;
 }
 //------------------------------------------------------------//
 /**
@@ -258,20 +225,20 @@ int AddrSpace::CreateSemaphore(char *name, int val)
  **/
 int AddrSpace::SemaphoreP(int id)
 {
-	sem_list cursor = semaphore_list;
-	while(cursor!=NULL && cursor->id!=id)
-	{
-		cursor = cursor->next;
-	}
+    sem_list cursor = semaphore_list;
+    while(cursor!=NULL && cursor->id!=id)
+    {
+        cursor = cursor->next;
+    }
 
-	if(cursor == NULL)
-	{
-		//the semaphore doesn't exist
-		return -1;
-	}
+    if(cursor == NULL)
+    {
+        //the semaphore doesn't exist
+        return -1;
+    }
 
-	cursor->sem->P();
-	return 0;
+    cursor->sem->P();
+    return 0;
 }
 //------------------------------------------------------------//
 /**
@@ -279,20 +246,20 @@ int AddrSpace::SemaphoreP(int id)
  **/
 int AddrSpace::SemaphoreV(int id)
 {
-	sem_list cursor = semaphore_list;
-	while(cursor!=NULL && cursor->id!=id)
-	{
-		cursor = cursor->next;
-	}
+    sem_list cursor = semaphore_list;
+    while(cursor!=NULL && cursor->id!=id)
+    {
+        cursor = cursor->next;
+    }
 
-	if(cursor == NULL)
-	{
-		//the semaphore doesn't exist
-		return -1;
-	}
+    if(cursor == NULL)
+    {
+        //the semaphore doesn't exist
+        return -1;
+    }
 
-	cursor->sem->V();
-	return 0;
+    cursor->sem->V();
+    return 0;
 }
 //------------------------------------------------------------//
 /**
@@ -300,35 +267,35 @@ int AddrSpace::SemaphoreV(int id)
  **/
 int AddrSpace::SemaphoreDestroy(int id)
 {
-	sem_list current = semaphore_list;
-	sem_list previous = NULL;
+    sem_list current = semaphore_list;
+    sem_list previous = NULL;
 
-	while(current!=NULL && current->id!=id)
-	{
-		previous = current;
-		current = current->next;
-	}
+    while(current!=NULL && current->id!=id)
+    {
+        previous = current;
+        current = current->next;
+    }
 
-	if(current == NULL)
-	{
-		//the semaphore doesn't exist
-		return -1;
-	}
+    if(current == NULL)
+    {
+        //the semaphore doesn't exist
+        return -1;
+    }
 
-	if(previous == NULL)
-	{
-		semaphore_list = current->next;
-		delete current->sem;
-		delete current;
-	}
-	else
-	{
-		previous->next = current->next;
-		delete current->sem;
-		delete current;
-	}
+    if(previous == NULL)
+    {
+        semaphore_list = current->next;
+        delete current->sem;
+        delete current;
+    }
+    else
+    {
+        previous->next = current->next;
+        delete current->sem;
+        delete current;
+    }
 
-	return 0;
+    return 0;
 }
 //------------------------------------------------------------//
 /**
@@ -336,15 +303,15 @@ int AddrSpace::SemaphoreDestroy(int id)
  **/
 void AddrSpace::CleanSemaphores()
 {
-	sem_list cursor = semaphore_list;
-	sem_list destructor = NULL;
+    sem_list cursor = semaphore_list;
+    sem_list destructor = NULL;
 
-	while(cursor!=NULL)
-	{
-		destructor = cursor;
-		cursor = cursor->next;
-		delete destructor;
-	}
+    while(cursor!=NULL)
+    {
+        destructor = cursor;
+        cursor = cursor->next;
+        delete destructor;
+    }
 }
 //------------------------------------------------------------//
 // Wrapper around StackMgr
@@ -504,4 +471,137 @@ void AddrSpace::Exit()
 unsigned int AddrSpace::GetMaxTid()
 {
     return max_tid;
+}
+
+/**
+ * Initialize the page table
+ **/
+void AddrSpace::InitTranslation()
+{
+    numPages = NUM_VIRTUAL_PAGES;
+    unsigned int size = numPages * PageSize;
+    unsigned int i;
+
+    DEBUG ('a', "Initializing address space, num pages %d, size %d\n",
+           numPages, size);
+
+    // Set up the translation
+    pageTable = new TranslationEntry[numPages];
+    for (i = 0; i < numPages; i++)
+    {
+        pageTable[i].virtualPage = i;
+        pageTable[i].physicalPage = -1;
+        pageTable[i].valid = FALSE;
+        pageTable[i].use = FALSE;
+        pageTable[i].dirty = FALSE;
+        pageTable[i].readOnly = FALSE;
+    }
+
+    // Set machine page table now for loading code
+    RestoreState();
+}
+
+/**
+ * Ask for allocating num pages starting at @ addr
+ **/
+void AddrSpace::AllocatePages(unsigned int addr, unsigned int num)
+{
+    unsigned int i = 0;
+    unsigned int pageAddr;
+    unsigned int index;
+    unsigned int virtualIndex = addr / PageSize;
+
+    // addr should be page aligned
+    ASSERT(addr % PageSize == 0);
+
+    for (i = 0; i < num; i++)
+    {
+        // Ask frame provider for page
+        ASSERT(frameProvider->GetEmptyFrame(&pageAddr) == 0);
+
+        // Compute index of page
+        index = pageAddr / PageSize;
+
+        // This page should not be already validated
+        ASSERT(pageTable[virtualIndex + i].valid == FALSE);
+
+        // Mark inside pagetable as valid & map it
+        pageTable[virtualIndex + i].virtualPage = virtualIndex + i;
+        pageTable[virtualIndex + i].physicalPage = index;
+        pageTable[virtualIndex + i].valid = TRUE;
+
+        DEBUG('m', "Allocate page %d\n", virtualIndex + i);
+    }
+}
+
+/**
+ * Set rights r for num pages starting at addr
+ * r = READONLY | READWRITE (default READWRITE)
+ **/
+void AddrSpace::SetPageRights(unsigned int addr, unsigned int num, enum PageRight r)
+{
+    unsigned int virtualIndex = addr / PageSize;
+    unsigned int i;
+
+    // addr should be page aligned
+    ASSERT(addr % PageSize == 0);
+
+    for (i = 0; i < num; i++)
+    {
+        switch (r)
+        {
+            case READONLY:
+                pageTable[virtualIndex + i].readOnly = TRUE;
+                break;
+            case READWRITE:
+                pageTable[virtualIndex + i].readOnly = FALSE;
+                break;
+            default:
+                DEBUG('a', "Unknow right type %d\n", r);
+                ASSERT(FALSE);
+        }
+    }
+}
+
+/**
+ * Ask for deleting num pages starting at @ addr
+ **/
+void AddrSpace::FreePages(unsigned int addr, unsigned int num)
+{
+    unsigned int i = 0;
+    unsigned int virtualIndex = addr / PageSize;
+
+    // addr should be page aligned
+    ASSERT(addr % PageSize == 0);
+
+    for (i = 0; i < num; i++)
+    {
+        // This page should be valid
+        ASSERT(pageTable[virtualIndex + i].valid == TRUE);
+
+        // Ask frame provider deleting page
+        ASSERT(frameProvider->ReleaseFrame(pageTable[virtualIndex + i].physicalPage * PageSize) == 0);
+
+        DEBUG('m', "Deallocate page %d\n", virtualIndex + i);
+
+        // Mark inside pagetable as valid & map it
+        pageTable[virtualIndex + i].physicalPage = 0;
+        pageTable[virtualIndex + i].valid = FALSE;
+    }
+}
+
+/**
+ * Clean page table when freeing addr space
+ **/
+void AddrSpace::CleanPageTable()
+{
+    unsigned int i = 0;
+
+    for (i = 0; i < NUM_VIRTUAL_PAGES; i++)
+    {
+        if (pageTable[i].valid == TRUE)
+            FreePages(i * PageSize, 1);
+
+        ASSERT(pageTable[i].valid == FALSE);
+    }
 }

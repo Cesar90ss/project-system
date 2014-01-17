@@ -24,7 +24,7 @@ class Thread;
 
 #define UserStackSize		1024	// increase this as necessary!
 #define MAX_TOTAL_THREADS   20      // total number of threads in program lifetime
-
+#define NUM_VIRTUAL_PAGES    (NumPhysPages) // Num of virtual pages
 typedef struct slist
 {
 	int id;
@@ -46,6 +46,15 @@ struct ThreadInfo
     enum ThreadStatusEnum status;
     int ret;
     Thread* ptr;
+};
+
+/**
+ * Rights for pages
+ **/
+enum PageRight
+{
+    READONLY,
+    READWRITE
 };
 
 class AddrSpace
@@ -84,6 +93,11 @@ class AddrSpace
     unsigned int GetMaxTid();
     static void Exit();
 
+    // Virtual page management
+    void AllocatePages(unsigned int addr, unsigned int num);
+    void SetPageRights(unsigned int addr, unsigned int num, enum PageRight r);
+    void FreePages(unsigned int addr, unsigned int num);
+
     static unsigned int nbProcess;
   private:
     TranslationEntry * pageTable;	// Assume linear page table translation
@@ -100,6 +114,8 @@ class AddrSpace
 	unsigned int semaphore_counter;
 	void CleanSemaphores();
 
+    void InitTranslation();
+    void CleanPageTable();
     // address space
 };
 

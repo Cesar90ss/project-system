@@ -15,18 +15,19 @@
  * data_end_at indicate where the data segment end.
  * Suppose code & segment contiguous and code start at 0x0
  **/
-StackMgr::StackMgr(unsigned int data_end_at)
+StackMgr::StackMgr(AddrSpace *_space, unsigned int data_end_at)
 {
     unsigned int total_memory_size;
     unsigned int total_free_size;
     unsigned int real_page_size = UserStackSize + PROTECTION_PAGE * PageSize;
 
     // Total memory size
-    total_memory_size = NumPhysPages * PageSize;
+    total_memory_size = NUM_VIRTUAL_PAGES * PageSize;
     DEBUG('t', "Total memory size : %lu\n", total_memory_size);
 
     // Total memory allowed for stack
-    total_free_size = total_memory_size - data_end_at - 16; // -16 : see AddrSpace::InitRegisters
+    total_free_size = total_memory_size - data_end_at;
+
     DEBUG('t', "Total memory size for stack: %lu\n", total_free_size);
 
     // Compute number of possible stacks
@@ -36,12 +37,12 @@ StackMgr::StackMgr(unsigned int data_end_at)
     // Create bitmap
     bitmap = new BitMap(number_of_stack);
 
-    // Mark the first stack
-    bitmap->Mark(0);
-
     // Keep first stack addr
-    first_stack_addr = total_memory_size - 16;
+    first_stack_addr = total_memory_size;
     DEBUG('t', "Code+Data ends at: %lu\n", data_end_at);
+
+    // Get reference to space for virtual memory
+    this->space = _space;
 }
 
 StackMgr::~StackMgr()
@@ -70,10 +71,10 @@ unsigned int StackMgr::GetNewStack()
     // Compute stack addr
     stack_addr = first_stack_addr - index * real_page_size;
 
-    // Clear stack
-    bzero(machine->mainMemory + stack_addr - real_page_size, real_page_size);
+    // Ask for page inside addr space
+    // Don't ask protection page. Will trigger page fault
+    space->AllocatePages(stack_addr - UserStackSize, UserStackSize / PageSize);
 
-    // TODO: mark PROTECTION_PAGE to trigger page-fault
     return stack_addr;
 }
 
@@ -105,6 +106,9 @@ int StackMgr::FreeStack(unsigned int addr)
 
     // Clean stack
     bitmap->Clear(stack_index);
+
+    // Free pages inside @ space
+    space->FreePages(addr - UserStackSize, UserStackSize / PageSize);
 
     return 0;
 }

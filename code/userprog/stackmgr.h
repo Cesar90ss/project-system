@@ -13,12 +13,14 @@
 #include "frameprovider.h"
 
 // Num of page after real stack (to trigger page fault)
-#define PROTECTION_PAGE 2
+#define PROTECTION_PAGE 1
+
+class AddrSpace;
 
 class StackMgr
 {
     public:
-    StackMgr(unsigned int data_end_at);  // Init bitmap associated to stack
+    StackMgr(AddrSpace *space, unsigned int data_end_at);  // Init bitmap associated to stack
     ~StackMgr(); // De-allocate btimap
 
     unsigned int GetNewStack(); // Return address of new stack
@@ -26,6 +28,7 @@ class StackMgr
 
     private:
     BitMap *bitmap;
+    AddrSpace *space;
     unsigned int first_stack_addr;
     unsigned int number_of_stack;
 };

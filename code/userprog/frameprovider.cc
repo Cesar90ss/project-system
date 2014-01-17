@@ -95,8 +95,7 @@ int FrameProvider::ReleaseFrame(unsigned int addr)
     unsigned int frame_index;
    
     // Check if addr does not goes out memory
-    if (addr > MemorySize-1 &&
-        addr < 0 )
+    if (addr > MemorySize-1)
         return -1;
 
     // Check if it is the begin of a frame
