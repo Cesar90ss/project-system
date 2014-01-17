@@ -2,10 +2,8 @@
 
 int main()
 {
-	PutChar('A');
-	PutChar('\n');
+	PutString("AAA");
 	return(0);
-	PutChar('B');
-	PutChar('\n');
+	PutString("BBB");
 	return(-1);
 }
