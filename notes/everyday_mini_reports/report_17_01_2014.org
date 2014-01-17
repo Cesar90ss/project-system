@@ -1,0 +1,26 @@
+- We finished step 3, includin all tests.
+
+---- TODO LIST FOR STEP 4 ----
+- Write ReadAtVirtual same as readAt but using WriteMem. (DONE) + some thread bugs fixed (registers)
+- Class FramPageProvider (manage page allocation) using Bitmap. (DONE)
+
+- Frame provider : (DONE)
+    - GetEmptyFrame : get a zeroed frame.
+    - Release Frame : release a page allocated with GetEmptyFrame.
+    - NumAvailFrame : how many frame available.
+
+- Create simple test/userpages 0 which launch one or two threads with char printing. (DONE)
+
+- Rewrite AddrSpace constuction to use FrameProvider. (IN PROGRESS)
+- StackMagrUpdate to use virtual memory. (IN PROGRESS)
+
+- Implement different page allocation strategy.
+- Implement ForkExec : create a new process & new@space.
+- Implement pdf provided programs.
+- Handle resource cleaning at end of process.
+- Last process must halt machine.
+- Provide test with more or less 12 processes, more or less 12 threads.
+- Redefine new & delete to check resource alloc/free.
+- Small shell (prompt + &-bg job handle)
+- Heap handle... To be define!
+------------------------------
