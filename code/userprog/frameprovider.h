@@ -19,9 +19,14 @@ class FrameProvider
     FrameProvider();  // Init bitmap associated to physical address space
     ~FrameProvider(); // De-allocate bitmap
 
-    unsigned int GetEmptyFrame(); // Return address of new Physical address
-    int ReleaseFrame(unsigned int addr); // Mark a Physical address as freed
-    int NumAvailFrame();//Return number of available frame 
+    // Return address of new Physical address
+    unsigned int GetEmptyFrame(); 
+    
+    // Mark a Physical address as freed
+    int ReleaseFrame(unsigned int addr);
+    
+    //Return number of available frame 
+    int NumAvailFrame();
 
     private:
     BitMap *bitmap;

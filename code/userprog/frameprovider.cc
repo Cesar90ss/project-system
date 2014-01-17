@@ -18,11 +18,12 @@
 FrameProvider::FrameProvider()
 {
     total_frame_number=NumPhysPages;
-    number_of_free_frame = total_frame_number-1;
+    number_of_free_frame = total_frame_number; // If we block the first page, we will need to add -1
     // Create bitmap
     bitmap = new BitMap(total_frame_number);
     
-    bitmap->Mark(0);
+    // Can not bock the first page, at least for now... It contains the first lines of code,
+    // so can not make it trigger page fault.
 
 }
 
@@ -43,7 +44,7 @@ unsigned int FrameProvider::GetEmptyFrame()
     // Find the first bit which is clear
     index = bitmap->Find();
 
-    // If error, return NULL
+    // If error, return NULL (0)
     if (index == -1)
         return 0;
 
@@ -53,6 +54,7 @@ unsigned int FrameProvider::GetEmptyFrame()
     // Clear frame
     bzero(machine->mainMemory + frame_addr,PageSize);
     
+     // we allocated a frame, so one less free now
     number_of_free_frame--;
 
     return frame_addr;
@@ -86,7 +88,8 @@ int FrameProvider::ReleaseFrame(unsigned int addr)
     // Clean frame
     bitmap->Clear(frame_index);
     
-    number_of_free_frame++;
+    // We freed a frame, so one more now
+    number_of_free_frame++; 
     
     return 0;
 }
