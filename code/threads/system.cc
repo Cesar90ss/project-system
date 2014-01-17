@@ -194,6 +194,7 @@ Cleanup ()
 #ifdef USER_PROGRAM
     delete machine;
     delete synchconsole;
+    delete frameProvider;
 #endif
 
 #ifdef FILESYS_NEEDED
@@ -207,6 +208,7 @@ Cleanup ()
     delete timer;
     delete scheduler;
     delete interrupt;
+    delete stats;
 
     Exit (0);
 }

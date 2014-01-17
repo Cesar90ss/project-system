@@ -159,6 +159,7 @@ AddrSpace::InitRegisters ()
 
     // Ask stackmgr for a stack (should be the first one)
     int stackAddr = GetNewUserStack();
+    currentThread->userStack = stackAddr;
 
     machine->WriteRegister(StackReg, stackAddr);
     DEBUG ('a', "Initializing stack register to %d\n",
@@ -530,7 +531,7 @@ void AddrSpace::AllocatePages(unsigned int addr, unsigned int num)
         pageTable[virtualIndex + i].physicalPage = index;
         pageTable[virtualIndex + i].valid = TRUE;
 
-        DEBUG('m', "Allocate page %d\n", virtualIndex + i);
+        DEBUG('a', "Allocate page %d -> %d\n", virtualIndex + i, index);
     }
 }
 
@@ -582,7 +583,7 @@ void AddrSpace::FreePages(unsigned int addr, unsigned int num)
         // Ask frame provider deleting page
         ASSERT(frameProvider->ReleaseFrame(pageTable[virtualIndex + i].physicalPage * PageSize) == 0);
 
-        DEBUG('m', "Deallocate page %d\n", virtualIndex + i);
+        DEBUG('a', "Deallocate page %d\n", virtualIndex + i);
 
         // Mark inside pagetable as valid & map it
         pageTable[virtualIndex + i].physicalPage = 0;
