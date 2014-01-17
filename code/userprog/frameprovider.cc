@@ -37,7 +37,7 @@ FrameProvider::~FrameProvider()
  * GetNewFrameProvider return address in user space corresponding to Physical Frame, NULL if
  * no more memory
  **/
-unsigned int FrameProvider::GetEmptyFrame()
+int FrameProvider::GetEmptyFrame(unsigned int *page)
 {
     int index;
     unsigned int frame_addr;
@@ -46,7 +46,7 @@ unsigned int FrameProvider::GetEmptyFrame()
 
     // If error, return NULL (0)
     if (index == -1)
-        return 0;
+        return -1;
 
     // Compute Physical addr
     frame_addr = index*PageSize;
@@ -57,7 +57,8 @@ unsigned int FrameProvider::GetEmptyFrame()
      // we allocated a frame, so one less free now
     number_of_free_frame--;
 
-    return frame_addr;
+	*page = frame_addr;
+    return 0;
 }
 
 /**

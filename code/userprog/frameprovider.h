@@ -20,7 +20,7 @@ class FrameProvider
     ~FrameProvider(); // De-allocate bitmap
 
     // Return address of new Physical address
-    unsigned int GetEmptyFrame(); 
+    int GetEmptyFrame(unsigned int *page); 
     
     // Mark a Physical address as freed
     int ReleaseFrame(unsigned int addr);
