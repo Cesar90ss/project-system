@@ -169,7 +169,7 @@ BitMap::FindRandom ()
 		//to reproduce same execution (if yes, #include <ctime> can be removed
 		RandomInit(time(NULL));
 		int i = Random() % numBits;
-		while(!Test(i))
+		while(Test(i))
 		{
 			i = Random() % numBits;
 		}
