@@ -12,13 +12,13 @@
 - Rewrite AddrSpace constuction to use FrameProvider. (IN PROGRESS) Hugo
 - StackMagrUpdate to use virtual memory. (IN PROGRESS) Hugo
 
-- Create simple test/userpages 0 which launch one or two threads with char printing. (IN PROGRESS) Simon
+- Create simple test/userpages 0 which launch one or two threads with char printing. (DONE)
 - Implement different page allocation strategy. (DONE)
 - Implement ForkExec : create a new process & new@space. (DONE) -->Testing
 - Implement pdf provided programs.
 - Handle resource cleaning at end of process.
 - Last process must halt machine.
-- Provide test with more or less 12 processes, more or less 12 threads. (IN PROGRESS) Lucas 
+- Provide test with more or less 12 processes, more or less 12 threads. (DONE)
 - Small shell (prompt + &-bg job handle)
 - Heap handle... To be define!
 ------------------------------
