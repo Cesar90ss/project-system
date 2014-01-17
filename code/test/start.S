@@ -175,6 +175,7 @@ GetInt:
     .globl ThreadCreateWrapper
     .ent	ThreadCreateWrapper
 ThreadCreateWrapper:
+    add     $sp, $sp, -32       /* Take some space on stack to fun args */
     move	$6, $4
     move    $4, $5
     jal $6

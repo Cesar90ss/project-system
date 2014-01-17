@@ -39,8 +39,7 @@ void StartUserThread(int f)
     machine->WriteRegister(4, uf->funcUser);	//put the user function to register 4
     machine->WriteRegister(5, uf->arg);	        //put the arg to register 5
     DEBUG('a', "value of stack : %d\n",machine->ReadRegister(StackReg));
-    int * ptr = (int*) &machine->mainMemory[machine->ReadRegister(StackReg)];
-    DEBUG('a', "Value at stack bottom : %d\n", *ptr);
+
     machine->Run();
     return;
 }
@@ -75,7 +74,9 @@ int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
     for (i = 0; i < NumTotalRegs; i++)
         t->userRegisters[i] = 0;
 
-    t->userRegisters[StackReg]=stack;
+    t->userRegisters[StackReg] = stack;
+    // Also set frame pointer to point to stack
+    t->userRegisters[FramePointer] = stack;
     t->userStack=stack;
     DEBUG('a', "value of stack : %d\n", stack);
 
