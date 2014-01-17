@@ -14,7 +14,7 @@
 
 - Create simple test/userpages 0 which launch one or two threads with char printing. (IN PROGRESS) Simon
 - Implement different page allocation strategy. (Done)
-- Implement ForkExec : create a new process & new@space. (IN PROGRESS) Antoine & Fida
+- Implement ForkExec : create a new process & new@space. (DONE) -->Testing
 - Implement pdf provided programs. (IN PROGRESS) Lucas
 - Handle resource cleaning at end of process.
 - Last process must halt machine.
