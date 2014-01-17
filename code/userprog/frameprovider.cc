@@ -15,8 +15,9 @@
  * data_end_at indicate where the data segment end.
  * Suppose code & segment contiguous and code start at 0x0
  **/
-FrameProvider::FrameProvider()
+FrameProvider::FrameProvider(int allocation_strategy)
 {
+	alloc_strat = allocation_strategy;
     total_frame_number=NumPhysPages;
     number_of_free_frame = total_frame_number; // If we block the first page, we will need to add -1
     // Create bitmap
@@ -41,10 +42,33 @@ int FrameProvider::GetEmptyFrame(unsigned int *page)
 {
     int index;
     unsigned int frame_addr;
-    // Find the first bit which is clear
-    index = bitmap->Find();
+    // Find a clear bit according to the choosen strategy
+	switch(alloc_strat)
+	{
+		case FIRST:
+		{
+			index = bitmap->FindFirst();
+			break;
+		}
+		case LAST:
+		{
+			index = bitmap->FindLast();
+			break;
+		}
+		case RANDOM:
+		{
+			index = bitmap->FindRandom();
+			break;
+		}
+		default:
+		{
+			printf("Unexpected allocation strategy type %d\n", alloc_strat);
+			ASSERT(FALSE);
+			break;
+		}
+	}
 
-    // If error, return NULL (0)
+    // If error, return -1
     if (index == -1)
         return -1;
 

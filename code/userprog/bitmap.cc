@@ -9,6 +9,9 @@
 #include "copyright.h"
 #include "bitmap.h"
 
+//time for initialize the random
+#include <ctime>
+
 //----------------------------------------------------------------------
 // BitMap::BitMap
 //      Initialize a bitmap with "nitems" bits, so that every bit is clear.
@@ -23,7 +26,10 @@ BitMap::BitMap (int nitems)
     numWords = divRoundUp (numBits, BitsInWord);
     map = new unsigned int[numWords];
     for (int i = 0; i < numBits; i++)
-	Clear (i);
+	{
+		Clear (i);
+	}
+	numClear = numBits;
 }
 
 //----------------------------------------------------------------------
@@ -51,6 +57,7 @@ BitMap::Mark (int which)
 {
     ASSERT (which >= 0 && which < numBits);
     map[which / BitsInWord] |= 1 << (which % BitsInWord);
+	numClear--;
 }
 
 //----------------------------------------------------------------------
@@ -65,6 +72,7 @@ BitMap::Clear (int which)
 {
     ASSERT (which >= 0 && which < numBits);
     map[which / BitsInWord] &= ~(1 << (which % BitsInWord));
+	numClear++;
 }
 
 //----------------------------------------------------------------------
@@ -80,13 +88,13 @@ BitMap::Test (int which)
     ASSERT (which >= 0 && which < numBits);
 
     if (map[which / BitsInWord] & (1 << (which % BitsInWord)))
-	return TRUE;
+		return TRUE;
     else
-	return FALSE;
+		return FALSE;
 }
 
 //----------------------------------------------------------------------
-// BitMap::Find
+// BitMap::FindFirst
 //      Return the number of the first bit which is clear.
 //      As a side effect, set the bit (mark it as in use).
 //      (In other words, find and allocate a bit.)
@@ -95,15 +103,81 @@ BitMap::Test (int which)
 //----------------------------------------------------------------------
 
 int
-BitMap::Find ()
+BitMap::FindFirst ()
 {
-    for (int i = 0; i < numBits; i++)
-	if (!Test (i))
-	  {
-	      Mark (i);
-	      return i;
-	  }
-    return -1;
+	if(NumClear())
+	{
+		for (int i = 0; i < numBits; i++)
+		{
+			if (!Test (i))
+			{
+				Mark (i);
+				return i;
+			}
+		}
+		printf("BitMap::FinFirst: Bitmap corrupted\n");
+		ASSERT(FALSE);
+	}
+
+	return -1;
+}
+
+//----------------------------------------------------------------------
+// BitMap::FindLast
+//      Return the number of the first bit which is clear.
+//      As a side effect, set the bit (mark it as in use).
+//      (In other words, find and allocate a bit.)
+//
+//      If no bits are clear, return -1.
+//----------------------------------------------------------------------
+
+int
+BitMap::FindLast ()
+{
+	if(NumClear())
+	{
+		for (int i = numBits-1; i >= 0; i--)
+		{
+			if (!Test (i))
+			{
+				Mark (i);
+				return i;
+			}
+		}
+		printf("BitMap::FinLast: Bitmap corrupted\n");
+		ASSERT(FALSE);
+	}
+
+	return -1;
+}
+//----------------------------------------------------------------------
+// BitMap::FindRandom
+//      Return the number of a random clear bit.
+//      As a side effect, set the bit (mark it as in use).
+//      (In other words, find and allocate a bit.)
+//
+//      If no bits are clear, return -1.
+//----------------------------------------------------------------------
+
+int
+BitMap::FindRandom ()
+{
+	//first we need to be sure there is at least one free bit
+	if(NumClear())
+	{
+		//TODO maybe the seed should depend on the -rs flag at the execution
+		//to reproduce same execution (if yes, #include <ctime> can be removed
+		RandomInit(time(NULL));
+		int i = Random() % numBits;
+		while(!Test(i))
+		{
+			i = Random() % numBits;
+		}
+		Mark(i);
+		return i;
+	}
+
+	return -1;
 }
 
 //----------------------------------------------------------------------
@@ -115,12 +189,7 @@ BitMap::Find ()
 int
 BitMap::NumClear ()
 {
-    int count = 0;
-
-    for (int i = 0; i < numBits; i++)
-	if (!Test (i))
-	    count++;
-    return count;
+	return numClear;
 }
 
 //----------------------------------------------------------------------

@@ -61,7 +61,7 @@ unsigned int StackMgr::GetNewStack()
     unsigned int real_page_size = UserStackSize + PROTECTION_PAGE * PageSize;
 
     // Find the first bit which is clear
-    index = bitmap->Find();
+    index = bitmap->FindFirst();
 
     // If error, return NULL
     if (index == -1)

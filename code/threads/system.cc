@@ -163,7 +163,7 @@ Initialize (int argc, char **argv)
 #ifdef USER_PROGRAM
     machine = new Machine (debugUserProg);	// this must come first
     synchconsole = new SynchConsole (NULL,NULL);
-    frameProvider = new FrameProvider();
+    frameProvider = new FrameProvider(FIRST);
 #endif
 
 #ifdef FILESYS

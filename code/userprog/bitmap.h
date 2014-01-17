@@ -23,6 +23,7 @@
 #define BitsInByte 	8
 #define BitsInWord 	32
 
+
 // The following class defines a "bitmap" -- an array of bits,
 // each of which can be independently set, cleared, and tested.
 //
@@ -41,9 +42,11 @@ class BitMap
     void Mark (int which);	// Set the "nth" bit
     void Clear (int which);	// Clear the "nth" bit
     bool Test (int which);	// Is the "nth" bit set?
-    int Find ();		// Return the # of a clear bit, and as a side
+    int FindFirst ();		// Return the # of a clear bit, and as a side
     // effect, set the bit.
     // If no bits are clear, return -1.
+	int FindLast(); //same as FindFirst but take the last clear bit
+	int FindRandom(); //same as FindFirst but take a bit randomly
     int NumClear ();		// Return the number of clear bits
 
     void Print ();		// Print contents of bitmap
@@ -56,6 +59,7 @@ class BitMap
   private:
     int numBits;		// number of bits in the bitmap
     int numWords;		// number of words of bitmap storage
+	int numClear;		// number of clear bits
     // (rounded up if numBits is not a
     //  multiple of the number of bits in
     //  a word)
