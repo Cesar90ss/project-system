@@ -65,6 +65,13 @@ enum ThreadStatus
 // external function, dummy routine whose sole job is to call Thread::Print
 extern void ThreadPrint (int arg);
 
+typedef struct
+{
+    int funcWrapper;
+    int funcUser;
+    int arg;
+}userfunc;
+
 
 // The following class defines a "thread control block" -- which
 // represents a single thread of execution.
@@ -151,7 +158,7 @@ class Thread
 
     unsigned int GetTid();
     void SetTid(unsigned int id);
-    
+    userfunc *uf;
   private:
     unsigned int tid;
 #endif

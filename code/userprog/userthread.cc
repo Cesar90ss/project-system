@@ -23,12 +23,6 @@
 //      Run a user program.  Open the executable, load it into
 //      memory, and jump to it.
 //----------------------------------------------------------------------
-typedef struct
-{
-    int funcWrapper;
-    int funcUser;
-    int arg;
-}userfunc;
 
 void StartUserThread(int f)
 {
@@ -56,11 +50,11 @@ int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
     }
 
     Thread* t = new  Thread("NewThread");
-    userfunc *uf = new userfunc;				//define the struct
+    t->uf = new userfunc;				//define the struct
 
-    uf->funcWrapper = fnWrapper;                                 //pack the functionWrapper
-    uf->funcUser = fnUser;
-    uf->arg = arg;                                //pack the argument
+    t->uf->funcWrapper = fnWrapper;                                 //pack the functionWrapper
+    t->uf->funcUser = fnUser;
+    t->uf->arg = arg;                                //pack the argument
 
     int stack = currentThread->space->GetNewUserStack();
     if(stack == 0)
@@ -80,7 +74,7 @@ int do_UserThreadCreate(int fnWrapper, int fnUser, int arg)
     t->userStack=stack;
     DEBUG('a', "value of stack : %d\n", stack);
 
-    t->Fork(StartUserThread, (int)uf);
+    t->Fork(StartUserThread, (int)t->uf);
 
     (void) interrupt->SetLevel (oldLevel);
     return t->GetTid();

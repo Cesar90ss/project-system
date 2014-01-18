@@ -9,8 +9,7 @@ void *thread1_1(void *arg)
 {
   int i;
   for(i=0; i< 50; i++); //so that "parent" dies first
-  PutString("We are in the child thread");
-  PutChar(' ');
+  PutString("We are in the child thread ");
   return NULL;
 }
 
@@ -24,8 +23,7 @@ void * thread1(void *arg)
 int main()
 {
   UserThreadJoin(UserThreadCreate(&thread1, NULL),NULL);
-  PutString("We are in the main thread");
-  PutChar(' ');
+  PutString("We are in the main thread ");
   UserThreadExit(0);
   return 0;
 }

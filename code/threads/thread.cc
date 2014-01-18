@@ -45,6 +45,7 @@ Thread::Thread (const char *threadName)
     stats->totalThreads++;
 
 #ifdef USER_PROGRAM
+    uf = NULL;
     space = NULL;
 #endif
 }
@@ -69,8 +70,12 @@ Thread::~Thread ()
     if (stack != NULL)
         DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
 
+//    delete joinSemaphore;
 
 #ifdef USER_PROGRAM
+    if (uf != NULL)
+        delete uf;
+
     if (space != NULL)
     {
         // Clear stack

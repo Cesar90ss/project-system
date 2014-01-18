@@ -459,11 +459,27 @@ void AddrSpace::Exit()
     // Get all threads inside @space && finished it
     currentThread->space->KillAllThreads();
 
-    // Delete @ space for memory
-    delete currentThread->space;
+    AddrSpace *save = currentThread->space;
 
+    // If last thread, halt
     if (AddrSpace::nbProcess == 0)
+    {
+        Thread *t = currentThread;
+        currentThread = NULL;
+
+        delete t;
+        delete save;
         interrupt->Halt();
+    }
+    else
+    {
+        // Clear stack
+        currentThread->space->FreeUserStack(currentThread->userStack);
+        currentThread->space->DetachThread(currentThread);
+        delete save;
+
+        currentThread->Finish();
+    }
 }
 //------------------------------------------------------------//
 /**
@@ -605,4 +621,6 @@ void AddrSpace::CleanPageTable()
 
         ASSERT(pageTable[i].valid == FALSE);
     }
+
+    delete [] pageTable;
 }

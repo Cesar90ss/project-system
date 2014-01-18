@@ -2,7 +2,7 @@ NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
 
-RESULT_STRING="Total thread actually running at end 1"
+RESULT_STRING="Total thread actually running at end 0"
 
 OUTPUT=$(./nachos-step4 -rs 2 -x thread_exit_delete_children | grep -P "$RESULT_STRING")
 
