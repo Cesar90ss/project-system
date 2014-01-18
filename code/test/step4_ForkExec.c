@@ -2,8 +2,6 @@
 
 int main()
 {	
-    ForkExec("../build/threadcreate");
-    int i;
-    for(i=0;i<10000;i++);
+    ForkExec("../build/userpages0");
     return 0;
 }

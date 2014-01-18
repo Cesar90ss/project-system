@@ -111,7 +111,7 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
     stackMgr = new StackMgr(this, codePages * PageSize);
 #endif
 
-    AddrSpace::nbProcess ++;
+   
 
     semaphore_list = NULL;
     semaphore_counter = 0;

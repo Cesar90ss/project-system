@@ -475,6 +475,7 @@ Thread::ForkExec (char *s)
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
     // are disabled!
     (void) interrupt->SetLevel (oldLevel);
+		AddrSpace::nbProcess ++;
 }
 
 
