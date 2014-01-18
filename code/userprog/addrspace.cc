@@ -127,6 +127,23 @@ AddrSpace::~AddrSpace ()
     CleanSemaphores();
 
 #ifdef USER_PROGRAM
+    /**
+     * Delete last semaphore
+     **/
+    std::map<unsigned int, ThreadInfo> copy(threads);
+    std::map<unsigned int, ThreadInfo>::iterator it;
+    struct ThreadInfo t;
+
+    for (it = copy.begin(); it != copy.end(); ++it)
+    {
+        t = it->second;
+
+        if (t.join != NULL)
+            delete t.join;
+    }
+
+    threads.clear();
+
     // Free stack mgr
     delete stackMgr;
 #endif
@@ -371,6 +388,7 @@ void AddrSpace::AttachThread(Thread *child)
 
     ti.status = THREAD_RUNNING;
     ti.ptr = child;
+    ti.join = new Semaphore("Join semaphore thread", 0);
 
     // Insert with new tid
     threads[max_tid++] = ti;
@@ -391,6 +409,28 @@ void AddrSpace::DetachThread(Thread *child)
     threads[child->GetTid()] = ti;
     child->space = NULL;
     num_threads--;
+}
+//------------------------------------------------------------//
+/**
+ * Join P on thread
+ **/
+void AddrSpace::ThreadJoinP(unsigned int tid)
+{
+    if (threads.find(tid) == threads.end())
+        return;
+
+    threads[tid].join->P();
+}
+//------------------------------------------------------------//
+/**
+ * Join V on thread
+ **/
+void AddrSpace::ThreadJoinV(unsigned int tid)
+{
+    if (threads.find(tid) == threads.end())
+        return;
+
+    threads[tid].join->V();
 }
 //------------------------------------------------------------//
 /**

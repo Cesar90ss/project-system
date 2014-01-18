@@ -137,8 +137,6 @@ void StartProc(int filename)
         return;
     }
     space = new AddrSpace (executable);
-    
-    currentThread->space=space;
     space->AttachThread(currentThread);
 
     delete executable;		// close file
@@ -148,5 +146,4 @@ void StartProc(int filename)
 
     machine->Run ();		// jump to the user progam
     ASSERT (FALSE);		// machine->Run never returns;
-    
 }

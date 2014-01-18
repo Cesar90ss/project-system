@@ -107,7 +107,6 @@ class Thread
     void Sleep ();		// Put the thread to sleep and
     // relinquish the processor
     void Finish ();		// The thread is done executing
-    bool Join(Thread* who);     // Join on this thread for termination
 
     void CheckOverflow ();	// Check if thread has
     // overflowed its stack
@@ -134,8 +133,6 @@ class Thread
     // (If NULL, don't deallocate stack)
     ThreadStatus status;	// ready, running or blocked
     const char *name;
-    Semaphore *joinSemaphore;
-    Thread *joinerThread;
 
     void StackAllocate (VoidFunctionPtr func, int arg);
     // Allocate a stack for thread.
@@ -154,12 +151,15 @@ class Thread
     void SaveUserState ();	// save user-level register state
     void RestoreUserState ();	// restore user-level register state
 
+    bool Join(Thread* who);     // Join on this thread for termination
+
     AddrSpace *space;		// User code this thread is running.
 
     unsigned int GetTid();
     void SetTid(unsigned int id);
     userfunc *uf;
   private:
+    Thread *joinerThread;
     unsigned int tid;
 #endif
 };

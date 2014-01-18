@@ -45,7 +45,8 @@ struct ThreadInfo
 {
     enum ThreadStatusEnum status;
     int ret;
-    Thread* ptr;
+    Thread *ptr;
+    Semaphore *join;
 };
 
 /**
@@ -84,6 +85,8 @@ class AddrSpace
     std::map<unsigned int, ThreadInfo> GetThreads();
     void AttachThread(Thread *child);
     void DetachThread(Thread *child);
+    void ThreadJoinP(unsigned int tid);
+    void ThreadJoinV(unsigned int tid);
     Thread *GetThreadById(unsigned int tid);
     bool ThreadEnded(unsigned int tid);
     void KillAllThreads();      // Kill all threads inside current @ space

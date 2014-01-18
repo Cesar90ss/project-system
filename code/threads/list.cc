@@ -262,6 +262,7 @@ List::RemoveElem(void *item)
 {
     ListElement *element = first;
     ListElement *previous = NULL;
+    void *tmp;
 
     if (IsEmpty ())
         return NULL;
@@ -281,5 +282,8 @@ List::RemoveElem(void *item)
     else
         previous->next = element->next;
 
-    return element->item;
+    tmp = element->item;
+    delete element;
+
+    return tmp;
 }

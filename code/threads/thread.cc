@@ -39,12 +39,11 @@ Thread::Thread (const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-    joinSemaphore = new Semaphore("join thread", 0);
-    joinerThread = NULL;
 
     stats->totalThreads++;
 
 #ifdef USER_PROGRAM
+    joinerThread = NULL;
     uf = NULL;
     space = NULL;
 #endif
@@ -183,9 +182,12 @@ Thread::Finish ()
     ASSERT (threadToBeDestroyed == NULL);
     // End of addition
 
+#ifdef USER_PROGRAM
     // Notify threads joining on this
     DEBUG('t', "Thread %s alert for join\n", getName());
-    joinSemaphore->V();
+    if (space != NULL)
+        space->ThreadJoinV(GetTid());
+#endif
 
     threadToBeDestroyed = currentThread;
     Sleep ();			// invokes SWITCH
@@ -391,6 +393,8 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     machineState[InitialArgState] = arg;
     machineState[WhenDonePCState] = (int) ThreadFinish;
 }
+#ifdef USER_PROGRAM
+#include "machine.h"
 
 /**
  * Join on this specific thread using semaphore.
@@ -410,12 +414,10 @@ bool Thread::Join(Thread* who)
 
     DEBUG('t', "%s joining on %s\n", who->getName(), this->getName());
     joinerThread = who;
-    joinSemaphore->P();
+    space->ThreadJoinP(GetTid());
     return true;
 }
 
-#ifdef USER_PROGRAM
-#include "machine.h"
 
 //----------------------------------------------------------------------
 // Thread::SaveUserState
