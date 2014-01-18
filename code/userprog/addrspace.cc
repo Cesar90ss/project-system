@@ -488,9 +488,9 @@ unsigned int AddrSpace::CurrentThreadNumber()
 }
 //------------------------------------------------------------//
 /**
- * Exit process
+ * Exit process (notice force halt)
  **/
-void AddrSpace::Exit()
+void AddrSpace::Exit(bool forceHalt)
 {
     DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
     // Stop current thread
@@ -502,7 +502,7 @@ void AddrSpace::Exit()
     AddrSpace *save = currentThread->space;
 
     // If last thread, halt
-    if (AddrSpace::nbProcess == 0)
+    if (AddrSpace::nbProcess == 0 || forceHalt)
     {
         Thread *t = currentThread;
         currentThread = NULL;

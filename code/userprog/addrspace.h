@@ -94,7 +94,7 @@ class AddrSpace
     int GetThreadReturn(unsigned int tid); // Get return for thread
     unsigned int CurrentThreadNumber();
     unsigned int GetMaxTid();
-    static void Exit();
+    static void Exit(bool forceHalt = false);
 
     // Virtual page management
     void AllocatePages(unsigned int addr, unsigned int num);

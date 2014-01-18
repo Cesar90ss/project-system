@@ -17,9 +17,9 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 {
     SynchConsole_readAvail = new Semaphore("SynchConsole_read avail", 0);
     SynchConsole_writeDone = new Semaphore("SynchConsole_write done", 0);
-    console = new Console(readFile, writeFile, SynchConsole_ReadAvail, SynchConsole_WriteDone, 0);
     monitorRead = new Semaphore("SynchConsole read internal monitor", 1);
     monitorWrite = new Semaphore("SynchConsole write internal monitor", 1);
+    console = new Console(readFile, writeFile, SynchConsole_ReadAvail, SynchConsole_WriteDone, 0);
 }
 
 SynchConsole::~SynchConsole()

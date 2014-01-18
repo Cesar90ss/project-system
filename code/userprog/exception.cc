@@ -49,7 +49,7 @@ UpdatePC ()
 void switch_Halt()
 {
     DEBUG ('m', "Shutdown, initiated by user program.\n");
-    interrupt->Halt ();
+    AddrSpace::Exit(true); // Force halt
 }
 //----------------------//
 void switch_Exit()
@@ -87,6 +87,7 @@ void switch_Getstring()
 {
     int n = (int)machine->ReadRegister(5);
     char* buffer = new char[n];
+
     if (synchconsole->SynchGetString(buffer, n) == NULL)
     {
         machine->WriteRegister(2, (int)NULL);
@@ -99,7 +100,7 @@ void switch_Getstring()
         DEBUG('a', "GetString %s\n", buffer);
     }
 
-    delete buffer;
+    delete [] buffer;
 }
 //----------------------//
 void switch_Putint()
@@ -113,6 +114,7 @@ void switch_Getint()
 {
     int p =  machine->ReadRegister(4);
     int num;
+    int error_value = 0;
 
     //Try to write at @p before consume input
     if(!machine->WriteMem(p, sizeof(int), (int)0))
@@ -122,7 +124,7 @@ void switch_Getint()
         DEBUG('a', "GetInt : bad adress %d\n", p);
         return;
     }
-    int error_value = synchconsole->SynchGetInt(&num);
+    error_value = synchconsole->SynchGetInt(&num);
     machine->WriteRegister(2,error_value);
     machine->WriteMem(p, sizeof(int), num);
     DEBUG('a', "GetInt %d\n", error_value);
