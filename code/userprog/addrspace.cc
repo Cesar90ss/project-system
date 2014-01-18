@@ -58,7 +58,11 @@ SwapHeader (NoffHeader * noffH)
 //      "executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
 
+#ifdef USER_PROGRAM
+unsigned int AddrSpace::nbProcess = 1; //if user prog we have one proces at the begining
+#else
 unsigned int AddrSpace::nbProcess = 0;
+#endif
 AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 {
     NoffHeader noffH;

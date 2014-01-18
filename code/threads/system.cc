@@ -87,7 +87,6 @@ Initialize (int argc, char **argv)
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program
-    AddrSpace::nbProcess = 0;
 #endif
 #ifdef FILESYS_NEEDED
     bool format = FALSE;	// format disk
