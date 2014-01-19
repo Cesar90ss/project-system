@@ -1,5 +1,5 @@
 #include "syscall.h"
-#define NB_THREADS 13
+#define NB_THREADS 251
 
 void* fun()
 {

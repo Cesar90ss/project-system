@@ -8,7 +8,7 @@ int main()
 		ForkExec("../build/step4_wait");
 	}
 
-	PutString("Parent ending\n");
+	PutString("Parent ending \n");
 
 	return 0;
 }

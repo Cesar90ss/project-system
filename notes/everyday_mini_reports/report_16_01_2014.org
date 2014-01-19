@@ -14,7 +14,7 @@
 
 - Create simple test/userpages 0 which launch one or two threads with char printing. (DONE)
 - Implement different page allocation strategy. (DONE)
-- Implement ForkExec : create a new process & new@space. (DONE) -->Testing
+- Implement ForkExec : create a new process & new@space. (DONE)
 - Implement pdf provided programs. (DONE)
 - Handle resource cleaning at end of process.
 - Last process must halt machine.
