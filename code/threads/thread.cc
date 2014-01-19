@@ -468,14 +468,14 @@ Thread::ForkExec (char *s)
   /*DEBUG ('t', "Execute Fork Inside Thread \"%s\" with func = 0x%x, arg = %d\n",
        name, (int) func, arg);
   */
-    
+
     StackAllocate(StartProc,(int)s);
-    
+
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
     // are disabled!
     (void) interrupt->SetLevel (oldLevel);
-		AddrSpace::nbProcess ++;
+    AddrSpace::nbProcess ++;
 }
 
 
