@@ -18,7 +18,7 @@
 -- NEW --
 - Create a bunch of tests about processes.
 - Correct the test name : step3_test_exit_delete_children which is not passing the regression test. Actually the .sh is looking for a string which never appear in the .c file.( .desc missing)
-- step4_multiple_ForkExec test is not working.
+- step4_multiple_ForkExec test is not working.(working now since change number of memory to be 512 but the threadJoinMax be error because can create > 12 thread)
 - Missing 2 .desc in the regression test directory.
 ---------
 
