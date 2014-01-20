@@ -23,12 +23,16 @@ StackMgr::StackMgr(AddrSpace *_space, unsigned int data_end_at)
 
     // Total memory size
     total_memory_size = NUM_VIRTUAL_PAGES * PageSize;
-    DEBUG('t', "Total memory size : %lu\n", total_memory_size);
+    DEBUG('t', "Total memory size : %lu (%lu pages)\n", total_memory_size, total_memory_size / PageSize);
 
     // Total memory allowed for stack
     total_free_size = total_memory_size - data_end_at;
 
-    DEBUG('t', "Total memory size for stack: %lu\n", total_free_size);
+    // Assert CONSTANT correctness
+    ASSERT(STACK_PAGES_NUMBER < total_free_size / PageSize);
+
+    total_free_size = STACK_PAGES_NUMBER * PageSize;
+    DEBUG('t', "Total memory size for stack: %lu (%lu pages)\n", total_free_size, total_free_size / PageSize);
 
     // Compute number of possible stacks
     number_of_stack = total_free_size / real_page_size;
