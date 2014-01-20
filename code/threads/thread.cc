@@ -466,8 +466,7 @@ void Thread::SetTid(unsigned int id)
 }
 
 
-void
-Thread::ForkExec (char *s)
+int Thread::ForkExec (char *s)
 {
   /*DEBUG ('t', "Execute Fork Inside Thread \"%s\" with func = 0x%x, arg = %d\n",
        name, (int) func, arg);
@@ -476,10 +475,13 @@ Thread::ForkExec (char *s)
     StackAllocate(StartProc,(int)s);
 
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
-    scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
-    // are disabled!
+    scheduler->ReadyToRun (this); // ReadyToRun assumes that interrupts are disabled!
     (void) interrupt->SetLevel (oldLevel);
+
     AddrSpace::nbProcess ++;
+
+	 //TODO return -1 if failed
+	return 0;
 }
 
 
