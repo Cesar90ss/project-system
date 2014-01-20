@@ -16,6 +16,7 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "stackmgr.h"
+#include "heapmgr.h"
 #include "synch.h"
 #include "processmgr.h"
 
@@ -82,6 +83,10 @@ class AddrSpace
     int FreeUserStack(unsigned int addr);
     int GetNewUserStack();
 
+    // Wrappers around HeapMgr
+    int GetHeapPage();
+    void FreeHeapPage();
+
     // Keep track of threads inside this @ space
     std::map<unsigned int, ThreadInfo> GetThreads();
     void AttachThread(Thread *child);
@@ -111,6 +116,8 @@ class AddrSpace
     unsigned int numPages;	// Number of pages in the virtual
     // StackMgr helpers to manage user stack
     StackMgr *stackMgr;
+    // HeapMgr helpers to manage user heap
+    HeapMgr *heapMgr;
     // Keep track of threads inside this @space
     std::map<unsigned int, ThreadInfo> threads;
     unsigned int max_tid;

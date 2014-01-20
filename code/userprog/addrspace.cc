@@ -106,9 +106,11 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 #ifdef USER_PROGRAM
     // Init stack mgr
     stackMgr = new StackMgr(this, codePages * PageSize);
+
+    // Init heap mgr
+    heapMgr = new HeapMgr(this, codePages * PageSize);
 #endif
 
-   
 
     semaphore_list = NULL;
     semaphore_counter = 0;
@@ -147,6 +149,9 @@ AddrSpace::~AddrSpace ()
 
     // Free stack mgr
     delete stackMgr;
+
+    // Free heap mgr
+    delete heapMgr;
 #endif
 }
 
@@ -666,10 +671,31 @@ void AddrSpace::CleanPageTable()
     delete [] pageTable;
 }
 
+
 /**
  * Return the pid of the process attached to this addrspace
  **/
 unsigned int AddrSpace::GetPid(void)
 {
   return pid;
+}
+
+
+/**
+ * Wrappers around heap mgr
+ **/
+int AddrSpace::GetHeapPage()
+{
+#ifdef USER_PROGRAM
+    return heapMgr->AllocatePage();
+#else
+    return -1;
+#endif
+}
+
+void AddrSpace::FreeHeapPage()
+{
+#ifdef USER_PROGRAM
+    heapMgr->FreePage();
+#endif
 }

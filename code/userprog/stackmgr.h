@@ -10,7 +10,6 @@
 
 #include "copyright.h"
 #include "bitmap.h"
-#include "frameprovider.h"
 
 // Num of page after real stack (to trigger page fault)
 #define PROTECTION_PAGE 1
