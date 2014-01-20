@@ -16,7 +16,6 @@ void* fun()
 
 int main()
 {
-    //PutString("Parent start\n");
     int id[NB_THREADS];
 
     int i;
@@ -24,7 +23,7 @@ int main()
     {
         id[i] = UserThreadCreate(&fun, 0);
         //Some check for the threads creation
-        if(id[i] == -1)
+        if(id[i] < 0)
         {
             PutString("Error while creating thread\n");
             // Wait for putstring
@@ -40,13 +39,9 @@ int main()
         {
             PutString(" joined failed! ");
         }
-        else
-        {
-            PutString(" joined successfull! ");
-        }
     }
 
-    PutString("Parent finish\n");
+    PutString("\nParent finish\n");
     return 0;
 }
 

@@ -2,7 +2,7 @@
 
 int main()
 {
-    ForkExec("../build/step4_ForkExec_helloworld");
-    ForkExec("../build/step4_ForkExec_helloworld");
+    ForkExec("../build/userpages1");
+    ForkExec("../build/userpages2");
     return 0;
 }
