@@ -192,14 +192,6 @@ void switch_UserSemaphoreDestroy()
 	machine->WriteRegister(2,currentThread->space->SemaphoreDestroy(machine->ReadRegister(4)));
 }
 //----------------------//
-void switch_Fork()
-{
-	//TODO Put here a call to the function which does the fork
-	synchconsole->SynchPutString("Fork unimplemented...\n");
-	int pid = 1;
-	machine->WriteRegister(2,pid);
-}
-//----------------------//
 void switch_ForkExec()
 {
 	Thread* t = new Thread("ThreadForkExec");
@@ -210,7 +202,6 @@ void switch_ForkExec()
 	t->ForkExec(c);
 	// TODO return the pid not just 0 
 	machine->WriteRegister(2,0);
-  
 }
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
@@ -324,11 +315,6 @@ ExceptionHandler (ExceptionType which)
                 case SC_UserSemaphoreDestroy:
                 {
 					switch_UserSemaphoreDestroy();
-					break;
-                }
-                case SC_Fork:
-                {
-					switch_Fork();
 					break;
                 }
                 case SC_ForkExec:

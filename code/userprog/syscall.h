@@ -28,7 +28,7 @@
 #define SC_Read			6
 #define SC_Write		7
 #define SC_Close		8
-#define SC_Fork			9
+#define SC_ForkExec		9
 #define SC_Yield		10
 #define SC_PutChar		11
 #define SC_GetChar		12
@@ -43,7 +43,6 @@
 #define SC_UserSemaphoreP	21
 #define SC_UserSemaphoreV	22
 #define SC_UserSemaphoreDestroy	23
-#define SC_ForkExec		24
 
 #ifdef IN_USER_MODE
 

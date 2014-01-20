@@ -108,14 +108,6 @@ Close:
     j	$31
     .end Close
 /* ----------------------*/
-    .globl Fork
-    .ent	Fork
-Fork:
-    addiu $2,$0,SC_Fork
-    syscall
-    j	$31
-    .end Fork
-/* ----------------------*/
     .globl Yield
     .ent	Yield
 Yield:
