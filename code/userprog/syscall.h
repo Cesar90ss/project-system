@@ -198,7 +198,7 @@ int AllocPageHeap();
 /**
  * FreePageHeap gives back a new page for heap
  **/
-void FreePageHeap();
+int FreePageHeap();
 
 #endif // IN_USER_MODE
 

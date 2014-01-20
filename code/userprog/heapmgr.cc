@@ -22,7 +22,7 @@ HeapMgr::HeapMgr(AddrSpace *_space, unsigned int data_end_at)
     if ((data_end_at + 1) % PageSize == 0) // Page Aligned
         heap_begin_addr = data_end_at + 1;
     else // Compute data page
-        heap_begin_addr = ((data_end_at % PageSize) + 1) * PageSize;
+        heap_begin_addr = ((data_end_at / PageSize) + 1) * PageSize;
 
     unsigned int total_memory_size = NUM_VIRTUAL_PAGES * PageSize;
 
@@ -56,8 +56,9 @@ int HeapMgr::AllocatePage()
         return -1;
 
     // Ask for page at AddrSpace
-    space->AllocatePages(heap_end, PageSize);
+    space->AllocatePages(heap_end, 1);
 
+    DEBUG('h', "Heap end allocate = %u\n", heap_end);
     // Update heap ptr
     heap_end += PageSize;
 
@@ -66,19 +67,23 @@ int HeapMgr::AllocatePage()
 
 /**
  * FreePage gives back a page to AddrSpace
+ * Return the new top heap
  **/
-void HeapMgr::FreePage()
+int HeapMgr::FreePage()
 {
     // heap_end should be page aligned
     ASSERT(heap_end % PageSize == 0);
 
     // Heap should have at least one page (no assert, do nothing)
     if (heap_end - PageSize < heap_begin_addr)
-        return;
+        return heap_end;
 
     // Give back page to AddrSpace
-    space->FreePages(heap_end - PageSize, PageSize);
+    space->FreePages(heap_end - PageSize, 1);
 
     // Update heap ptr
     heap_end -= PageSize;
+
+    DEBUG('h', "Heap end free = %u\n", heap_end);
+    return heap_end;
 }

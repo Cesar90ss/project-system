@@ -24,7 +24,7 @@ class HeapMgr
     ~HeapMgr(); // De-allocate heap structure
 
     int AllocatePage(); // Return address of a new page (at end of heap)
-    void FreePage(); // Delete the page at end of heap
+    int FreePage(); // Delete the page at end of heap
 
     private:
     AddrSpace *space;

@@ -123,12 +123,6 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 
 AddrSpace::~AddrSpace ()
 {
-    // Clean page table
-    CleanPageTable();
-
-    // Clean semaphore
-    CleanSemaphores();
-
 #ifdef USER_PROGRAM
     /**
      * Delete last semaphore
@@ -153,6 +147,14 @@ AddrSpace::~AddrSpace ()
     // Free heap mgr
     delete heapMgr;
 #endif
+
+    // Clean page table
+    CleanPageTable();
+
+    // Clean semaphore
+    CleanSemaphores();
+
+
 }
 
 //----------------------------------------------------------------------
@@ -593,7 +595,7 @@ void AddrSpace::AllocatePages(unsigned int addr, unsigned int num)
         pageTable[virtualIndex + i].physicalPage = index;
         pageTable[virtualIndex + i].valid = TRUE;
 
-        DEBUG('a', "Allocate page %d -> %d\n", virtualIndex + i, index);
+        DEBUG('a', "Allocate page %d -> %d - %u\n", virtualIndex + i, index, (virtualIndex + i) * PageSize);
     }
 }
 
@@ -645,7 +647,7 @@ void AddrSpace::FreePages(unsigned int addr, unsigned int num)
         // Ask frame provider deleting page
         ASSERT(frameProvider->ReleaseFrame(pageTable[virtualIndex + i].physicalPage * PageSize) == 0);
 
-        DEBUG('a', "Deallocate page %d\n", virtualIndex + i);
+        DEBUG('a', "Deallocate page %d - %u\n", virtualIndex + i, (virtualIndex + i) * PageSize);
 
         // Mark inside pagetable as valid & map it
         pageTable[virtualIndex + i].physicalPage = 0;
@@ -693,9 +695,11 @@ int AddrSpace::GetHeapPage()
 #endif
 }
 
-void AddrSpace::FreeHeapPage()
+int AddrSpace::FreeHeapPage()
 {
 #ifdef USER_PROGRAM
-    heapMgr->FreePage();
+    return heapMgr->FreePage();
+#else
+    return 0;
 #endif
 }

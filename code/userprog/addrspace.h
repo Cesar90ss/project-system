@@ -85,7 +85,7 @@ class AddrSpace
 
     // Wrappers around HeapMgr
     int GetHeapPage();
-    void FreeHeapPage();
+    int FreeHeapPage();
 
     // Keep track of threads inside this @ space
     std::map<unsigned int, ThreadInfo> GetThreads();

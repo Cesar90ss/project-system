@@ -214,7 +214,7 @@ void switch_AllocPageHeap()
 //----------------------//
 void switch_FreePageHeap()
 {
-    currentThread->space->FreeHeapPage();
+    machine->WriteRegister(2, currentThread->space->FreeHeapPage());
 }
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
@@ -333,6 +333,16 @@ ExceptionHandler (ExceptionType which)
                 case SC_ForkExec:
                 {
                     switch_ForkExec();
+                    break;
+                }
+                case SC_AllocPageHeap:
+                {
+                    switch_AllocPageHeap();
+                    break;
+                }
+                case SC_FreePageHeap:
+                {
+                    switch_FreePageHeap();
                     break;
                 }
                 #endif
