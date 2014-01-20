@@ -64,12 +64,15 @@ unsigned int StackMgr::GetNewStack()
     // Find the first bit which is clear
     index = bitmap->FindFirst();
 
+    DEBUG('t', "Return stack index %d", index);
     // If error, return NULL
     if (index == -1)
         return 0;
 
     // Compute stack addr
     stack_addr = first_stack_addr - index * real_page_size;
+
+    DEBUG('t', "at addr %u\n", stack_addr);
 
     // Ask for page inside addr space
     // Don't ask protection page. Will trigger page fault
