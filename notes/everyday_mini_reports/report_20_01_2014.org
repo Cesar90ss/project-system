@@ -1,39 +1,33 @@
 ---- TODO LIST ----
 
 -- FROM 17/01 --
-- Provide test with more or less 12 processes, more or less 12 threads. (IN PROGRESS)
+- Provide test with more or less 12 processes, more or less 12 threads. (DONE)
 
-- Small shell (prompt + &-bg job handle)
+- Kill process on bad memory access (+ test) (DONE)
 
-- Heap handle... To be define!
-
-- Kill process on bad memory access (+ test)
-
-- When a process crash, other should not crash.
-
-- Stress memory with a lot of processes creation / deletion.
+- When a process crash, other should not crash. (DONE)
 ----------------
 
 -- NEW --
-- Create a bunch of tests about processes.
+- Correct the test name : step3_test_exit_delete_children which is not passing the regression test. Actually the .sh is looking for a string which never appear in the .c file.( .desc missing) (DONE)
 
-- Correct the test name : step3_test_exit_delete_children which is not passing the regression test. Actually the .sh is looking for a string which never appear in the .c file.( .desc missing)
+- step4_multiple_ForkExec test is not working.(working now since change number of memory to be 512 but the threadJoinMax be error because can create > 12 thread) (DONE)
 
-- step4_multiple_ForkExec test is not working.(working now since change number of memory to be 512 but the threadJoinMax be error because can create > 12 thread)
-
-- Missing 2 .desc in the regression test directory. (IN PROGRESS)
+- Missing 2 .desc in the regression test directory. (DONE)
 ---------
 
 --- TESTS TODO (20/01 ADDS) ---
-- .desc : delete_children / multiple
-- Add tests : too_many_forkexec + multiplethread_too_many_threads
-- test exit page fault
-- test page fault crash
-- Saturate memory
-- Test Me
-- Shell (launch programs)
-- Preemption (avec while true + put string)
-- Heap
+- .desc : delete_children / multiple (DONE)
+- test exit page fault (DONE)
+- test page fault crash (DONE)
+- Test Me (DONE)
+- Preemption (with while true + put string) (DONE)
+
+- Create a bunch of tests about processes. (IN PROGRESS)
+- Shell (launch programs) (IN PROGRESS)
+- Add tests : too_many_forkexec + multiplethread_too_many_threads (IN PROGRESS)
+- Heap (IN PROGRESS)
+- Test : saturate memory (IN PROGRESS)
 -------------------------------
 
 -------------------
