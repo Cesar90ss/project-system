@@ -1,25 +1,39 @@
 ---- TODO LIST ----
 
 -- FROM 17/01 --
-- Rewrite AddrSpace constuction to use FrameProvider. (IN PROGRESS)
-- StackMagrUpdate to use virtual memory. (IN PROGRESS)
+- Provide test with more or less 12 processes, more or less 12 threads. (IN PROGRESS)
 
-- Implement different page allocation strategy.
-- Implement ForkExec : create a new process & new@space.
-- Implement pdf provided programs.
-- Handle resource cleaning at end of process.
-- Last process must halt machine.
-- Provide test with more or less 12 processes, more or less 12 threads.
-- Redefine new & delete to check resource alloc/free.
 - Small shell (prompt + &-bg job handle)
+
 - Heap handle... To be define!
+
+- Kill process on bad memory access (+ test)
+
+- When a process crash, other should not crash.
+
+- Stress memory with a lot of processes creation / deletion.
 ----------------
 
 -- NEW --
 - Create a bunch of tests about processes.
+
 - Correct the test name : step3_test_exit_delete_children which is not passing the regression test. Actually the .sh is looking for a string which never appear in the .c file.( .desc missing)
+
 - step4_multiple_ForkExec test is not working.(working now since change number of memory to be 512 but the threadJoinMax be error because can create > 12 thread)
-- Missing 2 .desc in the regression test directory.
+
+- Missing 2 .desc in the regression test directory. (IN PROGRESS)
 ---------
+
+--- TESTS TODO (20/01 ADDS) ---
+- .desc : delete_children / multiple
+- Add tests : too_many_forkexec + multiplethread_too_many_threads
+- test exit page fault
+- test page fault crash
+- Saturate memory
+- Test Me
+- Shell (launch programs)
+- Preemption (avec while true + put string)
+- Heap
+-------------------------------
 
 -------------------
