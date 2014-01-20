@@ -338,6 +338,7 @@ ExceptionHandler (ExceptionType which)
         {
             // No valid translation found
             printf("Page fault exception %d %d\n", which, type);
+            fflush(stdout);
             AddrSpace::Exit();
             break;
         }
@@ -345,6 +346,7 @@ ExceptionHandler (ExceptionType which)
         {
             // Write attempted to page marked "read-only"
             printf("Read Only exception %d %d\n", which, type);
+            fflush(stdout);
             AddrSpace::Exit();
             break;
         }
@@ -352,6 +354,7 @@ ExceptionHandler (ExceptionType which)
         {
             // Translation resulted in an invalid physical address
             printf("Bus error exception %d %d\n", which, type);
+            fflush(stdout);
             AddrSpace::Exit();
             break;
         }
@@ -359,6 +362,7 @@ ExceptionHandler (ExceptionType which)
         {
             // Unaligned reference or one that was beyond the end of the address space
             printf("Address error exception %d %d\n", which, type);
+            fflush(stdout);
             AddrSpace::Exit();
             break;
         }
@@ -366,6 +370,7 @@ ExceptionHandler (ExceptionType which)
         {
             // Integer overflow in add or sub.
             printf("Overflow exception %d %d\n", which, type);
+            fflush(stdout);
             AddrSpace::Exit();
             break;
         }
@@ -373,6 +378,7 @@ ExceptionHandler (ExceptionType which)
         {
             // Unimplemented or reserved instr.
             printf("Illegal instruction exception %d %d\n", which, type);
+            fflush(stdout);
             AddrSpace::Exit();
             break;
         }
