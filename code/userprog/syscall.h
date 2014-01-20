@@ -19,30 +19,32 @@
  * is being asked for
  */
 
-#define SC_Halt			0
-#define SC_Exit			1
-#define SC_Exec			2
-#define SC_Join			3
-#define SC_Create		4
-#define SC_Open			5
-#define SC_Read			6
-#define SC_Write		7
-#define SC_Close		8
-#define SC_ForkExec		9
-#define SC_Yield		10
-#define SC_PutChar		11
-#define SC_GetChar		12
-#define SC_PutString		13
-#define SC_GetString		14
-#define SC_GetInt		15
-#define SC_PutInt		16
-#define SC_UserThreadCreate	17
-#define SC_UserThreadExit	18
-#define SC_UserThreadJoin	19
+#define SC_Halt                 0
+#define SC_Exit                 1
+#define SC_Exec                 2
+#define SC_Join                 3
+#define SC_Create               4
+#define SC_Open                 5
+#define SC_Read                 6
+#define SC_Write                7
+#define SC_Close                8
+#define SC_ForkExec             9
+#define SC_Yield                10
+#define SC_PutChar              11
+#define SC_GetChar              12
+#define SC_PutString            13
+#define SC_GetString            14
+#define SC_GetInt               15
+#define SC_PutInt               16
+#define SC_UserThreadCreate     17
+#define SC_UserThreadExit       18
+#define SC_UserThreadJoin       19
 #define SC_UserSemaphoreCreate	20
-#define SC_UserSemaphoreP	21
-#define SC_UserSemaphoreV	22
+#define SC_UserSemaphoreP       21
+#define SC_UserSemaphoreV       22
 #define SC_UserSemaphoreDestroy	23
+#define SC_AllocPageHeap        24
+#define SC_FreePageHeap         25
 
 #ifdef IN_USER_MODE
 
@@ -186,6 +188,17 @@ int UserSemaphoreDestroy(int id);		//To destroy the semaphore syscall
  * and has arg s as program you want to execute 
  */
 int ForkExec(char *s);
+
+/**
+ * AllocPageHeap asks for a new page on heap
+ * return -1 if no more page for heap, new page addr otherwise
+ **/
+int AllocPageHeap();
+
+/**
+ * FreePageHeap gives back a new page for heap
+ **/
+void FreePageHeap();
 
 #endif // IN_USER_MODE
 

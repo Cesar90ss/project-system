@@ -206,6 +206,16 @@ void switch_ForkExec()
     // TODO return the pid not just 0
     machine->WriteRegister(2,0);
 }
+//----------------------//
+void switch_AllocPageHeap()
+{
+    machine->WriteRegister(2, currentThread->space->GetHeapPage());
+}
+//----------------------//
+void switch_FreePageHeap()
+{
+    currentThread->space->FreeHeapPage();
+}
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler

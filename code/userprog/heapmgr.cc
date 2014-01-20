@@ -46,7 +46,8 @@ HeapMgr::~HeapMgr()
 /**
  * AllocatePage gives one page for heap
  *
- * Return 0 on success, -1 if HEAP_PAGES_NUMBER has already been allocated
+ * Return new page addr on success, -1 if HEAP_PAGES_NUMBER has already been
+ * allocated
  **/
 int HeapMgr::AllocatePage()
 {
@@ -60,7 +61,7 @@ int HeapMgr::AllocatePage()
     // Update heap ptr
     heap_end += PageSize;
 
-    return 0;
+    return heap_end - PageSize;
 }
 
 /**
