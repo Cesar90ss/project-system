@@ -108,6 +108,7 @@
         Initialize and return a semaphore id named "name" with an initial value "value".
 		It do not create a semaphore with the id of a previously destroyed semaphore.
 
+
 *** NAME : UserSemaphoreP
 **** SYNOPSIS :
         int UserSemaphoreP(int id)
@@ -130,3 +131,19 @@
 **** DESCRIPTION :
         Destroy the semaphore pointed by id and return -1 if error (semaphore does not
 		exist) and 0 if it works.
+
+
+*** NAME : AllocPageHeap
+**** SYNOPSIS :
+     int AllocPageHeap()
+**** DESCRIPTION :
+     AllocPageHeap asks for a new page on heap
+     Return -1 if no more page for heap, new page addr otherwise
+
+
+*** NAME : FreePageHeap
+**** SYNOPSIS :
+     int FreePageHeap()
+**** DESCRIPTION :
+     FreePageHeap gives back a new page for heap
+     Return the new heap top addr

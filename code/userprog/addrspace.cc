@@ -107,6 +107,10 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
     // Init stack mgr
     stackMgr = new StackMgr(this, codePages * PageSize);
     pid = processMgr->CreateProcess(this);
+	heapMgr = new HeapMgr(this, codePages * PageSize);
+
+    // Init heap mgr
+
 #endif
 
    
@@ -122,11 +126,7 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 
 AddrSpace::~AddrSpace ()
 {
-    // Clean page table
-    CleanPageTable();
 
-    // Clean semaphore
-    CleanSemaphores();
 
 #ifdef USER_PROGRAM
     /**
@@ -148,7 +148,18 @@ AddrSpace::~AddrSpace ()
 
     // Free stack mgr
     delete stackMgr;
+
+    // Free heap mgr
+    delete heapMgr;
 #endif
+
+    // Clean page table
+    CleanPageTable();
+
+    // Clean semaphore
+    CleanSemaphores();
+
+
 }
 
 //----------------------------------------------------------------------
@@ -589,7 +600,7 @@ void AddrSpace::AllocatePages(unsigned int addr, unsigned int num)
         pageTable[virtualIndex + i].physicalPage = index;
         pageTable[virtualIndex + i].valid = TRUE;
 
-        DEBUG('a', "Allocate page %d -> %d\n", virtualIndex + i, index);
+        DEBUG('a', "Allocate page %d -> %d - %u\n", virtualIndex + i, index, (virtualIndex + i) * PageSize);
     }
 }
 
@@ -641,7 +652,7 @@ void AddrSpace::FreePages(unsigned int addr, unsigned int num)
         // Ask frame provider deleting page
         ASSERT(frameProvider->ReleaseFrame(pageTable[virtualIndex + i].physicalPage * PageSize) == 0);
 
-        DEBUG('a', "Deallocate page %d\n", virtualIndex + i);
+        DEBUG('a', "Deallocate page %d - %u\n", virtualIndex + i, (virtualIndex + i) * PageSize);
 
         // Mark inside pagetable as valid & map it
         pageTable[virtualIndex + i].physicalPage = 0;
@@ -667,10 +678,33 @@ void AddrSpace::CleanPageTable()
     delete [] pageTable;
 }
 
+
 /**
  * Return the pid of the process attached to this addrspace
  **/
 unsigned int AddrSpace::GetPid(void)
 {
   return pid;
+}
+
+
+/**
+ * Wrappers around heap mgr
+ **/
+int AddrSpace::GetHeapPage()
+{
+#ifdef USER_PROGRAM
+    return heapMgr->AllocatePage();
+#else
+    return -1;
+#endif
+}
+
+int AddrSpace::FreeHeapPage()
+{
+#ifdef USER_PROGRAM
+    return heapMgr->FreePage();
+#else
+    return 0;
+#endif
 }

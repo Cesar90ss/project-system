@@ -239,7 +239,25 @@ ForkExec:
     syscall
     j	$31
     .end ForkExec
-    /* ----------------------*/
+/* ----------------------*/
+    .globl AllocPageHeap
+    .ent	AllocPageHeap
+AllocPageHeap:
+    addiu $2,$0,SC_AllocPageHeap
+    syscall
+    j	$31
+    .end AllocPageHeap
+/* ----------------------*/
+    .globl FreePageHeap
+    .ent	FreePageHeap
+FreePageHeap:
+    addiu $2,$0,SC_FreePageHeap
+    syscall
+    j	$31
+    .end FreePageHeap
+/* ----------------------*/
+
+
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main

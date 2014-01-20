@@ -206,6 +206,16 @@ void switch_ForkExec()
     
     machine->WriteRegister(2,t->space->GetPid());
 }
+//----------------------//
+void switch_AllocPageHeap()
+{
+    machine->WriteRegister(2, currentThread->space->GetHeapPage());
+}
+//----------------------//
+void switch_FreePageHeap()
+{
+    machine->WriteRegister(2, currentThread->space->FreeHeapPage());
+}
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -323,6 +333,16 @@ ExceptionHandler (ExceptionType which)
                 case SC_ForkExec:
                 {
                     switch_ForkExec();
+                    break;
+                }
+                case SC_AllocPageHeap:
+                {
+                    switch_AllocPageHeap();
+                    break;
+                }
+                case SC_FreePageHeap:
+                {
+                    switch_FreePageHeap();
                     break;
                 }
                 #endif

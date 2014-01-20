@@ -10,10 +10,11 @@
 
 #include "copyright.h"
 #include "bitmap.h"
-#include "frameprovider.h"
 
 // Num of page after real stack (to trigger page fault)
 #define PROTECTION_PAGE 1
+// Number of page inside virtual @ space reserved for stack
+#define STACK_PAGES_NUMBER 512
 
 class AddrSpace;
 

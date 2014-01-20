@@ -165,9 +165,6 @@ BitMap::FindRandom ()
 	//first we need to be sure there is at least one free bit
 	if(NumClear())
 	{
-		//TODO maybe the seed should depend on the -rs flag at the execution
-		//to reproduce same execution (if yes, #include <ctime> can be removed
-		RandomInit(time(NULL));
 		int i = Random() % numBits;
 		while(Test(i))
 		{
