@@ -474,26 +474,29 @@ Thread::ForkExec (char *s)
   */
     
     OpenFile *executable = fileSystem->Open (s);
-    //AddrSpace *space;
+    AddrSpace *t_space;
 
     if (executable == NULL)
     {
         printf ("Unable to open file %s\n", s);
         return -1;
     }
-    this->space = new AddrSpace (executable);
-    this->space->AttachThread(this);
-
+    t_space = new AddrSpace (executable);
+    t_space->AttachThread(this);
+    //t_space->InitRegisters (); //set registers to their initial value
     delete executable;		// close file
     
-    StackAllocate(StartProc,0);
+    StackAllocate(StartProc,(int)s);
 
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
     // are disabled!
     (void) interrupt->SetLevel (oldLevel);
     AddrSpace::nbProcess ++;
-    return this->space->GetPid();
+    printf("The new address space is %d\n",(int)t_space);
+    printf("The new thread(process) is %d, its space is %d\n", (int) this,(int) this->space);
+    currentThread->space->RestoreState();
+    return t_space->GetPid();
 }
 
 

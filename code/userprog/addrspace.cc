@@ -107,7 +107,7 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
     // Init stack mgr
     stackMgr = new StackMgr(this, codePages * PageSize);
     pid = processMgr->CreateProcess(this);
-	heapMgr = new HeapMgr(this, codePages * PageSize);
+    heapMgr = new HeapMgr(this, codePages * PageSize);
 
     // Init heap mgr
 

@@ -202,9 +202,9 @@ void switch_ForkExec()
     int write = copyStringFromMachine(from, t->progName, MAX_STRING_SIZE);
     t->progName[write] = '\0';
 
-    t->ForkExec(t->progName);
+    int pid = t->ForkExec(t->progName);
     
-    machine->WriteRegister(2,t->space->GetPid());
+    machine->WriteRegister(2,pid);
 }
 //----------------------//
 void switch_AllocPageHeap()
