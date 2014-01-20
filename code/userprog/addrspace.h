@@ -17,6 +17,7 @@
 #include "filesys.h"
 #include "stackmgr.h"
 #include "synch.h"
+#include "processmgr.h"
 
 #include <map>
 
@@ -102,6 +103,8 @@ class AddrSpace
     void FreePages(unsigned int addr, unsigned int num);
 
     static unsigned int nbProcess;
+    // for processes
+    unsigned int GetPid(void);
   private:
     TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!
@@ -120,6 +123,9 @@ class AddrSpace
     void InitTranslation();
     void CleanPageTable();
     // address space
+    
+    //For processes, set when creating the addrspace
+    unsigned int pid; 
 };
 
 #endif // ADDRSPACE_H

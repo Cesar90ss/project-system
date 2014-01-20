@@ -665,3 +665,11 @@ void AddrSpace::CleanPageTable()
 
     delete [] pageTable;
 }
+
+/**
+ * Return the pid of the process attached to this addrspace
+ **/
+unsigned int AddrSpace::GetPid(void)
+{
+  return pid;
+}
