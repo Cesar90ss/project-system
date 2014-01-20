@@ -1,0 +1,1 @@
+This test launch 12 process each of them launching 12 threads and verify that each thread/process has been created and executed

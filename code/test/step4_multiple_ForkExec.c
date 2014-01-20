@@ -1,5 +1,5 @@
 #include "syscall.h"
-#define NB_PROC 9
+#define NB_PROC 12
 
 int main()
 {

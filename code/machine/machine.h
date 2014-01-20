@@ -32,7 +32,7 @@
 					// the disk sector size, for
 					// simplicity
 
-#define NumPhysPages    512 //if it is increase...the ForkExecJoinMultiple will work (512)
+#define NumPhysPages    2048 //if it is increase...the ForkExecJoinMultiple will work (2048 for 12 Proc and 12 threads)
 #define MemorySize 	(NumPhysPages * PageSize)
 #define TLBSize		4		// if there is a TLB, make it small
 
