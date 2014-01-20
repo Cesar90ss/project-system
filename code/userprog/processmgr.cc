@@ -92,12 +92,13 @@ void ProcessMgr::EndProcess(AddrSpace *proc)
 /**
  * wait P on process, called by waitpid
  **/
-void ProcessMgr::ProcessWaitP(unsigned int pid)
+int ProcessMgr::ProcessWaitP(unsigned int pid)
 {
     if (Processes.find(pid) == Processes.end())
-        return;
+        return -1;
 
     Processes[pid].wait->P();	//wait on the process end
+    return 0;
 }
 //------------------------------------------------------------//
 /**

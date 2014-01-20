@@ -45,6 +45,7 @@
 #define SC_UserSemaphoreDestroy	23
 #define SC_AllocPageHeap        24
 #define SC_FreePageHeap         25
+#define SC_Waitpid		26
 
 #ifdef IN_USER_MODE
 
@@ -199,6 +200,11 @@ int AllocPageHeap();
  * FreePageHeap gives back a new page for heap
  **/
 int FreePageHeap();
+
+/**
+ * Waitpid wait on the process which pid is given as argument, return -1 if process does not exist, 0 otherwise
+ */
+int Waitpid(unsigned int pid);
 
 #endif // IN_USER_MODE
 

@@ -35,7 +35,7 @@ public:
   void KillAllProcess();
   unsigned int CreateProcess(AddrSpace *space);
   void EndProcess(AddrSpace *proc);
-  void ProcessWaitP(unsigned int pid);
+  int ProcessWaitP(unsigned int pid);
   void ProcessWaitV(unsigned int pid);
   AddrSpace *GetProcessById(unsigned int pid);
   bool ProcessEnded(unsigned int pid);

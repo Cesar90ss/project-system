@@ -29,6 +29,7 @@
 #include "userthread.h"
 #endif
 extern SynchConsole *synchconsole;
+extern ProcessMgr *processMgr;
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -216,6 +217,13 @@ void switch_FreePageHeap()
 {
     machine->WriteRegister(2, currentThread->space->FreeHeapPage());
 }
+//----------------------//
+void switch_Waitpid()
+{
+  unsigned int pid = machine->ReadRegister(4);
+  machine->WriteRegister(2,processMgr->ProcessWaitP(pid));
+}
+  
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -343,6 +351,11 @@ ExceptionHandler (ExceptionType which)
                 case SC_FreePageHeap:
                 {
                     switch_FreePageHeap();
+                    break;
+                }
+                case SC_Waitpid:
+                {
+                    switch_Waitpid();
                     break;
                 }
                 #endif

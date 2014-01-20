@@ -483,19 +483,18 @@ Thread::ForkExec (char *s)
     }
     t_space = new AddrSpace (executable);
     t_space->AttachThread(this);
-    //t_space->InitRegisters (); //set registers to their initial value
+
     delete executable;		// close file
     
-    StackAllocate(StartProc,(int)s);
+    StackAllocate(StartProc,0);
 
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
     // are disabled!
     (void) interrupt->SetLevel (oldLevel);
     AddrSpace::nbProcess ++;
-    printf("The new address space is %d\n",(int)t_space);
-    printf("The new thread(process) is %d, its space is %d\n", (int) this,(int) this->space);
-    currentThread->space->RestoreState();
+    currentThread->space->RestoreState(); //need to restore the previous page table since the creation of a new
+					  //address space changed the machine's register
     return t_space->GetPid();
 }
 

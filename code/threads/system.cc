@@ -197,6 +197,7 @@ Cleanup ()
     delete machine;
     delete synchconsole;
     delete frameProvider;
+    delete processMgr;
 #endif
 
 #ifdef FILESYS_NEEDED

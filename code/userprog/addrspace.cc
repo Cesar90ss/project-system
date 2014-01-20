@@ -513,7 +513,7 @@ void AddrSpace::Exit(bool forceHalt)
     currentThread->space->KillAllThreads();
 
     AddrSpace *save = currentThread->space;
-
+    processMgr->ProcessWaitV(currentThread->space->GetPid()); //we release the lock on the semaphore(end of process)
     // If last thread, halt
     if (AddrSpace::nbProcess == 0 || forceHalt)
     {
