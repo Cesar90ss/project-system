@@ -203,8 +203,8 @@ void switch_ForkExec()
     t->progName[write] = '\0';
 
     t->ForkExec(t->progName);
-    // TODO return the pid not just 0
-    machine->WriteRegister(2,0);
+    
+    machine->WriteRegister(2,t->space->GetPid());
 }
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------

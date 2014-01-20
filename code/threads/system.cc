@@ -9,6 +9,7 @@
 #include "system.h"
 #ifdef USER_PROGRAM
 #include "synchconsole.h"
+class ProcessMgr;
 #endif
 // This defines *all* of the global data structures used by Nachos.
 // These are all initialized and de-allocated by this file.
@@ -33,6 +34,7 @@ SynchDisk *synchDisk;
 Machine *machine;		// user program memory and registers
 SynchConsole *synchconsole;	//console
 FrameProvider *frameProvider;	// declare the pysical frame provider
+ProcessMgr *processMgr;
 #endif
 
 #ifdef NETWORK
@@ -163,6 +165,7 @@ Initialize (int argc, char **argv)
     machine = new Machine (debugUserProg);	// this must come first
     synchconsole = new SynchConsole (NULL,NULL);
     frameProvider = new FrameProvider(RANDOM);
+    processMgr = new ProcessMgr();
 #endif
 
 #ifdef FILESYS

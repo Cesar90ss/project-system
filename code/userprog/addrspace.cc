@@ -59,7 +59,7 @@ SwapHeader (NoffHeader * noffH)
 //----------------------------------------------------------------------
 
 unsigned int AddrSpace::nbProcess = 1; // we have one process at the begining
-
+extern ProcessMgr *processMgr;
 AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 {
     NoffHeader noffH;
@@ -106,6 +106,7 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 #ifdef USER_PROGRAM
     // Init stack mgr
     stackMgr = new StackMgr(this, codePages * PageSize);
+    pid = processMgr->CreateProcess(this);
 #endif
 
    

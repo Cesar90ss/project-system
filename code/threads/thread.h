@@ -123,7 +123,7 @@ class Thread
     printf ("%s, ", name);
     }
 
-    void ForkExec(char *s);
+    unsigned int ForkExec(char *s);
 
   private:
     // some of the private data for this class is listed above

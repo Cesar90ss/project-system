@@ -128,22 +128,9 @@ int do_UserThreadJoin()
 
 void StartProc(int filename)
 {
-    OpenFile *executable = fileSystem->Open ((char*)filename);
-    AddrSpace *space;
-
-    if (executable == NULL)
-    {
-        printf ("Unable to open file %s\n", (char*)filename);
-        return;
-    }
-    space = new AddrSpace (executable);
-    space->AttachThread(currentThread);
-
-    delete executable;		// close file
-
-    space->InitRegisters ();	// set the initial register values
-    space->RestoreState ();	// load page table register
-
+  
+    currentThread->space->InitRegisters ();	// set the initial register values
+    currentThread->space->RestoreState ();	// load page table register
     machine->Run ();		// jump to the user progam
     ASSERT (FALSE);		// machine->Run never returns;
 }

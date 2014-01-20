@@ -466,20 +466,34 @@ void Thread::SetTid(unsigned int id)
 }
 
 
-void
+unsigned int
 Thread::ForkExec (char *s)
 {
   /*DEBUG ('t', "Execute Fork Inside Thread \"%s\" with func = 0x%x, arg = %d\n",
        name, (int) func, arg);
   */
+    
+    OpenFile *executable = fileSystem->Open (s);
+    //AddrSpace *space;
 
-    StackAllocate(StartProc,(int)s);
+    if (executable == NULL)
+    {
+        printf ("Unable to open file %s\n", s);
+        return -1;
+    }
+    this->space = new AddrSpace (executable);
+    this->space->AttachThread(this);
+
+    delete executable;		// close file
+    
+    StackAllocate(StartProc,0);
 
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
     // are disabled!
     (void) interrupt->SetLevel (oldLevel);
     AddrSpace::nbProcess ++;
+    return this->space->GetPid();
 }
 
 
