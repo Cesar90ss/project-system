@@ -45,6 +45,7 @@ Thread::Thread (const char *threadName)
 #ifdef USER_PROGRAM
     joinerThread = NULL;
     uf = NULL;
+    progName = NULL;
     space = NULL;
 #endif
 }
@@ -74,6 +75,9 @@ Thread::~Thread ()
 #ifdef USER_PROGRAM
     if (uf != NULL)
         delete uf;
+
+    if (progName != NULL)
+        delete progName;
 
     if (space != NULL)
     {

@@ -158,6 +158,7 @@ class Thread
     unsigned int GetTid();
     void SetTid(unsigned int id);
     userfunc *uf;
+    char *progName;
   private:
     Thread *joinerThread;
     unsigned int tid;
