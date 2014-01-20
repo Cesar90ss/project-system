@@ -1,0 +1,1 @@
+Try to write code at address 0. Should trigger a page fault (here ReadOnly exception).

@@ -164,47 +164,47 @@ void switch_UserThreadExit()
 //----------------------//
 void switch_UserSemaphoreCreate()
 {
-	int from = machine->ReadRegister(4);
-	int value =  machine->ReadRegister(5);
-	char* name = new char[MAX_STRING_SIZE + 1];
-	int name_size = copyStringFromMachine(from,name,MAX_STRING_SIZE);
-	name[name_size] = '\0';
+    int from = machine->ReadRegister(4);
+    int value =  machine->ReadRegister(5);
+    char* name = new char[MAX_STRING_SIZE + 1];
+    int name_size = copyStringFromMachine(from,name,MAX_STRING_SIZE);
+    name[name_size] = '\0';
 
-	DEBUG('t', "Creation of semaphore %s\n", name);
-	int semaphore_id = currentThread->space->CreateSemaphore(name,value);
-	
-	machine->WriteRegister(2,semaphore_id);
-	delete [] name; 
+    DEBUG('t', "Creation of semaphore %s\n", name);
+    int semaphore_id = currentThread->space->CreateSemaphore(name,value);
+
+    machine->WriteRegister(2,semaphore_id);
+    delete [] name;
 }
 //----------------------//
 void switch_UserSemaphoreP()
 {
-	machine->WriteRegister(2,currentThread->space->SemaphoreP(machine->ReadRegister(4)));
+    machine->WriteRegister(2,currentThread->space->SemaphoreP(machine->ReadRegister(4)));
 }
 //----------------------//
 void switch_UserSemaphoreV()
 {
-	machine->WriteRegister(2,currentThread->space->SemaphoreV(machine->ReadRegister(4)));
+    machine->WriteRegister(2,currentThread->space->SemaphoreV(machine->ReadRegister(4)));
 }
 //----------------------//
 void switch_UserSemaphoreDestroy()
 {
-	machine->WriteRegister(2,currentThread->space->SemaphoreDestroy(machine->ReadRegister(4)));
+    machine->WriteRegister(2,currentThread->space->SemaphoreDestroy(machine->ReadRegister(4)));
 }
 //----------------------//
 void switch_ForkExec()
 {
-	Thread* t = new Thread("ThreadForkExec");
-	int from = machine->ReadRegister(4);
+    Thread* t = new Thread("ThreadForkExec");
+    int from = machine->ReadRegister(4);
 
     t->progName = new char[MAX_STRING_SIZE + 1];
 
-	int write = copyStringFromMachine(from, t->progName, MAX_STRING_SIZE);
-	t->progName[write] = '\0';
+    int write = copyStringFromMachine(from, t->progName, MAX_STRING_SIZE);
+    t->progName[write] = '\0';
 
-	t->ForkExec(t->progName);
-	// TODO return the pid not just 0
-	machine->WriteRegister(2,0);
+    t->ForkExec(t->progName);
+    // TODO return the pid not just 0
+    machine->WriteRegister(2,0);
 }
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
@@ -302,30 +302,30 @@ ExceptionHandler (ExceptionType which)
                 }
                 case SC_UserSemaphoreCreate:
                 {
-					switch_UserSemaphoreCreate();
-					break;
+                    switch_UserSemaphoreCreate();
+                    break;
                 }
                 case SC_UserSemaphoreP:
                 {
-					switch_UserSemaphoreP();
-					break;
+                    switch_UserSemaphoreP();
+                    break;
                 }
                 case SC_UserSemaphoreV:
                 {
-					switch_UserSemaphoreV();
-					break;
+                    switch_UserSemaphoreV();
+                    break;
                 }
                 case SC_UserSemaphoreDestroy:
                 {
-					switch_UserSemaphoreDestroy();
-					break;
+                    switch_UserSemaphoreDestroy();
+                    break;
                 }
                 case SC_ForkExec:
                 {
-					switch_ForkExec();
-					break;
+                    switch_ForkExec();
+                    break;
                 }
-				#endif
+                #endif
                 default:
                 {
                     printf ("Unexpected syscall type %d\n", type);
@@ -335,42 +335,48 @@ ExceptionHandler (ExceptionType which)
             break;
         }
         case PageFaultException:
-		{
-			// No valid translation found
-			printf("Page fault exception %d %d\n", which, type);
-			break;
-		}
-		case ReadOnlyException:
-		{
-			// Write attempted to page marked "read-only"
-			printf("Read Only exception %d %d\n", which, type);
-			break;
-		}
-		case BusErrorException:
-		{
-			// Translation resulted in an invalid physical address
-			printf("Bus error exception %d %d\n", which, type);
-			break;
-		}
-		case AddressErrorException:
-		{
-			// Unaligned reference or one that was beyond the end of the address space
-			printf("Address error exception %d %d\n", which, type);
-			break;
-		}
-		case OverflowException:
-		{
-			// Integer overflow in add or sub.
-			printf("Overflow exception %d %d\n", which, type);
-			break;
-		}
-		case IllegalInstrException:
-		{
-			// Unimplemented or reserved instr.
-			printf("Illegal instruction exception %d %d\n", which, type);
-			break;
-		}
-		default:
+        {
+            // No valid translation found
+            printf("Page fault exception %d %d\n", which, type);
+            AddrSpace::Exit();
+            break;
+        }
+        case ReadOnlyException:
+        {
+            // Write attempted to page marked "read-only"
+            printf("Read Only exception %d %d\n", which, type);
+            AddrSpace::Exit();
+            break;
+        }
+        case BusErrorException:
+        {
+            // Translation resulted in an invalid physical address
+            printf("Bus error exception %d %d\n", which, type);
+            AddrSpace::Exit();
+            break;
+        }
+        case AddressErrorException:
+        {
+            // Unaligned reference or one that was beyond the end of the address space
+            printf("Address error exception %d %d\n", which, type);
+            AddrSpace::Exit();
+            break;
+        }
+        case OverflowException:
+        {
+            // Integer overflow in add or sub.
+            printf("Overflow exception %d %d\n", which, type);
+            AddrSpace::Exit();
+            break;
+        }
+        case IllegalInstrException:
+        {
+            // Unimplemented or reserved instr.
+            printf("Illegal instruction exception %d %d\n", which, type);
+            AddrSpace::Exit();
+            break;
+        }
+        default:
         {
             printf ("Unexpected user mode exception %d %d\n", which, type);
             ASSERT (FALSE);
