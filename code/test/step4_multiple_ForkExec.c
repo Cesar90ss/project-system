@@ -1,14 +1,13 @@
 #include "syscall.h"
+#define NB_PROC 9
 
 int main()
 {
-	int i;
-	for(i=0;i<15;i++)
+	char i;
+	for(i=0;i<NB_PROC;i++)
 	{
-		ForkExec("../build/step4_wait");
+		ForkExec("../build/step4_multiple_Thread_Process");
 	}
-
-	PutString("Parent ending \n");
-
+	PutString("Parent ending\n");
 	return 0;
 }
