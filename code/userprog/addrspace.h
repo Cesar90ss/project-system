@@ -25,7 +25,7 @@
 class Thread;
 
 #define UserStackSize		1024	// increase this as necessary!
-#define MAX_TOTAL_THREADS   20      // total number of threads in program lifetime
+#define MAX_TOTAL_THREADS   30      // total number of threads in program lifetime
 #define NUM_VIRTUAL_PAGES    (NumPhysPages) // Num of virtual pages
 typedef struct slist
 {
