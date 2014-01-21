@@ -338,7 +338,7 @@ void memory_free(char *p)
     if ((char *)cur >= upto)
     {
         PutString("ERROR : Ask for an invalid free address at ");
-        PutInt((int)((char*)p - heap_start));
+        PutInt((int)p);
         PutString("\n");
         Exit(0);
     }

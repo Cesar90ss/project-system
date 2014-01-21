@@ -2,6 +2,7 @@
 
 int main()
 {
+    memory_init();
     free((void*)12);
 
     if (not_all_freed())
