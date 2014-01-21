@@ -33,6 +33,8 @@
 #define MEMORY_SIZE 2048 // Should be a multiple of PageSize
 #endif
 
+#define PAGE_SIZE 128
+
 /* Structure declaration for a free block */
 typedef struct free_block
 {
@@ -75,15 +77,12 @@ void memory_init(void)
 
     heap_top = heap_start;
 
-    int i;
-    for (i = 0; heap_start + MEMORY_SIZE >= heap_top; i++)
+    // Ask one page for the first structure (assuming struct fits in one page)
+    heap_top = AllocPageHeap();
+    if (heap_top == -1)
     {
-        heap_top = AllocPageHeap();
-        if (heap_top == -1)
-        {
-            PutString("Error while requesting page for Heap\n");
-            Exit(0);
-        }
+        PutString("Error while requesting page for Heap\n");
+        Exit(0);
     }
 
     /**
@@ -110,7 +109,8 @@ void memory_init(void)
 int not_all_freed(void)
 {
     return (char*)heap_start != (char*)first_free ||
-        (void*)first_free->next != NULL;
+        (void*)first_free->next != NULL ||
+        heap_start + PAGE_SIZE != heap_top;
 }
 
 int check_free_block(free_block_t block)
@@ -227,6 +227,20 @@ char *memory_alloc(int size)
         if (total_size_of_free_block - total_size_of_busy_block >= sizeof(free_block_s))
         {
             addr_of_next_free_block = (void*)((char*)currentElected + total_size_of_busy_block);
+
+            // If not enough page for total_size_of_busy_block + sizeof(free_block_t), request heap pages
+            if ((char *)heap_top < (char *)addr_of_next_free_block + sizeof(free_block_t))
+            {
+                while ((char *)heap_top < (char *)addr_of_next_free_block + sizeof(free_block_t))
+                {
+                    heap_top = AllocPageHeap();
+                    if (heap_top == -1)
+                    {
+                        PutString("Error while requesting heap pages inside malloc !\n");
+                        Exit(0);
+                    }
+                }
+            }
 
             (*(free_block_t)(addr_of_next_free_block)).size = total_size_of_free_block - total_size_of_busy_block;
             (*(free_block_t)(addr_of_next_free_block)).next = currentElected->next;
@@ -361,28 +375,44 @@ void memory_free(char *p)
     if (has_before && (char*)before + before->size == (char*)before->next)
         merge_with_before = 1;
 
+    free_block_t tmp = (free_block_t)pointer;
+
     // Do merging
     if (merge_with_before == 1 && merge_with_after == 0)
     {
-        free_block_t tmp = (free_block_t)pointer;
-
         before->next = tmp->next;
         before->size = before->size + tmp->size;
+        tmp = before;
     }
     else if (merge_with_before == 0 && merge_with_after == 1)
     {
-        free_block_t tmp = (free_block_t)pointer;
-
         tmp->next = after->next;
         tmp->size = tmp->size + after->size;
     }
     // Both sides
     else if (merge_with_before == 1 && merge_with_after == 1)
     {
-        free_block_t tmp = (free_block_t)pointer;
-
         before->next = after->next;
         before->size = before->size + tmp->size + after->size;
+        tmp = before;
+    }
+
+    // Give back to kernel unused pages
+    if (tmp->next == NULL)
+    {
+        unsigned int page_index = ((unsigned int)pointer + sizeof(free_block_t)) / PAGE_SIZE;
+        if (((unsigned int)pointer + sizeof(free_block_t)) % PAGE_SIZE != 0)
+            page_index += 1;
+
+        while (heap_top > page_index * PAGE_SIZE)
+        {
+            heap_top = FreePageHeap();
+            if (heap_top == -1)
+            {
+                PutString("Error while giving back pages to kernel !\n");
+                Exit(0);
+            }
+        }
     }
 
     // Monitor pattern
