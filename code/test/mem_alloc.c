@@ -54,6 +54,10 @@ free_block_t first_free;
 int heap_start;
 int heap_top;
 
+/* Semaphore for concurrency */
+int big_lock;
+int init_flag = 0;
+
 #define ULONG(x)((long unsigned int)(x))
 #define max(x,y) (x>y?x:y)
 
@@ -88,6 +92,18 @@ void memory_init(void)
     first_free = (void*)heap_start;
     first_free->size = MEMORY_SIZE;
     first_free->next = NULL;
+
+    /**
+     * One semaphore, one big lock
+     **/
+    big_lock = UserSemaphoreCreate("Malloc sem", 1);
+    if (big_lock == -1)
+    {
+        PutString("Error while initializing semaphore\n");
+        Exit(0);
+    }
+
+    init_flag = 1;
 }
 
 
@@ -116,6 +132,18 @@ int check_free_block(free_block_t block)
 
 char *memory_alloc(int size)
 {
+    // Monitor pattern
+    int ret;
+
+    if ((ret = UserSemaphoreP(big_lock)) != 0)
+    {
+        PutString("Error while taking malloc semaphore ");
+        PutInt(big_lock);
+        PutInt(ret);
+        PutChar('\n');
+        Exit(0);
+    }
+
     /**
      * Go trough free blocks and the first fitted one
      **/
@@ -225,6 +253,15 @@ char *memory_alloc(int size)
         (*(busy_block_t)currentElected).size = total_size_of_busy_block - sizeof(busy_block_s);
     }
 
+    // Monitor pattern
+    if (UserSemaphoreV(big_lock) != 0)
+    {
+        PutString("Error while releasing malloc semaphore ");
+        PutInt(big_lock);
+        PutChar('\n');
+        Exit(0);
+    }
+
     // If no suitable block found, return NULL
     if (currentElected == NULL)
         return NULL;
@@ -234,6 +271,16 @@ char *memory_alloc(int size)
 
 void memory_free(char *p)
 {
+
+    // Monitor pattern
+    if (UserSemaphoreP(big_lock) != 0)
+    {
+        PutString("Error while taking free semaphore ");
+        PutInt(big_lock);
+        PutChar('\n');
+        Exit(0);
+    }
+
     free_block_t before = first_free;
     free_block_t after = first_free;
     busy_block_t pointer = (busy_block_t)((char*)p - sizeof(busy_block_s));
@@ -337,15 +384,21 @@ void memory_free(char *p)
         before->next = after->next;
         before->size = before->size + tmp->size + after->size;
     }
+
+    // Monitor pattern
+    if (UserSemaphoreV(big_lock) != 0)
+    {
+        PutString("Error while releasing free semaphore ");
+        PutInt(big_lock);
+        PutChar('\n');
+        Exit(0);
+    }
 }
 
 void *malloc(size_t size)
 {
-    static int init_flag = 0;
-    if(!init_flag){
-        init_flag = 1;
+    if(!init_flag)
         memory_init();
-    }
 
     return (void*)memory_alloc((size_t)size);
 }
@@ -367,7 +420,7 @@ void *realloc(void *ptr, size_t size)
     PutString("bytes to ");
     PutInt((int)size);
     PutChar('\n');
-    
+
     if(size <= bb->size)
         return ptr;
 
