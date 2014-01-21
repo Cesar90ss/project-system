@@ -19,6 +19,7 @@
 #include "switch.h"
 #include "synch.h"
 #include "system.h"
+#include "valgrind.h"
 
 #define MAX_PROCESSES 30 //maximum number of processes
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
@@ -69,7 +70,10 @@ Thread::~Thread ()
 
     ASSERT (this != currentThread);
     if (stack != NULL)
+    {
         DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
+        VALGRIND_STACK_DEREGISTER (valgrind_id);
+    }
 
 //    delete joinSemaphore;
 
@@ -362,7 +366,8 @@ void
 Thread::StackAllocate (VoidFunctionPtr func, int arg)
 {
     stack = (int *) AllocBoundedArray (StackSize * sizeof (int));
-
+    valgrind_id = VALGRIND_STACK_REGISTER(stack, stack + StackSize);
+    
 #ifdef HOST_SNAKE
     // HP stack works from low addresses to high addresses
     stackTop = stack + 16;	// HP requires 64-byte frame marker

@@ -61,6 +61,10 @@ HOST = -DHOST_i386 -DSOLARIS
 endif
 endif # SOLARIS_SYS
 
+# Add valgrind header if existent
+NACHOS_VALGRIND := $(shell test -r /usr/include/valgrind/valgrind.h && echo -DHAVE_VALGRIND)
+HOST += $(NACHOS_VALGRIND)
+
 # HP PA-RISC, HP_UX
 # HOST = -DHOST_SNAKE -DHOST_IS_BIG_ENDIAN
 
