@@ -163,4 +163,6 @@
      int Waitpid(unsigned int pid)
 **** DESCRIPTION :
      Waitpid wait on the process which pid is given as argument, 
-     return -1 if process does not exist, 0 otherwise
+     return -1 if process does not exist,
+     return -2 if process is dead,
+     return -3 if waiting for itself, 0 otherwise

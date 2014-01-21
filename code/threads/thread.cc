@@ -416,6 +416,11 @@ bool Thread::Join(Thread* who)
         DEBUG('t', "%s try to join on already joined thread %s\n", who->getName(), this->getName());
         return false;
     }
+    if (who == this)
+    {
+	DEBUG('t', "%s try to join on itself \n", who->getName());
+	return false;
+    }
 
     DEBUG('t', "%s joining on %s\n", who->getName(), this->getName());
     joinerThread = who;

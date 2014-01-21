@@ -1,0 +1,1 @@
+Test process that wait for the other process which already dead and return -2
