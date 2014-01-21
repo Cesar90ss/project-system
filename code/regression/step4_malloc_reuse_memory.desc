@@ -1,0 +1,1 @@
+Test if malloc reuse the same memory after a free.
