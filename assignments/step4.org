@@ -1,0 +1,28 @@
+* Step 4 : answer to questions & notes
+
+ForkExec is used to execute multiple processes in the same time. It returns
+the pid of the process that has been created. It is a systemcall so it is 
+executed in the kernel mode. All the processes run in parallel and share 
+the execution time of the NacOS virtual processor. The scheduling is handled
+in the same way as for the userthread. 
+
+ForkExec creates new kernel thread that will execute new userprogram in
+a new Address space.The creation of the new process is devided between the
+calling thread and the called thread which will begin its execution with 
+a special initialization function. The managing of the processes is done 
+by the processMgr object which manage the pids and the ability to wait 
+for a certain thread using Waitpid function.
+
+There is no processes hierarchy, only the number of currently running thread 
+is counted and when the last process exit the machine is halted. 
+
+When a process halt it does not affect the others since all are independent
+programs with their own virtual memory code, data, and stacks. 
+
+Each pid is unique so when using Waitpid it is possible to know and prevent 
+the process from waiting on a dead process or on itself. And as such it is 
+possible to avoid deadlocks that would happen otherwise.
+
+Waitpid allows to catch the exit code of the process which is being waited.
+
+
