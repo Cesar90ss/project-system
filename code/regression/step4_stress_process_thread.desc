@@ -1,4 +1,5 @@
 This test tries to start 150 processes (many of them should not be created) and all of them will try to create 40 threads (10 creation per process should fail).
+This is done for -rs from 1 to 9
 return -1 if the number of processes is not coherent
 return -2 if the number of threads is not coherent
 return -3 if the number of failed thread creation is not coherent
