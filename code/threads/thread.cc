@@ -24,7 +24,8 @@
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
                     // execution stack, for detecting
                     // stack overflows
-
+class ProcessMgr;
+extern ProcessMgr *processMgr;
 //----------------------------------------------------------------------
 // Thread::Thread
 //      Initialize a thread control block, so that we can then call
@@ -492,7 +493,7 @@ Thread::ForkExec (char *s)
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
     // are disabled!
     (void) interrupt->SetLevel (oldLevel);
-    AddrSpace::nbProcess ++;
+    processMgr->nbProcess ++;
     currentThread->space->RestoreState(); //need to restore the previous page table since the creation of a new
 					  //address space changed the machine's register
     return t_space->GetPid();

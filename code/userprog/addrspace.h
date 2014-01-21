@@ -107,7 +107,6 @@ class AddrSpace
     void SetPageRights(unsigned int addr, unsigned int num, enum PageRight r);
     void FreePages(unsigned int addr, unsigned int num);
 
-    static unsigned int nbProcess;
     // for processes
     unsigned int GetPid(void);
   private:

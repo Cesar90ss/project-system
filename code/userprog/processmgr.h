@@ -41,12 +41,14 @@ public:
   bool ProcessEnded(unsigned int pid);
   
   std::map<unsigned int, ProcessInfo> getProcess();
+  
+  //number of processes currently running
+  unsigned int nbProcess;
 private:
   //keep tracks of the processes
   std::map<unsigned int, ProcessInfo> Processes;
   //max pid that was given
   unsigned int max_pid;
-  //number of processes currently running
-  unsigned int nbProcess;
+  
 };
 #endif

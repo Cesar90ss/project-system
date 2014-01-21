@@ -166,6 +166,7 @@ Initialize (int argc, char **argv)
     synchconsole = new SynchConsole (NULL,NULL);
     frameProvider = new FrameProvider(RANDOM);
     processMgr = new ProcessMgr();
+    processMgr->nbProcess = 1; // we have one process at the begining
 #endif
 
 #ifdef FILESYS

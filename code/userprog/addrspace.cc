@@ -58,8 +58,9 @@ SwapHeader (NoffHeader * noffH)
 //      "executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
 
-unsigned int AddrSpace::nbProcess = 1; // we have one process at the begining
+
 extern ProcessMgr *processMgr;
+
 AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 {
     NoffHeader noffH;
@@ -507,15 +508,16 @@ void AddrSpace::Exit(bool forceHalt)
 {
     DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
     // Stop current thread
-    AddrSpace::nbProcess --;
+    processMgr->nbProcess --;
 
     // Get all threads inside @space && finished it
     currentThread->space->KillAllThreads();
 
     AddrSpace *save = currentThread->space;
     processMgr->ProcessWaitV(currentThread->space->GetPid()); //we release the lock on the semaphore(end of process)
+    processMgr->EndProcess(currentThread->space);
     // If last thread, halt
-    if (AddrSpace::nbProcess == 0 || forceHalt)
+    if (processMgr->nbProcess == 0 || forceHalt)
     {
         Thread *t = currentThread;
         currentThread = NULL;
