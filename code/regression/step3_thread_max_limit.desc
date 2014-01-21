@@ -1,1 +1,1 @@
-Testing maximum creation number of thread. (set to 20)
+Reach the maximum number of thread we can create, verify if the created threads well start and if some creation fail.

@@ -1,35 +1,39 @@
 #include "syscall.h"
-#define NB_THREADS 21
+#define NB_THREADS 80
+#define NULL 0
 
-void* fun()
+void *fun(void *arg)
 {
-  return 0;
+	PutString("Thread execution\n");
+	int i;
+	for(i=0;i<1000;i++);
+	return 0;
 }
 
 int main()
 {
-    //Used to store treads id at creation
-	int id[NB_THREADS];
+	PutString("Child start\n");
+	int i;
+	int tid[NB_THREADS];
 
-    int j=0;
-    int i;
-    for(i=0 ; i < NB_THREADS ; i++)
-    {
-        id[i] = UserThreadCreate(&fun, 0);
-        //Some check for the threads creation
-        if(id[i] <= 0)
-        {
-            PutString("-2");
-        }
-        else{
-            j++;
-            PutString("0");
-        }
-	    UserThreadJoin(id[i], 0);
-    }
+	for(i=0;i<NB_THREADS; i++)
+	{
+		tid[i] = UserThreadCreate(&fun,NULL);
+		if(tid[i] < 0)
+		{
+			PutString("Thread creation failed\n");
+		}
+		else
+		{
+			PutString("Thread creation successfull\n");
+		}
+	}
 
-    PutString("\n");
-    PutInt(j);
-    PutString("\n");
+	for(i=0;i<NB_THREADS; i++)
+	{
+		tid[i] = UserThreadJoin(tid[i],NULL);
+	}
+	
+	PutString("Child end\n");
 	return 0;
 }
