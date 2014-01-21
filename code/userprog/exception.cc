@@ -50,11 +50,14 @@ UpdatePC ()
 void switch_Halt()
 {
     DEBUG ('m', "Shutdown, initiated by user program.\n");
+
     AddrSpace::Exit(true); // Force halt
 }
 //----------------------//
 void switch_Exit()
 {
+    processMgr->SetReturn(currentThread->space->GetPid(), machine->ReadRegister(4));
+
     AddrSpace::Exit();
 }
 //----------------------//
@@ -204,7 +207,7 @@ void switch_ForkExec()
     t->progName[write] = '\0';
 
     int pid = t->ForkExec(t->progName);
-    
+
     machine->WriteRegister(2,pid);
 }
 //----------------------//
@@ -221,9 +224,26 @@ void switch_FreePageHeap()
 void switch_Waitpid()
 {
   unsigned int pid = machine->ReadRegister(4);
-  machine->WriteRegister(2,processMgr->ProcessWaitP(pid));
+
+  int ret = processMgr->ProcessWaitP(pid);
+
+  machine->WriteRegister(2, ret);
+
+  if (ret == 0)
+  {
+      // Get return @ for exit code
+      int retval = machine->ReadRegister(5);
+
+      // Fill user return
+      int retProc = processMgr->GetReturn(pid);
+
+      // Fill retval with return value if not null
+      if (retval != 0)
+          machine->WriteMem(retval, 4, retProc);
+  }
+
 }
-  
+
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler

@@ -202,9 +202,9 @@ int AllocPageHeap();
 int FreePageHeap();
 
 /**
- * Waitpid wait on the process which pid is given as argument, return -1 if process does not exist, 0 otherwise
+ * Waitpid wait on the process which pid is given as argument
  */
-int Waitpid(unsigned int pid);
+int Waitpid(unsigned int pid, int *exitcode);
 
 #endif // IN_USER_MODE
 

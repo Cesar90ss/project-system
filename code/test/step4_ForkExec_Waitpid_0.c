@@ -2,7 +2,7 @@
 
 int main()
 {
-  if(Waitpid(0) == -3)
+    if(Waitpid(0, 0) == -3)
   {
     PutString("I can not wait for myself ");
   }

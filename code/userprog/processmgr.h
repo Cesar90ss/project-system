@@ -25,30 +25,34 @@ struct ProcessInfo
     enum ProcessStatusEnum status;
     AddrSpace *space;
     Semaphore *wait;  //for waitpid
+    int returnCode;
 };
 
-class ProcessMgr {
+class ProcessMgr
+{
 public:
-  
-  ProcessMgr(); 
-  ~ProcessMgr(); //destroy the map
-  void KillAllProcess();
-  unsigned int CreateProcess(AddrSpace *space);
-  void EndProcess(AddrSpace *proc);
-  int ProcessWaitP(unsigned int pid);
-  void ProcessWaitV(unsigned int pid);
-  AddrSpace *GetProcessById(unsigned int pid);
-  bool ProcessEnded(unsigned int pid);
-  
-  std::map<unsigned int, ProcessInfo> getProcess();
-  
-  //number of processes currently running
-  unsigned int nbProcess;
+
+    ProcessMgr();
+    ~ProcessMgr(); //destroy the map
+    void KillAllProcess();
+    unsigned int CreateProcess(AddrSpace *space);
+    void EndProcess(AddrSpace *proc);
+    int ProcessWaitP(unsigned int pid);
+    void ProcessWaitV(unsigned int pid);
+    AddrSpace *GetProcessById(unsigned int pid);
+    bool ProcessEnded(unsigned int pid);
+    int GetReturn(unsigned int pid);
+    void SetReturn(unsigned int pid, int code);
+
+    std::map<unsigned int, ProcessInfo> getProcess();
+
+    //number of processes currently running
+    unsigned int nbProcess;
 private:
-  //keep tracks of the processes
-  std::map<unsigned int, ProcessInfo> Processes;
-  //max pid that was given
-  unsigned int max_pid;
-  
+    //keep tracks of the processes
+    std::map<unsigned int, ProcessInfo> Processes;
+    //max pid that was given
+    unsigned int max_pid;
+
 };
 #endif

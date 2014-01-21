@@ -15,7 +15,7 @@
 **** DESCRIPTION :
         The exit syscall is used to quit the process.It will not shut down the
         machine unless there is no other process running.
-        The parameter can have two kind of values : 
+        The parameter can have two kind of values :
             - 0 in case of good terminaison.
             - a value > 0  if there is an error.
 
@@ -67,7 +67,7 @@
         char *GetString(char *s, int n)
 **** DESCRIPTION :
         It reads at most n-1 characters in the console.
-**** RETURN : 
+**** RETURN :
         - "s" if there is no error
         - otherwise return NULL (in case of error or EOF)
 
@@ -77,8 +77,8 @@
         int UserThreadCreate(void f(void *arg), void *arg)
 **** DESCRIPTION :
         This function create a new thread which will execute the function f with the
-        argument arg. 
-**** RETURN : 
+        argument arg.
+**** RETURN :
         - 0 on success
         - -1 if no space left for stack
         - -2 if MAX_TOTAL_THREADS (20 per default) has been reach
@@ -117,7 +117,7 @@
         int UserSemaphoreCreate(char* name, int value)
 **** DESCRIPTION :
         Initialize and return a semaphore id named "name" with an initial value "value".
-		It do not create a semaphore with the id of a previously destroyed semaphore.
+        It do not create a semaphore with the id of a previously destroyed semaphore.
 **** RETURN :
         - Return the id of the semaphore freshly created
 
@@ -157,7 +157,7 @@
      int AllocPageHeap()
 **** DESCRIPTION :
      AllocPageHeap asks for a new page on heap.
-**** RETURN : 
+**** RETURN :
     - -1 if no more page for heap
     - new page addr otherwise
 
@@ -169,7 +169,7 @@
      FreePageHeap gives back a new page for heap.
 **** RETURN :
     The new heap top addr.
-     
+
 
 *** NAME : ForkExec
 **** SYNOPSIS :
@@ -184,11 +184,12 @@
 
 *** NAME : Waitpid
 **** SYNOPSIS :
-     int Waitpid(unsigned int pid)
+     int Waitpid(unsigned int pid, int *retval)
 **** DESCRIPTION :
      Waitpid wait on the process which pid is given as argument.
-**** RETURN : 
+     If retval not NULL, the exit code of the process is put at address retval
+**** RETURN :
     - -1 if process does not exist
-	- -2 if process is dead
-	- -3 if waiting for itself
+    - -2 if process is dead
+    - -3 if waiting for itself
     - 0 otherwise

@@ -31,7 +31,7 @@ main ()
 	    {
 		
 		newProc = ForkExec(buffer);
-		Waitpid(newProc);
+		Waitpid(newProc, 0);
 	    }
       }
 }

@@ -11,7 +11,7 @@ int main()
   }
   for(j=0;j<NB_LOOP;j++)
   {
-    Waitpid(store[j]);
+      Waitpid(store[j], 0);
   }
   PutString("in my world the parent should come after the child ");
   return 0;

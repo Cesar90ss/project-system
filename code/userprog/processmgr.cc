@@ -4,26 +4,26 @@
 #include "addrspace.h"
 ProcessMgr::ProcessMgr()
 {
-  max_pid = 0;
-  nbProcess = 0;
+    max_pid = 0;
+    nbProcess = 0;
 }
 
 ProcessMgr::~ProcessMgr()
 {
-  /**
-  * Delete last semaphore
-  **/
-  std::map<unsigned int, ProcessInfo> copy(Processes);
-  std::map<unsigned int, ProcessInfo>::iterator it;
-  struct ProcessInfo p;
+    /**
+     * Delete last semaphore
+     **/
+    std::map<unsigned int, ProcessInfo> copy(Processes);
+    std::map<unsigned int, ProcessInfo>::iterator it;
+    struct ProcessInfo p;
 
-  for (it = copy.begin(); it != copy.end(); ++it)
-  {
-    p = it->second;
+    for (it = copy.begin(); it != copy.end(); ++it)
+    {
+        p = it->second;
 
-    if (p.wait != NULL)
-      delete p.wait;
-  }
+        if (p.wait != NULL)
+            delete p.wait;
+    }
 
     Processes.clear();
 }
@@ -54,7 +54,7 @@ void ProcessMgr::KillAllProcess()
         // Not thread marked as ended
         if (p.status == PROCESS_ENDED)
             continue;
-	EndProcess(p.space);	//end the process, clear the structure
+        EndProcess(p.space);	//end the process, clear the structure
         delete p.space; //delete the space attached to the process
     }
 }
@@ -96,7 +96,7 @@ int ProcessMgr::ProcessWaitP(unsigned int pid)
 {
     struct ProcessInfo pi;
     pi = Processes[pid];
-    
+
     if (Processes.find(pid) == Processes.end())
         return -1;
     if (pi.status == PROCESS_ENDED)
@@ -112,8 +112,8 @@ int ProcessMgr::ProcessWaitP(unsigned int pid)
  * wait V on process, called when process exit
  **/
 void ProcessMgr::ProcessWaitV(unsigned int pid)
-{    
-  if (Processes.find(pid) == Processes.end())
+{
+    if (Processes.find(pid) == Processes.end())
         return;
 
     Processes[pid].wait->V(); //release the semaphore
@@ -142,3 +142,25 @@ bool ProcessMgr::ProcessEnded(unsigned int pid)
     return Processes[pid].status == PROCESS_ENDED;
 }
 //------------------------------------------------------------//
+/**
+ * Get return code of a process
+ * Suppose process existence
+ **/
+int ProcessMgr::GetReturn(unsigned int pid)
+{
+    ASSERT(Processes.find(pid) != Processes.end());
+
+    return Processes[pid].returnCode;
+}
+
+//------------------------------------------------------------//
+/**
+ * Set return code
+ * Suppose process existence
+ **/
+void ProcessMgr::SetReturn(unsigned int pid, int code)
+{
+    ASSERT(Processes.find(pid) != Processes.end());
+
+    Processes[pid].returnCode = code;
+}
