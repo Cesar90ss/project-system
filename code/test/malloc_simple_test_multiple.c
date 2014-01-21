@@ -2,8 +2,7 @@
 
 int main()
 {
-    PutString("FirstMalloc !\n");
-    int *c = malloc(100 * sizeof(int));
+    int *c = malloc(sizeof(int) * 100);
     int i = 0;
 
     if (c == NULL)
@@ -12,18 +11,15 @@ int main()
         Exit(0);
     }
 
-    PutString("Fill memory\n");
     for (i = 0; i < 100; i++)
         c[i] = i;
 
-    PutString("Print memory\n");
-    for (i = 0; i < 100; i++)
-    {
-        PutInt(c[i]);
-        PutChar(' ');
-    }
+    int s = 0;
 
-    PutString("\nFree !\n");
+    for (i = 0; i < 100; i++)
+        s += c[i];
+
+    PutInt(s);
     free(c);
 
     if (not_all_freed())

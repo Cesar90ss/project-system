@@ -139,6 +139,10 @@ char *memory_alloc(int size)
 
     total_size_of_busy_block = (unsigned int)size + sizeof(busy_block_s);
 
+    // Must be 4 bytes aligned
+    if (total_size_of_busy_block % 4 != 0)
+        total_size_of_busy_block += 4 - (int)total_size_of_busy_block % 4;
+
     while(current != NULL)
     {
         // Check metadata corruption
@@ -244,7 +248,7 @@ void memory_free(char *p)
         // Check metadata corruption
         if (!check_free_block(before))
         {
-            PutString("ERROR : metadata corruption detected.\n");
+            PutString("ERROR : metadata corruption detected - free.\n");
             Exit(0);
         }
 
