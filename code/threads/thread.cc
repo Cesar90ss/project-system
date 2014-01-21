@@ -20,7 +20,7 @@
 #include "synch.h"
 #include "system.h"
 
-
+#define MAX_PROCESSES 30 //maximum number of processes
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
                     // execution stack, for detecting
                     // stack overflows
@@ -478,14 +478,19 @@ Thread::ForkExec (char *s)
   /*DEBUG ('t', "Execute Fork Inside Thread \"%s\" with func = 0x%x, arg = %d\n",
        name, (int) func, arg);
   */
-    
+    if(processMgr->nbProcess >= MAX_PROCESSES)
+    {
+		//maximum number of processes reached
+		return -1;
+	}
+
     OpenFile *executable = fileSystem->Open (s);
     AddrSpace *t_space;
 
     if (executable == NULL)
     {
         printf ("Unable to open file %s\n", s);
-        return -1;
+        return -2;
     }
     t_space = new AddrSpace (executable);
     t_space->AttachThread(this);
