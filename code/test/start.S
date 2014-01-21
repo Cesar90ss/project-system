@@ -256,6 +256,14 @@ FreePageHeap:
     j	$31
     .end FreePageHeap
 /* ----------------------*/
+    .globl Waitpid
+    .ent	Waitpid
+Waitpid:
+    addiu $2,$0,SC_Waitpid
+    syscall
+    j	$31
+    .end Waitpid
+/* ----------------------*/
 
 
 /* dummy function to keep gcc happy */

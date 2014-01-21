@@ -1,0 +1,1 @@
+Test the system call waitpid, this also validate the return of the pid since waitpid would not work otherwise
