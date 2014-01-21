@@ -1,0 +1,21 @@
+---- TODO LIST ----
+
+--- TODO (20/01) ---
+- Create a bunch of tests about processes. (IN PROGRESS)
+- Shell (launch programs) (IN PROGRESS)
+- Add tests : too_many_forkexec + multiplethread_too_many_threads (IN PROGRESS)
+- Heap (IN PROGRESS)
+--------------------
+
+--- TODO (21/01) ---
+- WaitPid
+- Test to join on itself
+- MAX_THREAD --> 30
+- MAX_PROCESS --> 30
+- Test rs in[1,n]
+- ForkExecError (decrease in addrSpace)
+- Shell
+- Heap
+--------------------
+
+-------------------
