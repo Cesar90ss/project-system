@@ -1,0 +1,25 @@
+* Notes on user level malloc
+
+  An implement of malloc/free as been provided as on UNIX. realloc and calloc
+  are also available.
+
+  Same rules and same prototypes as for UNIX version (see man malloc). Our
+  version dynamically allocate and release pages for heap.
+
+  In context of multithreads, you need to call memory_init into the main thread
+  before forking thread to initialize synchronization structure. This is not
+  needed (but not wrong) for no-thread applications (only the main thread).
+
+  Three allocations strategy has been implemented :
+  ** FIRST_FIT
+  ** BEST_FIT
+  ** WORSE_FIT
+
+  To use this library, include at top of your program :
+
+  #define BEST_FIT 1
+  #include "mem_alloc.c"
+
+  By default, the strategy is FIRST_FIT and the first line (define) is
+  unnecessary. The mem_alloc.*c* is needed as Makefile only compile one file as
+  a binary.
