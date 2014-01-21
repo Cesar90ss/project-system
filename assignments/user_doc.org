@@ -147,3 +147,20 @@
 **** DESCRIPTION :
      FreePageHeap gives back a new page for heap
      Return the new heap top addr
+     
+
+*** NAME : ForkExec
+**** SYNOPSIS :
+     unsigned int ForkExec(char *s)
+**** DESCRIPTION :
+     ForkExec Use to create new process that execute program stated in the argument s
+     Return pid of this process 
+
+     
+     
+*** NAME : Waitpid
+**** SYNOPSIS :
+     int Waitpid(unsigned int pid)
+**** DESCRIPTION :
+     Waitpid wait on the process which pid is given as argument, 
+     return -1 if process does not exist, 0 otherwise
