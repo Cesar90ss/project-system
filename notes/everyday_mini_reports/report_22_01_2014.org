@@ -12,6 +12,23 @@
     - 3 for network
 
 -- TODO LIST (FILE SYSTEM) --
+--> Thursday
+- (1h30) Add subdirectory support
+- (1h) Add directory dot and dotdot
+- (30') Print a directory taking into account subdirectory
+- (2h) Current directory support
+- (1h) Directory removal
+--> Friday
+- (2h) Open files table
+- (2h) Create/delete file directory concurrently
+- (1h) Increase file size
+- (1h30) Dynamic file size
+--> Monday
+- (1h30) Absolute path
+- (4h) Multiple thread concurrency (reader/writer)
+--> Tuesday
+- (4h) Optimize I/O
+- (4h) Improve file system robustness
 -----------------------------
 
 
