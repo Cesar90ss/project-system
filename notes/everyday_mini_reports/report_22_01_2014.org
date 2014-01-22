@@ -1,0 +1,6 @@
+- We finished step 4 20/01. However, we still have a bug on thread stacks to
+  correct (IN PROGRESS).
+- We start reading step 5 and 6 in order to divide the work to do. We still
+  don't know if we are going to do 2 groups : one on step 5 and one on step 6
+  or not.
+
