@@ -2,19 +2,23 @@
 #define NB_THREADS 80
 #define NULL 0
 
+int sem;
+
 void *fun(void *arg)
 {
+	UserSemaphoreP(sem);
+
 	PutString("Thread execution\n");
-	int i;
-	for(i=0;i<1000;i++);
+	
 	return 0;
 }
 
 int main()
 {
-	PutString("Child start\n");
 	int i;
 	int tid[NB_THREADS];
+
+	sem = UserSemaphoreCreate("a", 0);
 
 	for(i=0;i<NB_THREADS; i++)
 	{
@@ -29,11 +33,14 @@ int main()
 		}
 	}
 
+	for (i = 0; i < NB_THREADS; i++)
+	{
+		UserSemaphoreV(sem);
+	}
+
 	for(i=0;i<NB_THREADS; i++)
 	{
 		tid[i] = UserThreadJoin(tid[i],NULL);
 	}
-	
-	PutString("Child end\n");
 	return 0;
 }

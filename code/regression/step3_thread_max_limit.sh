@@ -6,9 +6,9 @@ OUTPUT=`./nachos-step4 -rs 2 -x thread_max_limit | head -n -10`
 SORTED_STRING=$(echo "$OUTPUT" | sort | uniq -c )
 echo "$SORTED_STRING"
 
-CREATED_THREAD=$(echo "$SORTED_STRING" | grep -i "Thread creation successfull" | cut -c "6 7" )
-EXECUTED_THREAD=$(echo "$SORTED_STRING" | grep -i "Thread execution" | cut -c "6 7" )
-FAILED_THREAD=$(echo "$SORTED_STRING" | grep -i "Thread creation failed" | cut -c "5 6 7" )
+CREATED_THREAD=$(echo "$SORTED_STRING" | grep -i "Thread creation successfull" | awk '{ print $1 }')
+EXECUTED_THREAD=$(echo "$SORTED_STRING" | grep -i "Thread execution" | awk '{ print $1 }' )
+FAILED_THREAD=$(echo "$SORTED_STRING" | grep -i "Thread creation failed" | awk '{ print $1 }' )
 
 if [ $CREATED_THREAD != $EXECUTED_THREAD ]; then
 	echo "incoherent thread number"

@@ -5,8 +5,6 @@
 void *fun(void *arg)
 {
 	PutString("Thread execution\n");
-	int i;
-	for(i=0;i<10;i++);
 	return 0;
 }
 
