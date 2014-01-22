@@ -21,7 +21,7 @@
 #ifndef FILESYS_STUB
 //----------------------------------------------------------------------
 // OpenFile::OpenFile
-// 	Open a Nachos file for reading and writing.  Bring the file header
+//  Open a Nachos file for reading and writing.  Bring the file header
 //	into memory while the file is open.
 //
 //	"sector" -- the location on disk of the file header for this file
@@ -36,7 +36,7 @@ OpenFile::OpenFile(int sector)
 
 //----------------------------------------------------------------------
 // OpenFile::~OpenFile
-// 	Close a Nachos file, de-allocating any in-memory data structures.
+//  Close a Nachos file, de-allocating any in-memory data structures.
 //----------------------------------------------------------------------
 
 OpenFile::~OpenFile()
@@ -46,7 +46,7 @@ OpenFile::~OpenFile()
 
 //----------------------------------------------------------------------
 // OpenFile::Seek
-// 	Change the current location within the open file -- the point at
+//  Change the current location within the open file -- the point at
 //	which the next Read or Write will start from.
 //
 //	"position" -- the location within the file for the next Read/Write
@@ -60,7 +60,7 @@ OpenFile::Seek(int position)
 
 //----------------------------------------------------------------------
 // OpenFile::Read/Write
-// 	Read/write a portion of a file, starting from seekPosition.
+//  Read/write a portion of a file, starting from seekPosition.
 //	Return the number of bytes actually written or read, and as a
 //	side effect, increment the current position within the file.
 //
@@ -74,22 +74,22 @@ OpenFile::Seek(int position)
 int
 OpenFile::Read(char *into, int numBytes)
 {
-   int result = ReadAt(into, numBytes, seekPosition);
-   seekPosition += result;
-   return result;
+    int result = ReadAt(into, numBytes, seekPosition);
+    seekPosition += result;
+    return result;
 }
 
 int
 OpenFile::Write(const char *into, int numBytes)
 {
-   int result = WriteAt(into, numBytes, seekPosition);
-   seekPosition += result;
-   return result;
+    int result = WriteAt(into, numBytes, seekPosition);
+    seekPosition += result;
+    return result;
 }
 
 //----------------------------------------------------------------------
 // OpenFile::ReadAt/WriteAt
-// 	Read/write a portion of a file, starting at "position".
+//  Read/write a portion of a file, starting at "position".
 //	Return the number of bytes actually written or read, but has
 //	no side effects (except that Write modifies the file, of course).
 //
@@ -98,13 +98,13 @@ OpenFile::Write(const char *into, int numBytes)
 //	sector at a time.  Thus:
 //
 //	For ReadAt:
-//	   We read in all of the full or partial sectors that are part of the
-//	   request, but we only copy the part we are interested in.
+//     We read in all of the full or partial sectors that are part of the
+//     request, but we only copy the part we are interested in.
 //	For WriteAt:
-//	   We must first read in any sectors that will be partially written,
-//	   so that we don't overwrite the unmodified portion.  We then copy
-//	   in the data that will be modified, and write back all the full
-//	   or partial sectors that are part of the request.
+//     We must first read in any sectors that will be partially written,
+//     so that we don't overwrite the unmodified portion.  We then copy
+//     in the data that will be modified, and write back all the full
+//     or partial sectors that are part of the request.
 //
 //	"into" -- the buffer to contain the data to be read from disk
 //	"from" -- the buffer containing the data to be written to disk
@@ -121,11 +121,11 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
     char *buf;
 
     if ((numBytes <= 0) || (position >= fileLength))
-    	return 0; 				// check request
+        return 0;               // check request
     if ((position + numBytes) > fileLength)
-	numBytes = fileLength - position;
+        numBytes = fileLength - position;
     DEBUG('f', "Reading %d bytes at %d, from file of length %d.\n",
-			numBytes, position, fileLength);
+          numBytes, position, fileLength);
 
     firstSector = divRoundDown(position, SectorSize);
     lastSector = divRoundDown(position + numBytes - 1, SectorSize);
@@ -135,7 +135,7 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
     buf = new char[numSectors * SectorSize];
     for (i = firstSector; i <= lastSector; i++)
         synchDisk->ReadSector(hdr->ByteToSector(i * SectorSize),
-					&buf[(i - firstSector) * SectorSize]);
+                              &buf[(i - firstSector) * SectorSize]);
 
     // copy the part we want
     bcopy(&buf[position - (firstSector * SectorSize)], into, numBytes);
@@ -152,11 +152,11 @@ OpenFile::WriteAt(const char *from, int numBytes, int position)
     char *buf;
 
     if ((numBytes <= 0) || (position >= fileLength))
-	return 0;				// check request
+        return 0;				// check request
     if ((position + numBytes) > fileLength)
-	numBytes = fileLength - position;
+        numBytes = fileLength - position;
     DEBUG('f', "Writing %d bytes at %d, from file of length %d.\n",
-			numBytes, position, fileLength);
+          numBytes, position, fileLength);
 
     firstSector = divRoundDown(position, SectorSize);
     lastSector = divRoundDown(position + numBytes - 1, SectorSize);
@@ -172,7 +172,7 @@ OpenFile::WriteAt(const char *from, int numBytes, int position)
         ReadAt(buf, SectorSize, firstSector * SectorSize);
     if (!lastAligned && ((firstSector != lastSector) || firstAligned))
         ReadAt(&buf[(lastSector - firstSector) * SectorSize],
-				SectorSize, lastSector * SectorSize);
+               SectorSize, lastSector * SectorSize);
 
 // copy in the bytes we want to change
     bcopy(from, &buf[position - (firstSector * SectorSize)], numBytes);
@@ -180,14 +180,14 @@ OpenFile::WriteAt(const char *from, int numBytes, int position)
 // write modified sectors back
     for (i = firstSector; i <= lastSector; i++)
         synchDisk->WriteSector(hdr->ByteToSector(i * SectorSize),
-					&buf[(i - firstSector) * SectorSize]);
+                               &buf[(i - firstSector) * SectorSize]);
     delete [] buf;
     return numBytes;
 }
 
 //----------------------------------------------------------------------
 // OpenFile::Length
-// 	Return the number of bytes in the file.
+//  Return the number of bytes in the file.
 //----------------------------------------------------------------------
 
 int

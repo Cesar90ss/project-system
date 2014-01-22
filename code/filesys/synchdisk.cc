@@ -19,7 +19,7 @@
 
 //----------------------------------------------------------------------
 // DiskRequestDone
-// 	Disk interrupt handler.  Need this to be a C routine, because
+//  Disk interrupt handler.  Need this to be a C routine, because
 //	C++ can't handle pointers to member functions.
 //----------------------------------------------------------------------
 
@@ -33,11 +33,11 @@ DiskRequestDone (int arg)
 
 //----------------------------------------------------------------------
 // SynchDisk::SynchDisk
-// 	Initialize the synchronous interface to the physical disk, in turn
+//  Initialize the synchronous interface to the physical disk, in turn
 //	initializing the physical disk.
 //
 //	"name" -- UNIX file name to be used as storage for the disk data
-//	   (usually, "DISK")
+//     (usually, "DISK")
 //----------------------------------------------------------------------
 
 SynchDisk::SynchDisk(const char* name)
@@ -49,7 +49,7 @@ SynchDisk::SynchDisk(const char* name)
 
 //----------------------------------------------------------------------
 // SynchDisk::~SynchDisk
-// 	De-allocate data structures needed for the synchronous disk
+//  De-allocate data structures needed for the synchronous disk
 //	abstraction.
 //----------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ SynchDisk::~SynchDisk()
 
 //----------------------------------------------------------------------
 // SynchDisk::ReadSector
-// 	Read the contents of a disk sector into a buffer.  Return only
+//  Read the contents of a disk sector into a buffer.  Return only
 //	after the data has been read.
 //
 //	"sectorNumber" -- the disk sector to read
@@ -80,7 +80,7 @@ SynchDisk::ReadSector(int sectorNumber, char* data)
 
 //----------------------------------------------------------------------
 // SynchDisk::WriteSector
-// 	Write the contents of a buffer into a disk sector.  Return only
+//  Write the contents of a buffer into a disk sector.  Return only
 //	after the data has been written.
 //
 //	"sectorNumber" -- the disk sector to be written
@@ -98,7 +98,7 @@ SynchDisk::WriteSector(int sectorNumber, char* data)
 
 //----------------------------------------------------------------------
 // SynchDisk::RequestDone
-// 	Disk interrupt handler.  Wake up any thread waiting for the disk
+//  Disk interrupt handler.  Wake up any thread waiting for the disk
 //	request to finish.
 //----------------------------------------------------------------------
 
