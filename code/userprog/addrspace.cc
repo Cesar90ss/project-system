@@ -109,12 +109,7 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
     stackMgr = new StackMgr(this, codePages * PageSize);
     pid = processMgr->CreateProcess(this);
     heapMgr = new HeapMgr(this, codePages * PageSize);
-
-    // Init heap mgr
-    heapMgr = new HeapMgr(this, codePages * PageSize);
 #endif
-
-   
 
     semaphore_list = NULL;
     semaphore_counter = 0;
@@ -389,6 +384,10 @@ void AddrSpace::KillAllThreads()
         if (t.status == THREAD_ENDED)
             continue;
 
+        // Keep main thread for last cleanup
+        if (t.ptr == mainThread)
+            continue;
+
         delete t.ptr;
     }
 }
@@ -422,7 +421,6 @@ void AddrSpace::DetachThread(Thread *child)
     ti.status = THREAD_ENDED;
     threads[child->GetTid()] = ti;
     child->space = NULL;
-    num_threads--;
 }
 //------------------------------------------------------------//
 /**
@@ -506,35 +504,78 @@ unsigned int AddrSpace::CurrentThreadNumber()
  **/
 void AddrSpace::Exit(bool forceHalt)
 {
-    DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
-    // Stop current thread
-    processMgr->nbProcess --;
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
+    DEBUG('m', "Exit program, return code exit(%d)\n", machine->ReadRegister(4));
     // Get all threads inside @space && finished it
     currentThread->space->KillAllThreads();
 
-    AddrSpace *save = currentThread->space;
     processMgr->ProcessWaitV(currentThread->space->GetPid()); //we release the lock on the semaphore(end of process)
     processMgr->EndProcess(currentThread->space);
+
     // If last thread, halt
-    if (processMgr->nbProcess == 0 || forceHalt)
+    if ((int)processMgr->nbProcess == 0 || forceHalt)
     {
         Thread *t = currentThread;
-        currentThread = NULL;
 
-        delete t;
-        delete save;
+        // Do a context switch to get back to main
+        if (t != mainThread)
+        {
+            // Delete @space now
+            spaceToBeDestroyed = currentThread->space;
+
+            // Mark thread to destroy
+            threadToBeDestroyed = t;
+            currentThread = NULL;
+
+            // Bit of hacky but need to switch right here
+            mainThread->pushStack((int)&&lbl);
+
+            // Now change thread
+            SWITCH(t, mainThread);
+            // /!\ value in stack are not the same as previously, does not use
+            // it
+
+        lbl:
+            // Delete thread
+            delete threadToBeDestroyed;
+
+            // Also delete @space for cleanup
+            if (mainThread->space != spaceToBeDestroyed && spaceToBeDestroyed != NULL)
+                delete spaceToBeDestroyed;
+
+
+            currentThread = mainThread;
+        }
+
+        // Should be main thread
+        ASSERT(currentThread == mainThread);
+
+        // Now delete main thread (currently running)
+        AddrSpace *mainSpace = currentThread->space;
+
+        threadToBeDestroyed = currentThread;
+        currentThread = NULL;
+        delete threadToBeDestroyed;
+
+        // Delete space of main thread also
+        delete mainSpace;
+
         interrupt->Halt();
     }
     else
     {
         // Clear stack
+        AddrSpace *save = currentThread->space;
+
         currentThread->space->FreeUserStack(currentThread->userStack);
         currentThread->space->DetachThread(currentThread);
         delete save;
 
         currentThread->Finish();
     }
+
+    interrupt->SetLevel(oldLevel);
 }
 //------------------------------------------------------------//
 /**

@@ -15,6 +15,7 @@ class ProcessMgr;
 // These are all initialized and de-allocated by this file.
 
 Thread *currentThread;		// the thread we are running now
+Thread *mainThread;		// the main thread for end cleanup
 Thread *threadToBeDestroyed;	// the thread that just finished
 Scheduler *scheduler;		// the ready list
 Interrupt *interrupt;		// interrupt status
@@ -35,6 +36,7 @@ Machine *machine;		// user program memory and registers
 SynchConsole *synchconsole;	//console
 FrameProvider *frameProvider;	// declare the pysical frame provider
 ProcessMgr *processMgr;
+AddrSpace *spaceToBeDestroyed;	// the last @ space to destroy
 #endif
 
 #ifdef NETWORK
@@ -156,6 +158,7 @@ Initialize (int argc, char **argv)
     // But if it ever tries to give up the CPU, we better have a Thread
     // object to save its state.
     currentThread = new Thread ("main");
+    mainThread = currentThread;
     currentThread->setStatus (RUNNING);
 
     interrupt->Enable ();
@@ -166,7 +169,7 @@ Initialize (int argc, char **argv)
     synchconsole = new SynchConsole (NULL,NULL);
     frameProvider = new FrameProvider(RANDOM);
     processMgr = new ProcessMgr();
-    processMgr->nbProcess = 1; // we have one process at the begining
+    spaceToBeDestroyed = NULL;
 #endif
 
 #ifdef FILESYS

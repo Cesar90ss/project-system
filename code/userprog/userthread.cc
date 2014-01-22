@@ -87,9 +87,14 @@ void do_UserThreadExit()
 
     // If last thread, call exit
     if (currentThread->space->CurrentThreadNumber() > 1)
+    {
+        currentThread->space->DecThreadNumber();
         currentThread->Finish();
+    }
     else
+    {
         AddrSpace::Exit();
+    }
 }
 
 int do_UserThreadJoin()

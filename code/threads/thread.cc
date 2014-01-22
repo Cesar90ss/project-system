@@ -82,7 +82,7 @@ Thread::~Thread ()
         delete uf;
 
     if (progName != NULL)
-        delete progName;
+        delete [] progName;
 
     if (space != NULL)
     {
@@ -308,10 +308,12 @@ SetupThreadState ()
   // getting created.
 
   if (threadToBeDestroyed != NULL)
-    {
-      delete threadToBeDestroyed;
+  {
+      if (threadToBeDestroyed != mainThread)
+          delete threadToBeDestroyed;
+
       threadToBeDestroyed = NULL;
-    }
+  }
 
 #ifdef USER_PROGRAM
 
@@ -501,14 +503,14 @@ Thread::ForkExec (char *s)
     t_space->AttachThread(this);
 
     delete executable;		// close file
-    
+
     StackAllocate(StartProc,0);
 
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
     // are disabled!
     (void) interrupt->SetLevel (oldLevel);
-    processMgr->nbProcess ++;
+
     currentThread->space->RestoreState(); //need to restore the previous page table since the creation of a new
 					  //address space changed the machine's register
     return t_space->GetPid();
