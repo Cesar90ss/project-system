@@ -1,28 +1,40 @@
 * Step 4 : answer to questions & notes
+  ForkExec is used to execute multiple processes in the same time. It returns
+  the pid of the process that has been created. It is a systemcall so it is 
+  executed in the kernel mode. All the processes run in parallel and share 
+  the execution time of the NachOS virtual processor. The scheduling is handled
+  in the same way as for the userthread. 
 
-ForkExec is used to execute multiple processes in the same time. It returns
-the pid of the process that has been created. It is a systemcall so it is 
-executed in the kernel mode. All the processes run in parallel and share 
-the execution time of the NacOS virtual processor. The scheduling is handled
-in the same way as for the userthread. 
+  ForkExec creates new kernel thread that will execute new userprogram in
+  a new Address space.The creation of the new process is devided between the
+  calling thread and the called thread which will begin its execution with 
+  a special initialization function. 
 
-ForkExec creates new kernel thread that will execute new userprogram in
-a new Address space.The creation of the new process is devided between the
-calling thread and the called thread which will begin its execution with 
-a special initialization function. The managing of the processes is done 
-by the processMgr object which manage the pids and the ability to wait 
-for a certain thread using Waitpid function.
+  The managing of the processes is done by the processMgr object which manage
+  the pids and the ability to wait for a certain thread using Waitpid function.
+  The created processes all have a control structure which contains their status
+  (Running, Waiting, Ended), a pointer to their address space, a semaphore used
+  to wait on their end (unlocked only when the process end), and an int to store
+  their returnCode when they exit.
 
-There is no processes hierarchy, only the number of currently running thread 
-is counted and when the last process exit the machine is halted. 
+  Maximum number of process that can be created is 30 and each process  can
+  create 30 threads. When the maximum number of processes is reached ForkExec
+  will return -1.
 
-When a process halt it does not affect the others since all are independent
-programs with their own virtual memory code, data, and stacks. 
+  There is no processes hierarchy, only the number of currently running thread 
+  is counted and when the last process exit the machine is halted.
 
-Each pid is unique so when using Waitpid it is possible to know and prevent 
-the process from waiting on a dead process or on itself. And as such it is 
-possible to avoid deadlocks that would happen otherwise.
+  Waitpid (unsigned int pid, int *ExitCode) this function allows to wait for the
+  end of the process whose pid is the argument, it also allows to catch the exit
+  code of this process in the variable ExitCode. 
 
-Waitpid allows to catch the exit code of the process which is being waited.
+  Each pid is unique so when using Waitpid it is possible to know and prevent 
+  the process from waiting on a dead process or on itself. And as such it is 
+  possible to avoid deadlocks that would happen otherwise.
 
-
+  Waitpid allows to catch the exit code of the process which is being waited.
+  When the process exit, the address space it uses is supressed but the control 
+  structure are not deleted since other processes may wait on the semaphore
+  used for Waitpid and supressing it would disable them from unlocking.
+  When a process halt it does not affect the others since all are independent
+  programs with their own virtual memory code, data, and stacks. 
