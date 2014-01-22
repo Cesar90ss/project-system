@@ -20,6 +20,7 @@
 #include "copyright.h"
 #include "list.h"
 
+class Thread;
 // The following class defines a "semaphore" whose value is a non-negative
 // integer.  The semaphore has only two operations P() and V():
 //
@@ -86,6 +87,9 @@ class Lock
 
   private:
     const char *name;		// for debugging
+	bool locked;
+	Thread* locker;
+	List *queue;
     // plus some other stuff you'll need to define
 };
 
@@ -123,25 +127,25 @@ class Lock
 
 class Condition
 {
-  public:
-    Condition (const char *debugName);	// initialize condition to
-    // "no one waiting"
-     ~Condition ();		// deallocate the condition
-    const char *getName ()
-    {
-	return (name);
-    }
+	public:
+		Condition (const char *debugName);	// initialize condition to
+		// "no one waiting"
+		~Condition ();		// deallocate the condition
+		const char *getName ()
+		{
+			return (name);
+		}
 
-    void Wait (Lock * conditionLock);	// these are the 3 operations on
-    // condition variables; releasing the
-    // lock and going to sleep are
-    // *atomic* in Wait()
-    void Signal (Lock * conditionLock);	// conditionLock must be held by
-    void Broadcast (Lock * conditionLock);	// the currentThread for all of
-    // these operations
+		void Wait (Lock * conditionLock);	// these are the 3 operations on
+		// condition variables; releasing the
+		// lock and going to sleep are
+		// *atomic* in Wait()
+		void Signal (Lock * conditionLock);	// conditionLock must be held by
+		void Broadcast (Lock * conditionLock);	// the currentThread for all of
+		// these operations
 
-  private:
-    const char *name;
-    // plus some other stuff you'll need to define
+	private:
+		const char *name;
+		List *queue;
 };
 #endif // SYNCH_H
