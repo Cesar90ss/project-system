@@ -264,7 +264,13 @@ Waitpid:
     j	$31
     .end Waitpid
 /* ----------------------*/
-
+    .globl CheckEnd
+    .ent	CheckEnd
+CheckEnd:
+    addiu $2,$0,SC_CheckEnd
+    syscall
+    j	$31
+    .end CheckEnd
 
 /* dummy function to keep gcc happy */
         .globl  __main

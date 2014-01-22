@@ -243,6 +243,12 @@ void switch_Waitpid()
   }
 
 }
+//----------------------//
+void switch_CheckEnd()
+{
+  int pid = machine->ReadRegister(4);
+  machine->WriteRegister(2, processMgr->ProcessEnded(pid));
+}
 
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
@@ -376,6 +382,11 @@ ExceptionHandler (ExceptionType which)
                 case SC_Waitpid:
                 {
                     switch_Waitpid();
+                    break;
+                }
+                 case SC_CheckEnd:
+                {
+                    switch_CheckEnd();
                     break;
                 }
                 #endif

@@ -46,6 +46,7 @@
 #define SC_AllocPageHeap        24
 #define SC_FreePageHeap         25
 #define SC_Waitpid		26
+#define SC_CheckEnd		27
 
 #ifdef IN_USER_MODE
 
@@ -205,6 +206,11 @@ int FreePageHeap();
  * Waitpid wait on the process which pid is given as argument
  */
 int Waitpid(unsigned int pid, int *exitcode);
+
+/**
+ * CheckEnd checking of the process if it is end or not 
+ */
+int CheckEnd(unsigned int pid);
 
 #endif // IN_USER_MODE
 
