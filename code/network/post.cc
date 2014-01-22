@@ -18,6 +18,8 @@
 
 #include "copyright.h"
 #include "post.h"
+#include "thread.h"
+//class Thread;
 
 #include <strings.h> /* for bzero */
 
