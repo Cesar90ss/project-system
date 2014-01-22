@@ -195,7 +195,7 @@ PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
 //   and put them in the right mailbox.
     Thread *t = new Thread("postal worker");
 
-    t->Fork(PostalHelper, (int) this);
+    t->Fork_No_User_Space(PostalHelper, (int) this);
 }
 
 //----------------------------------------------------------------------

@@ -136,6 +136,45 @@ Thread::Fork (VoidFunctionPtr func, int arg)
     (void) interrupt->SetLevel (oldLevel);
 }
 
+#ifdef NETWORK
+
+//----------------------------------------------------------------------
+// Thread::Fork_No_User_Space
+//      Invoke (*func)(arg), allowing caller and callee to execute
+//      concurrently.
+//
+//      NOTE: although our definition allows only a single integer argument
+//      to be passed to the procedure, it is possible to pass multiple
+//      arguments by making them fields of a structure, and passing a pointer
+//      to the structure as "arg".
+//
+//      Implemented as the following steps:
+//              1. Allocate a stack
+//              2. Initialize the stack so that a call to SWITCH will
+//              cause it to run the procedure
+//              3. Put the thread on the ready queue
+//
+//      "func" is the procedure to run concurrently.
+//      "arg" is a single argument to be passed to the procedure.
+//	
+//	At the difference of Fork, it does not automatically attach the thread to
+//	a mips address space(for kernel deamon)
+//----------------------------------------------------------------------
+
+void
+Thread::Fork_No_User_Space (VoidFunctionPtr func, int arg)
+{
+    DEBUG ('t', "Forking kernel thread, with no User Space \"%s\" with func = 0x%x, arg = %d\n",
+       name, (int) func, arg);
+
+    StackAllocate (func, arg);
+
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);
+    scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
+    // are disabled!
+    (void) interrupt->SetLevel (oldLevel);
+}
+#endif
 //----------------------------------------------------------------------
 // Thread::CheckOverflow
 //      Check a thread's stack to see if it has overrun the space
