@@ -123,7 +123,7 @@ class Thread
     printf ("%s, ", name);
     }
 
-    unsigned int ForkExec(char *s);
+    int ForkExec(char *s);
 
     void pushStack(int value) { *(++stackTop) = value; }
 

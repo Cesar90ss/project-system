@@ -479,7 +479,7 @@ void Thread::SetTid(unsigned int id)
 }
 
 
-unsigned int
+int
 Thread::ForkExec (char *s)
 {
   /*DEBUG ('t', "Execute Fork Inside Thread \"%s\" with func = 0x%x, arg = %d\n",
@@ -513,7 +513,7 @@ Thread::ForkExec (char *s)
 
     currentThread->space->RestoreState(); //need to restore the previous page table since the creation of a new
 					  //address space changed the machine's register
-    return t_space->GetPid();
+    return (int)t_space->GetPid();
 }
 
 
