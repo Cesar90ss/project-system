@@ -24,6 +24,7 @@ extern void Cleanup ();		// Cleanup, called when
 						// Nachos is done.
 
 extern Thread *currentThread;	// the thread holding the CPU
+extern Thread *mainThread;	// the first thread for end cleanup
 extern Thread *threadToBeDestroyed;	// the thread that just finished
 extern Scheduler *scheduler;	// the ready list
 extern Interrupt *interrupt;	// interrupt status
@@ -35,6 +36,7 @@ extern Timer *timer;		// the hardware alarm clock
 #include "frameprovider.h"
 extern Machine *machine;	// user program memory and registers
 extern FrameProvider *frameProvider;
+extern AddrSpace *spaceToBeDestroyed;	// the last @ space to destroy
 #endif
 
 #ifdef FILESYS_NEEDED		// FILESYS or FILESYS_STUB

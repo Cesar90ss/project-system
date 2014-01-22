@@ -79,12 +79,11 @@ void switch_Getchar()
 void switch_Putstring()
 {
     int from = machine->ReadRegister(4);
-    char* c = new char[MAX_STRING_SIZE + 1];
+    char c[MAX_STRING_SIZE + 1];
     int really_write = copyStringFromMachine(from,c,MAX_STRING_SIZE);
     c[really_write] = '\0';
     DEBUG('a', "Putstring %s\n", c);
     synchconsole->SynchPutString(c);
-    delete [] c;
 }
 //----------------------//
 void switch_Getstring()
@@ -207,6 +206,9 @@ void switch_ForkExec()
     t->progName[write] = '\0';
 
     int pid = t->ForkExec(t->progName);
+
+    if (pid < 0)
+        delete t;
 
     machine->WriteRegister(2,pid);
 }

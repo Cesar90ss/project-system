@@ -99,6 +99,7 @@ class AddrSpace
     void SetThreadReturn(unsigned int tid, int ret); // Set return for thread
     int GetThreadReturn(unsigned int tid); // Get return for thread
     unsigned int CurrentThreadNumber();
+    void DecThreadNumber() { num_threads--; }
     unsigned int GetMaxTid();
     static void Exit(bool forceHalt = false);
 

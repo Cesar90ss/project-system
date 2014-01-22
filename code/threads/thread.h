@@ -125,6 +125,8 @@ class Thread
 
     unsigned int ForkExec(char *s);
 
+    void pushStack(int value) { *(++stackTop) = value; }
+
   private:
     // some of the private data for this class is listed above
 
