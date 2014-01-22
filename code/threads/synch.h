@@ -87,7 +87,6 @@ class Lock
 
   private:
     const char *name;		// for debugging
-	bool locked;
 	Thread* locker;
 	List *queue;
     // plus some other stuff you'll need to define
