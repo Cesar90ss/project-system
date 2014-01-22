@@ -208,7 +208,9 @@ void switch_ForkExec()
     int pid = t->ForkExec(t->progName);
 
     if (pid < 0)
+	{
         delete t;
+	}
 
     machine->WriteRegister(2,pid);
 }
@@ -241,7 +243,9 @@ void switch_Waitpid()
 
       // Fill retval with return value if not null
       if (retval != 0)
+      {
           machine->WriteMem(retval, 4, retProc);
+      }
   }
 
 }
@@ -251,7 +255,27 @@ void switch_CheckEnd()
   int pid = machine->ReadRegister(4);
   machine->WriteRegister(2, processMgr->ProcessEnded(pid));
 }
-
+//----------------------//
+void switch_Connect()
+{
+	synchconsole->SynchPutString("Unimplemented Connect\n");
+}
+//----------------------//
+void switch_Send()
+{
+	synchconsole->SynchPutString("Unimplemented Send\n");
+}
+//----------------------//
+void switch_Receive()
+{
+	synchconsole->SynchPutString("Unimplemented Receive\n");
+}
+//----------------------//
+void switch_Disconnect()
+{
+	synchconsole->SynchPutString("Unimplemented Disconnect\n");
+}
+//----------------------//
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -389,6 +413,26 @@ ExceptionHandler (ExceptionType which)
                  case SC_CheckEnd:
                 {
                     switch_CheckEnd();
+                    break;
+                }
+                 case SC_Connect:
+                {
+                    switch_Connect();
+                    break;
+                }
+                 case SC_Send:
+                {
+                    switch_Send();
+                    break;
+                }
+                 case SC_Receive:
+                {
+                    switch_Receive();
+                    break;
+                }
+                 case SC_Disconnect:
+                {
+                    switch_Disconnect();
                     break;
                 }
                 #endif

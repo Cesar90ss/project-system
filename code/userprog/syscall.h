@@ -36,17 +36,26 @@
 #define SC_GetString            14
 #define SC_GetInt               15
 #define SC_PutInt               16
+
 #define SC_UserThreadCreate     17
 #define SC_UserThreadExit       18
 #define SC_UserThreadJoin       19
+
 #define SC_UserSemaphoreCreate	20
 #define SC_UserSemaphoreP       21
 #define SC_UserSemaphoreV       22
 #define SC_UserSemaphoreDestroy	23
+
 #define SC_AllocPageHeap        24
 #define SC_FreePageHeap         25
-#define SC_Waitpid		26
-#define SC_CheckEnd		27
+
+#define SC_Waitpid				26
+#define SC_CheckEnd				27
+
+#define SC_Connect				28
+#define SC_Send					29
+#define SC_Receive				30
+#define SC_Disconnect			31
 
 #ifdef IN_USER_MODE
 
@@ -211,6 +220,15 @@ int Waitpid(unsigned int pid, int *exitcode);
  * CheckEnd checking of the process if it is end or not 
  */
 int CheckEnd(unsigned int pid);
+
+//TODO define these syscall only for NETWORK mode but the tests in /test do not compile because there all compiled in user mode only
+//this change should be done also in exception.cc
+
+//network syscalls
+int Connect();
+int Send();
+int Receive();
+int Disconnect();
 
 #endif // IN_USER_MODE
 

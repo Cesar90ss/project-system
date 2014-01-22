@@ -67,7 +67,7 @@ void Semaphore::P()
 {
 	IntStatus oldLevel = interrupt->SetLevel(IntOff); //disable interrupts
 
-	if(value == 0)
+	while(value == 0)
 	{			//semaphore not available
 		queue->Append((void *)currentThread);
 		currentThread->Sleep(); //wait for a V
