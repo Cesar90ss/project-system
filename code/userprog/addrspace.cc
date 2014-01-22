@@ -154,8 +154,6 @@ AddrSpace::~AddrSpace ()
 
     // Clean semaphore
     CleanSemaphores();
-
-
 }
 
 //----------------------------------------------------------------------
@@ -337,6 +335,7 @@ void AddrSpace::CleanSemaphores()
     {
         destructor = cursor;
         cursor = cursor->next;
+        delete destructor->sem;
         delete destructor;
     }
 }
