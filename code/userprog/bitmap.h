@@ -43,6 +43,7 @@ class BitMap
     void Clear (int which);	// Clear the "nth" bit
     bool Test (int which);	// Is the "nth" bit set?
     int FindFirst ();		// Return the # of a clear bit, and as a side
+    int Find() { return FindFirst(); } // Compatibility
     // effect, set the bit.
     // If no bits are clear, return -1.
 	int FindLast(); //same as FindFirst but take the last clear bit
