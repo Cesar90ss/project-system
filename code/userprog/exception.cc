@@ -174,7 +174,7 @@ void switch_UserSemaphoreCreate()
     name[name_size] = '\0';
 
     DEBUG('t', "Creation of semaphore %s\n", name);
-    int semaphore_id = currentThread->space->CreateSemaphore(name,value);
+    int semaphore_id = currentThread->space->SemaphoreCreate(name,value);
 
     machine->WriteRegister(2,semaphore_id);
     delete [] name;

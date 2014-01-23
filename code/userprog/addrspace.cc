@@ -113,6 +113,12 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 
     semaphore_list = NULL;
     semaphore_counter = 0;
+
+#ifdef NETWORK
+	socket_list = NULL;
+	socket_counter = 0;
+#endif //NETWORK
+
 }
 
 //----------------------------------------------------------------------
@@ -154,6 +160,10 @@ AddrSpace::~AddrSpace ()
 
     // Clean semaphore
     CleanSemaphores();
+    
+#ifdef NETWORK
+	CleanSockets();
+#endif //NETWORK
 }
 
 //----------------------------------------------------------------------
@@ -229,12 +239,12 @@ int AddrSpace::GetNewUserStack()
 /**
  * Create a new semaphore named name and return the id of the semaphore
  **/
-int AddrSpace::CreateSemaphore(char *name, int val)
+int AddrSpace::SemaphoreCreate(char *name, int val)
 {
     //create a new semaphore
-    sem_list new_sem = new struct slist;
+    id_list new_sem = new struct id_l;
     new_sem->id = semaphore_counter;
-    new_sem->sem = new Semaphore(name,val);
+    new_sem->item = (void*)new Semaphore(name,val);
 
     //add it to the list
     new_sem->next = semaphore_list;
@@ -250,7 +260,7 @@ int AddrSpace::CreateSemaphore(char *name, int val)
  **/
 int AddrSpace::SemaphoreP(int id)
 {
-    sem_list cursor = semaphore_list;
+    id_list cursor = semaphore_list;
     while(cursor!=NULL && cursor->id!=id)
     {
         cursor = cursor->next;
@@ -262,7 +272,7 @@ int AddrSpace::SemaphoreP(int id)
         return -1;
     }
 
-    cursor->sem->P();
+    ((Semaphore*)(cursor->item))->P();
     return 0;
 }
 //------------------------------------------------------------//
@@ -271,7 +281,7 @@ int AddrSpace::SemaphoreP(int id)
  **/
 int AddrSpace::SemaphoreV(int id)
 {
-    sem_list cursor = semaphore_list;
+    id_list cursor = semaphore_list;
     while(cursor!=NULL && cursor->id!=id)
     {
         cursor = cursor->next;
@@ -283,7 +293,7 @@ int AddrSpace::SemaphoreV(int id)
         return -1;
     }
 
-    cursor->sem->V();
+    ((Semaphore*)(cursor->item))->V();
     return 0;
 }
 //------------------------------------------------------------//
@@ -292,31 +302,31 @@ int AddrSpace::SemaphoreV(int id)
  **/
 int AddrSpace::SemaphoreDestroy(int id)
 {
-    sem_list current = semaphore_list;
-    sem_list previous = NULL;
+    id_list current = semaphore_list;
+    id_list previous = NULL;
 
+	//search a socket with this id
     while(current!=NULL && current->id!=id)
     {
         previous = current;
         current = current->next;
     }
 
-    if(current == NULL)
+    if(current == NULL) //the semaphore doesn't exist
     {
-        //the semaphore doesn't exist
         return -1;
     }
 
-    if(previous == NULL)
+    if(previous == NULL) //the semaphore is the first of the list
     {
         semaphore_list = current->next;
-        delete current->sem;
+        delete (Semaphore*)current->item;
         delete current;
     }
     else
     {
         previous->next = current->next;
-        delete current->sem;
+        delete (Semaphore*)current->item;
         delete current;
     }
 
@@ -328,17 +338,119 @@ int AddrSpace::SemaphoreDestroy(int id)
  **/
 void AddrSpace::CleanSemaphores()
 {
-    sem_list cursor = semaphore_list;
-    sem_list destructor = NULL;
+    id_list cursor = semaphore_list;
+    id_list destructor = NULL;
 
     while(cursor!=NULL)
     {
         destructor = cursor;
         cursor = cursor->next;
-        delete destructor->sem;
+        delete (Semaphore*)destructor->item;
         delete destructor;
     }
 }
+
+//------------------------------------------------------------//
+/**
+ * SOCKETS
+ **/
+#ifdef NETWORK
+int AddrSpace::SocketCreate(char *name)
+{
+	//create a new socket
+	id_list new_sock = new struct id_l;
+	new_sock->id = socket_counter;
+	
+	//TODO add arguments for the socket creation here
+	new_sock->item = (void*)new NachosSocket(/*name + other things*/);
+
+	//add it to the list
+	new_sock->next = socket_list;
+	socket_list = new_sock;
+
+	//increment the id counter and return the id of the new semaphore
+	socket_counter++;
+	return new_sock->id;
+}
+
+int AddrSpace::SocketConnect(int id)
+{
+	return 0;
+}
+
+int AddrSpace::SocketListen(int id)
+{
+	return 0;
+}
+
+int AddrSpace::SocketSend(int id)
+{
+	return 0;
+}
+
+int AddrSpace::SocketReceive(int id)
+{
+	return 0;
+}
+
+int AddrSpace::SocketDisconnect(int id)
+{
+	return 0;
+}	
+/**
+ * Remove the corresponding socket from the list or return -1 if it doesn't exist
+ **/
+int AddrSpace::SocketDestroy(int id)
+{
+    id_list current = socket_list;
+    id_list previous = NULL;
+
+	//search a socket with this id
+    while(current!=NULL && current->id!=id)
+    {
+        previous = current;
+        current = current->next;
+    }
+
+    if(current == NULL) //the socket doesn't exist
+    {
+        return -1;
+    }
+
+    if(previous == NULL) //the socket is the first of the list
+    {
+        socket_list = current->next;
+        delete (NachosSocket*)current->item;
+        delete current;
+    }
+    else
+    {
+        previous->next = current->next;
+        delete (NachosSocket*)current->item;
+        delete current;
+    }
+
+    return 0;
+}
+/**
+ * Delete all the socket in the list
+ **/
+void AddrSpace::CleanSockets()
+{
+    id_list cursor = socket_list;
+    id_list destructor = NULL;
+
+    while(cursor!=NULL)
+    {
+        destructor = cursor;
+        cursor = cursor->next;
+        delete (NachosSocket*)destructor->item;
+        delete destructor;
+    }
+}
+
+#endif //NETWORK
+
 //------------------------------------------------------------//
 // Wrapper around StackMgr
 int AddrSpace::FreeUserStack(unsigned int addr)

@@ -27,12 +27,13 @@ class Thread;
 #define UserStackSize		1024	// increase this as necessary!
 #define MAX_TOTAL_THREADS   30      // total number of threads in program lifetime
 #define NUM_VIRTUAL_PAGES    (NumPhysPages) // Num of virtual pages
-typedef struct slist
+
+typedef struct id_l
 {
 	int id;
-	Semaphore *sem;
-	struct slist* next;
-} *sem_list;
+	void* item;
+	struct id_l* next;
+} *id_list;
 
 /**
  * Thread structure inside addrspace map
@@ -74,11 +75,21 @@ class AddrSpace
     void SaveState ();		// Save/restore address space-specific
     void RestoreState ();	// info on a context switch
 
-	int CreateSemaphore(char *name, int val);
+	int SemaphoreCreate(char *name, int val);
 	int SemaphoreP(int id);
 	int SemaphoreV(int id);
 	int SemaphoreDestroy(int id);
 
+	#ifdef NETWORK
+	int SocketCreate(char *name);
+	int SocketConnect(int id);
+	int SocketListen(int id);
+	int SocketSend(int id);
+	int SocketReceive(int id);
+	int SocketDisconnect(int id);
+	int SocketDestroy(int id);
+	#endif //NETWORK
+	
     // Wrappers around StackMgr
     int FreeUserStack(unsigned int addr);
     int GetNewUserStack();
@@ -123,9 +134,15 @@ class AddrSpace
     unsigned int max_tid;
     unsigned int num_threads; // Number of threads running currently
 
-	sem_list semaphore_list;
+	id_list semaphore_list;
 	unsigned int semaphore_counter;
 	void CleanSemaphores();
+
+	#ifdef NETWORK
+	id_list socket_list;
+	unsigned int socket_counter;
+	void CleanSockets();
+	#endif //NETWORK
 
     void InitTranslation();
     void CleanPageTable();
