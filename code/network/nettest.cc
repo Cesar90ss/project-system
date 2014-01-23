@@ -67,6 +67,8 @@ MailTest(int farAddr)
     printf("Got \"%s\" from %d, box %d\n",buffer,inPktHdr.from,inMailHdr.from);
     fflush(stdout);
 
+    currentThread = NULL;
+    delete mainThread;
     // Then we're done!
     interrupt->Halt();
 }
