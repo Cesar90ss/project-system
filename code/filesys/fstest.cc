@@ -227,3 +227,59 @@ void CurrentDirectoryTest()
     if (strncmp("test2", buffer, TransferSize) != 0)
         Exit(-2);
 }
+
+static void fn(int arg)
+{
+    OpenFile *openFile;
+    int amountRead;
+    char *buffer;
+
+    // Open file in test
+    if ((openFile = fileSystem->Open("test")) == NULL) {
+        printf("Print: unable to open file test\n");
+        return;
+    }
+
+    buffer = new char[TransferSize];
+    while ((amountRead = openFile->Read(buffer, TransferSize)) > 0);
+
+    if (strncmp("test1", buffer, TransferSize) != 0)
+        Exit(-1);
+
+    delete openFile;		// close the Nachos file
+}
+
+/**
+ * Directory structure should be
+ * /test
+ * /a/test
+ *
+ * and /test contains "test1", /a/test "test2"
+ **/
+void CurrentDirectoryTest2()
+{
+    printf("Starting change directory test\n");
+
+    Thread *t1 = new Thread("filesys");
+    t1->Fork(fn, 0);
+
+    // Change directory to /a
+    currentThread->ChangeCurrentDirectory("a");
+
+    OpenFile *openFile;
+    int amountRead;
+    char *buffer;
+
+    if ((openFile = fileSystem->Open("test")) == NULL) {
+        printf("Print: unable to open file /a/test\n");
+        return;
+    }
+
+    buffer = new char[TransferSize];
+    while ((amountRead = openFile->Read(buffer, TransferSize)) > 0);
+
+    if (strncmp("test2", buffer, TransferSize) != 0)
+        Exit(-2);
+
+    currentThread->Yield();
+}
