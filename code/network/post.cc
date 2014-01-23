@@ -23,6 +23,9 @@
 
 #include <strings.h> /* for bzero */
 
+#define NB_BOX 10
+#define NB_INTERNAL_PORTS 256
+#define MAX_NB_PORT (NB_BOX * NB_INTERNAL_PORTS) 		//number of mailbox times number of internal available port used to communicate
 //----------------------------------------------------------------------
 // Mail::Mail
 //      Initialize a single mail message, by concatenating the headers to
@@ -53,7 +56,12 @@ Mail::Mail(PacketHeader pktH, MailHeader mailH, char *msgData)
 
 MailBox::MailBox()
 {
-    messages = new SynchList();
+    int i;
+	messages = new SynchList*[MAX_NB_PORT];
+	for(i=0;i<MAX_NB_PORT;i++)
+	{
+		messages[i] = new SynchList();
+	}
 }
 
 //----------------------------------------------------------------------
@@ -102,8 +110,8 @@ void
 MailBox::Put(PacketHeader pktHdr, MailHeader mailHdr, char *data)
 {
     Mail *mail = new Mail(pktHdr, mailHdr, data);
-
-    messages->Append((void *)mail);	// put on the end of the list of
+	int sid = mailHdr.sid;
+    messages[sid]->Append((void *)mail);	// put on the end of the list of
 					// arrived messages, and wake up
 					// any waiters
 }
@@ -121,12 +129,12 @@ MailBox::Put(PacketHeader pktHdr, MailHeader mailHdr, char *data)
 //----------------------------------------------------------------------
 
 void
-MailBox::Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data)
+MailBox::Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data, int sid)
 {
     DEBUG('n', "Waiting for mail in mailbox\n");
-    Mail *mail = (Mail *) messages->Remove();	// remove message from list;
+    Mail *mail = (Mail *) messages[sid]->Remove();	// remove message from list;
 						// will wait if list is empty
-
+						//change message in array to make sure right message will be taken in the right port
     *pktHdr = mail->pktHdr;
     *mailHdr = mail->mailHdr;
     if (DebugIsEnabled('n')) {
@@ -175,7 +183,7 @@ static void WriteDone(int arg)
 //	"nBoxes" is the number of mail boxes in this Post Office
 //----------------------------------------------------------------------
 
-PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
+PostOffice::PostOffice(NetworkAddress addr, double reliability)
 {
 // First, initialize the synchronization with the interrupt handlers
     messageAvailable = new Semaphore("message available", 0);
@@ -184,8 +192,8 @@ PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
 
 // Second, initialize the mailboxes
     netAddr = addr;
-    numBoxes = nBoxes;
-    boxes = new MailBox[nBoxes];
+    numBoxes = NB_BOX;
+    boxes = new MailBox[NB_BOX];
 
 // Third, initialize the network; tell it which interrupt handlers to call
     network = new Network(addr, reliability, ReadAvail, WriteDone, (int) this);
@@ -315,7 +323,7 @@ PostOffice::Receive(int box, PacketHeader *pktHdr,
 {
     ASSERT((box >= 0) && (box < numBoxes));
 
-    boxes[box].Get(pktHdr, mailHdr, data);
+    boxes[box].Get(pktHdr, mailHdr, data,0);
     ASSERT(mailHdr->length <= MaxMailSize);
 }
 
@@ -356,21 +364,23 @@ PostOffice::PacketSent()
 //----------------------------------------------------------------------
 NachosSocket::NachosSocket()
 {
-	
+	status = SOCKET_CREATED;
 }
 
 NachosSocket::~NachosSocket()
 {
-
+	
 }
 
 /**
- * Connect to the remote machine "machine_to" using the mailbox
+ * Connect to the remote machine "remote_machine" using the mailbox
  * "mail_to". Return the id of the machine if success,
  * -1 if the machine is unreachable. 
  */
-int NachosSocket::Connect(int machine_to, int mail_to)
+int NachosSocket::Connect(int remote_machine, int mail_to)
 {
+	MBX_to = mail_to;
+	machine_to = remote_machine;
 	return 0;
 }
 
@@ -378,18 +388,37 @@ int NachosSocket::Connect(int machine_to, int mail_to)
 /** Mark the socket as a passive one("receiver")
  * It is not blocking and does not really connect the
  * socket, accept will have to be called after.
- * return -1 if socket does not exist
+ * return -1 if socket does not exist if the socket
+ * is already on waiting or connected status, it will 
+ * return -2
  */
 int NachosSocket::Listen()
 {
+	
+	if(status == SOCKET_WAITING || status == SOCKET_CONNECTED)
+	{
+		return -2;
+	}
+	
+	if(MBX_from < 0)
+	{
+		return -1;
+	}
+	status = SOCKET_WAITING;
 	return 0;
 }
 
 /** accept(and wait for) incoming connection of the emitter(using connect)
  * The call to this function is blocking. Return the id of the remote machine
+ * if the socket status is not waiting we cannot use this socket for accept
+ * and return -1
  */
 int NachosSocket::Accept()
 {
+	if(status != SOCKET_WAITING)
+	{
+		return -1;
+	}
 	return 0;
 }
 

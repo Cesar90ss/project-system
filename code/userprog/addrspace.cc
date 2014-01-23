@@ -362,7 +362,7 @@ int AddrSpace::SocketCreate(char *name)
 	new_sock->id = socket_counter;
 	
 	//TODO add arguments for the socket creation here
-	new_sock->item = (void*)new NachosSocket(/*name + other things*/);
+	new_sock->item = (void*)new NachosSocket();
 
 	//add it to the list
 	new_sock->next = socket_list;

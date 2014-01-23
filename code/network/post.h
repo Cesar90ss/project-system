@@ -41,10 +41,11 @@ typedef int MailBoxAddress;
 
 class MailHeader {
   public:
-    MailBoxAddress to;		// Destination mail box
-    MailBoxAddress from;	// Mail box to reply to
-    unsigned length;		// Bytes of message data (excluding the
-				// mail header)
+	int sid;					//socket id to make sure message will send to which socket
+    MailBoxAddress to;					// Destination mail box
+    MailBoxAddress from;				// Mail box to reply to
+    unsigned length;					// Bytes of message data (excluding the
+										// mail header)
 };
 
 // Maximum "payload" -- real data -- that can included in a single message
@@ -62,12 +63,12 @@ class MailHeader {
 class Mail {
   public:
      Mail(PacketHeader pktH, MailHeader mailH, char *msgData);
-				// Initialize a mail message by
-				// concatenating the headers to the data
+										// Initialize a mail message by
+										// concatenating the headers to the data
 
-     PacketHeader pktHdr;	// Header appended by Network
-     MailHeader mailHdr;	// Header appended by PostOffice
-     char data[MaxMailSize];	// Payload -- message data
+     PacketHeader pktHdr;				// Header appended by Network
+     MailHeader mailHdr;				// Header appended by PostOffice
+     char data[MaxMailSize];			// Payload -- message data
 };
 
 // The following class defines a single mailbox, or temporary storage
@@ -77,17 +78,17 @@ class Mail {
 
 class MailBox {
   public:
-    MailBox();			// Allocate and initialize mail box
-    ~MailBox();			// De-allocate mail box
+    MailBox();							// Allocate and initialize mail box
+    ~MailBox();							// De-allocate mail box
 
     void Put(PacketHeader pktHdr, MailHeader mailHdr, char *data);
-   				// Atomically put a message into the mailbox
-    void Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data);
-   				// Atomically get a message out of the
-				// mailbox (and wait if there is no message
-				// to get!)
+										// Atomically put a message into the mailbox
+    void Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data, int sid);
+										// Atomically get a message out of the
+										// mailbox (and wait if there is no message
+										// to get!)
   private:
-    SynchList *messages;	// A mailbox is just a list of arrived messages
+    SynchList **messages;				// A mailbox is just a list of arrived messages
 };
 
 // The following class defines a "Post Office", or a collection of
@@ -101,49 +102,50 @@ class MailBox {
 
 class PostOffice {
   public:
-    PostOffice(NetworkAddress addr, double reliability, int nBoxes);
-				// Allocate and initialize Post Office
-				//   "reliability" is how many packets
-				//   get dropped by the underlying network
-    ~PostOffice();		// De-allocate Post Office data
+    PostOffice(NetworkAddress addr, double reliability);
+										// Allocate and initialize Post Office
+										//   "reliability" is how many packets
+										//   get dropped by the underlying network
+    ~PostOffice();						// De-allocate Post Office data
 
     void Send(PacketHeader pktHdr, MailHeader mailHdr, const char *data);
-    				// Send a message to a mailbox on a remote
-				// machine.  The fromBox in the MailHeader is
-				// the return box for ack's.
+										// Send a message to a mailbox on a remote
+										// machine.  The fromBox in the MailHeader is
+										// the return box for ack's.
 
     void Receive(int box, PacketHeader *pktHdr,
 		MailHeader *mailHdr, char *data);
-    				// Retrieve a message from "box".  Wait if
-				// there is no message in the box.
+										// Retrieve a message from "box".  Wait if
+										// there is no message in the box.
 
-    void PostalDelivery();	// Wait for incoming messages,
-				// and then put them in the correct mailbox
+    void PostalDelivery();				// Wait for incoming messages,
+										// and then put them in the correct mailbox
 
-    void PacketSent();		// Interrupt handler, called when outgoing
-				// packet has been put on network; next
-				// packet can now be sent
-    void IncomingPacket();	// Interrupt handler, called when incoming
-   				// packet has arrived and can be pulled
-				// off of network (i.e., time to call
-				// PostalDelivery)
+    void PacketSent();					// Interrupt handler, called when outgoing
+										// packet has been put on network; next
+										// packet can now be sent
+    void IncomingPacket();				// Interrupt handler, called when incoming
+										// packet has arrived and can be pulled
+										// off of network (i.e., time to call
+										// PostalDelivery)
 
   private:
     Thread *NetworkDeamon;
-    Network *network;		// Physical network connection
-    NetworkAddress netAddr;	// Network address of this machine
-    MailBox *boxes;		// Table of mail boxes to hold incoming mail
-    int numBoxes;		// Number of mail boxes
-    Semaphore *messageAvailable;// V'ed when message has arrived from network
-    Semaphore *messageSent;	// V'ed when next message can be sent to network
-    Lock *sendLock;		// Only one outgoing message at a time
+    Network *network;					// Physical network connection
+    NetworkAddress netAddr;				// Network address of this machine
+    MailBox *boxes;						// Table of mail boxes to hold incoming mail
+    int numBoxes;						// Number of mail boxes
+    Semaphore *messageAvailable;		// V'ed when message has arrived from network
+    Semaphore *messageSent;				// V'ed when next message can be sent to network
+    Lock *sendLock;						// Only one outgoing message at a time
 };
 
 enum SocketStatusEnum
 {
-    SOCKET_CONNECTED,			// Once connected
-    SOCKET_WAITING,			// after accept, or Connect wait for actual connection
-    SOCKET_CLOSED			// after call to disconnect
+    SOCKET_CREATED,						// when declared 
+	SOCKET_CONNECTED,					// Once connected
+    SOCKET_WAITING,						// after accept, or Connect wait for actual connection
+    SOCKET_CLOSED						// after call to disconnect
 };
 
 class NachosSocket {
@@ -151,19 +153,19 @@ class NachosSocket {
 		NachosSocket();
 		~NachosSocket();
 		
-		int Connect();		// Connect to a distant socket("emiter")
+		int Connect(int remote_machine, int mail_to);	// Connect to a distant socket("emiter")
 		
-		int Listen();		// Mark the socket as a passive one("receiver")
-		int Accept();		// accept(and wait for) incoming connection of the emitter(using connect)
+		int Listen();									// Mark the socket as a passive one("receiver")
+		int Accept();									// accept(and wait for) incoming connection of the emitter(using connect)
 		
-		int Receive();		// wait for a message(and catch it)
-		int Send();		// send a message to the connected socket
+		int Receive(char *buffer, size_t size);			// wait for a message(and catch it)
+		int Send(char *buffer, size_t size);			// send a message to the connected socket
 		
-		int Disconnect();	// Disconnect from remote socket(break the link)
+		int Disconnect();								// Disconnect from remote socket(break the link)
 	private:
-		SocketStatusEnum status;// Status of the stocket(Connected, Disconnected...)
-		int MBX_from;		// Local mail box
-		int MBX_to;		// remote mail box
-		int machine_to;		// Remote machine
+		SocketStatusEnum status;						// Status of the stocket(Connected, Disconnected...)
+		int MBX_from;									// Local mail box
+		int MBX_to;										// remote mail box
+		int machine_to;									// Remote machine
 };
 #endif
