@@ -252,8 +252,8 @@ void switch_Waitpid()
 //----------------------//
 void switch_CheckEnd()
 {
-  int pid = machine->ReadRegister(4);
-  machine->WriteRegister(2, processMgr->ProcessEnded(pid));
+	int pid = machine->ReadRegister(4);
+	machine->WriteRegister(2, processMgr->ProcessEnded(pid));
 }
 //----------------------//
 void switch_Connect()

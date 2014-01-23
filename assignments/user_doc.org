@@ -193,3 +193,13 @@
     - -2 if process is dead
     - -3 if waiting for itself
     - 0 otherwise
+
+
+*** NAME : CheckEnd
+**** SYNOPSIS :
+     int CheckEnd(unsigned int pid)
+**** DESCRIPTION :
+     CheckEnd on the process will Check if the process is ended which pid is given as argument.
+**** RETURN :
+    - 1 if process end
+    - 0 otherwise
