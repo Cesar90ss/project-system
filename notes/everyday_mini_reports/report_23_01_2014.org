@@ -1,0 +1,33 @@
+-- TODO LIST (FILE SYSTEM) --
+--> Thursday
+- (1h30) Add subdirectory support
+    - creation (normal and with error case (existing file...)) (-mf)
+    - remove (empty directory or not) (-r)
+    - do not remove root
+    - listing files and directories (-l)
+    - recursive listing (option : -lr)
+    - cp --> handle subdirectory?
+    - directory creation limit
+
+- (1h) Add directory dot and dotdot
+    - show listing
+    - recursive listing
+
+- (2h) Current directory support
+    - Open and read in directories, first with one thread then with 2 (in user
+      and kernel) --> 4 tests
+    - test syscall change current directory and get current directory
+
+--> Friday
+- (2h) Open files table
+- (2h) Create/delete file directory concurrently
+- (1h) Increase file size
+- (1h30) Dynamic file size
+--> Monday
+- (1h30) Absolute path
+- (4h) Multiple thread concurrency (reader/writer)
+--> Tuesday
+- (4h) Optimize I/O
+- (4h) Improve file system robustness
+
+-----------------------------
