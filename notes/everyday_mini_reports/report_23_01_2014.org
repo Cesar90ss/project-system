@@ -1,18 +1,17 @@
 -- TODO LIST (FILE SYSTEM) --
 --> Thursday
 - (1h30) Add subdirectory support
-    - creation (normal and with error case (existing file...)) (-md) - Hugo
-    - remove (empty directory or not) (-rd) - Simon
-    - do not remove root - Simon
-    - listing files and directories (-l) - Hugo
-    - recursive listing (option : -lr) - Simon
-    - cp & md --> handle subdirectory? - Hugo
-    - cpr -> copy directory recursively - Simon
-    - directory creation limit - Hugo
+    - creation (normal and with error case (existing file...)) (-md)
+    - remove (empty directory or not) (-rd)
+    - remove with relative directory name
+    - do not remove root
+    - listing files and directories (-l)
+    - recursive listing (option : -lr)
+    - cp & md --> handle subdirectory?
+    (MAYBE) - cpr -> copy directory recursively (If we have time left)
+    - directory creation limit
 
 - (1h) Add directory dot and dotdot
-    - show listing - Simon
-    - recursive listing - Hugo
     - be sure we cant create file named "." or ".." (reserved)
 
 - (2h) Current directory support
