@@ -28,8 +28,7 @@
 #ifdef USER_PROGRAM
 #include "userthread.h"
 #endif
-extern SynchConsole *synchconsole;
-extern ProcessMgr *processMgr;
+
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -252,6 +251,26 @@ void switch_CheckEnd()
   machine->WriteRegister(2, processMgr->ProcessEnded(pid));
 }
 
+void switch_Open()
+{
+    printf("To be implemented\n");
+}
+void switch_Close()
+{
+    printf("To be implemented\n");
+}
+void switch_Read()
+{
+    printf("To be implemented\n");
+}
+void switch_Write()
+{
+    printf("To be implemented\n");
+}
+void switch_Seek()
+{
+    printf("To be implemented\n");
+}
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -386,9 +405,34 @@ ExceptionHandler (ExceptionType which)
                     switch_Waitpid();
                     break;
                 }
-                 case SC_CheckEnd:
+                case SC_CheckEnd:
                 {
                     switch_CheckEnd();
+                    break;
+                }
+                case SC_Open:
+                {
+                    switch_Open();
+                    break;
+                }
+                case SC_Close:
+                {
+                    switch_Close();
+                    break;
+                }
+                case SC_Seek:
+                {
+                    switch_Seek();
+                    break;
+                }
+                case SC_Read:
+                {
+                    switch_Read();
+                    break;
+                }
+                case SC_Write:
+                {
+                    switch_Write();
                     break;
                 }
                 #endif

@@ -68,6 +68,7 @@ public:
 class FileSystem {
 public:
     FileSystem(bool format);		// Initialize the file system.
+    ~FileSystem();
     // Must be called *after* "synchDisk"
     // has been initialized.
     // If "format", there is nothing on

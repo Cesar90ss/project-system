@@ -34,9 +34,12 @@ extern Timer *timer;		// the hardware alarm clock
 #ifdef USER_PROGRAM
 #include "machine.h"
 #include "frameprovider.h"
+#include "synchconsole.h"
 extern Machine *machine;	// user program memory and registers
 extern FrameProvider *frameProvider;
 extern AddrSpace *spaceToBeDestroyed;	// the last @ space to destroy
+extern SynchConsole *synchconsole;
+extern ProcessMgr *processMgr;
 #endif
 
 #ifdef FILESYS_NEEDED		// FILESYS or FILESYS_STUB

@@ -129,6 +129,13 @@ FileSystem::FileSystem(bool format)
     }
 }
 
+FileSystem::~FileSystem()
+{
+    delete freeMapFile;
+    delete directoryFile;
+}
+
+
 //----------------------------------------------------------------------
 // FileSystem::Create
 //  Create a file in the Nachos file system (similar to UNIX create).

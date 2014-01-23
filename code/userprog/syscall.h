@@ -45,8 +45,9 @@
 #define SC_UserSemaphoreDestroy	23
 #define SC_AllocPageHeap        24
 #define SC_FreePageHeap         25
-#define SC_Waitpid		26
-#define SC_CheckEnd		27
+#define SC_Waitpid              26
+#define SC_CheckEnd             27
+#define SC_Seek                 28
 
 #ifdef IN_USER_MODE
 

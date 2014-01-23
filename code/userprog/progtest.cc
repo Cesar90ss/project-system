@@ -120,17 +120,17 @@ void SynchConsoleTest(char *in, char *out)
     char ch;
 
     // Init console
-    SynchConsole *synchconsole = new SynchConsole(in, out);
+    SynchConsole *sc = new SynchConsole(in, out);
 
     // Get & print char by char
-    while ((ch = synchconsole->SynchGetChar()) != EOF)
-        synchconsole->SynchPutChar(ch);
+    while ((ch = sc->SynchGetChar()) != EOF)
+        sc->SynchPutChar(ch);
 
     // Should only go out loop when EOF
     fprintf(stderr, "Nachos: EOF detected in SynchConsole!\n");
 
     // Delete to test destructor
-    delete synchconsole;
+    delete sc;
 }
 
 void SynchConsoleTestChev(char *in, char *out)
@@ -143,20 +143,20 @@ void SynchConsoleTestChev(char *in, char *out)
     string[3] = '\0';
 
     // Init Console
-    SynchConsole *synchconsole = new SynchConsole(in, out);
+    SynchConsole *sc = new SynchConsole(in, out);
 
     // Get & print char by char
-    while ((ch = synchconsole->SynchGetChar()) != EOF)
+    while ((ch = sc->SynchGetChar()) != EOF)
     {
         string[1] = ch;
-        synchconsole->SynchPutString(const_cast<char*>(string));
+        sc->SynchPutString(const_cast<char*>(string));
     }
 
     // Should only go out loop when EOF
     fprintf(stderr, "Nachos: EOF detected in SynchConsole!\n");
 
     // Delete to test destructor
-    delete synchconsole;
+    delete sc;
 }
 
 void SynchConsoleTestString(char *in, char *out)
@@ -168,20 +168,20 @@ void SynchConsoleTestString(char *in, char *out)
     buffer[11] = '\0';
 
     // Init Console
-    SynchConsole *synchconsole = new SynchConsole(in, out);
+    SynchConsole *sc = new SynchConsole(in, out);
 
     // Try to read at most 10 char & stop if
     do
     {
-        synchconsole->SynchGetString(buffer, 11);
+        sc->SynchGetString(buffer, 11);
         ended = buffer[10] != '\0';
         buffer[10] = '\n';
-        synchconsole->SynchPutString(const_cast<char*>(buffer));
+        sc->SynchPutString(const_cast<char*>(buffer));
     } while (!ended);
 
     // Should only go out loop when EOF
     fprintf(stderr, "Nachos: EOF detected in SynchConsole!\n");
 
     // Delete to test destructor
-    delete synchconsole;
+    delete sc;
 }

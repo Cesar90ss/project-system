@@ -196,7 +196,6 @@ Directory::RemoveDirectory(const char *name)
 
     Directory *sub = Directory::ReadAtSector(table[i].sector);
     ASSERT(sub->IsEmpty());
-
     delete sub;
 
     table[i].inUse = FALSE;
@@ -218,6 +217,10 @@ Directory::Remove(const char *name)
 
     if (i == -1)
         return FALSE;       // name not in directory
+
+    if (table[i].isDir)
+        return FALSE;
+    
     table[i].inUse = FALSE;
     return TRUE;
 }

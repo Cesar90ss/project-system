@@ -200,6 +200,11 @@ main (int argc, char **argv)
 	    {			// performance test
 		PerformanceTest ();
 	    }
+
+      // Memory leak
+      currentThread = NULL;
+      delete mainThread;
+      interrupt->Halt();
 #endif // FILESYS
 #ifdef NETWORK
 	  if (!strcmp (*argv, "-o"))
