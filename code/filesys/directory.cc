@@ -24,6 +24,7 @@
 #include "utility.h"
 #include "filehdr.h"
 #include "directory.h"
+#include "filesys.h"
 
 //----------------------------------------------------------------------
 // Directory::Directory
@@ -81,10 +82,10 @@ Directory::WriteBack(OpenFile *file)
 
 //----------------------------------------------------------------------
 // Directory::FindIndex
-//  Look up file name in directory, and return its location in the table of
+//  Look up file/dir name in directory, and return its location in the table of
 //	directory entries.  Return -1 if the name isn't in the directory.
 //
-//	"name" -- the file name to look up
+//	"name" -- the file/dir name to look up
 //----------------------------------------------------------------------
 
 int
@@ -98,11 +99,11 @@ Directory::FindIndex(const char *name)
 
 //----------------------------------------------------------------------
 // Directory::Find
-//  Look up file name in directory, and return the disk sector number
-//	where the file's header is stored. Return -1 if the name isn't
+//  Look up file/dir name in directory, and return the disk sector number
+//	where the file's/dir's header is stored. Return -1 if the name isn't
 //	in the directory.
 //
-//	"name" -- the file name to look up
+//	"name" -- the file/dir name to look up
 //----------------------------------------------------------------------
 
 int
@@ -114,6 +115,35 @@ Directory::Find(const char *name)
         return table[i].sector;
     return -1;
 }
+
+//----------------------------------------------------------------------
+// Directory::AddDirectory
+//  Add a subdirectory into the directory.  Return TRUE if successful; return
+//	FALSE if the directory name (or file name) is already in the directory, or if
+//	the directory is completely full, and has no more space for additional dir
+//	names.
+//
+//	"name" -- the name of the directory being added
+//	"newSector" -- the disk sector containing the added directory's header
+//----------------------------------------------------------------------
+
+bool
+Directory::AddDirectory(const char *name, int newSector)
+{
+    if (FindIndex(name) != -1)
+        return FALSE;
+
+    for (int i = 0; i < tableSize; i++)
+        if (!table[i].inUse) {
+            table[i].inUse = TRUE;
+            strncpy(table[i].name, name, FileNameMaxLen);
+            table[i].sector = newSector;
+            table[i].isDir = TRUE;
+            return TRUE;
+        }
+    return FALSE;	// no space.  Fix when we have extensible files.
+}
+
 
 //----------------------------------------------------------------------
 // Directory::Add
@@ -137,9 +167,40 @@ Directory::Add(const char *name, int newSector)
             table[i].inUse = TRUE;
             strncpy(table[i].name, name, FileNameMaxLen);
             table[i].sector = newSector;
+            table[i].isDir = FALSE;
             return TRUE;
         }
     return FALSE;	// no space.  Fix when we have extensible files.
+}
+
+//----------------------------------------------------------------------
+// Directory::RemoveDirectory
+//  Remove a sub directoryname from the directory.  Return TRUE if successful;
+//	return FALSE if the subdirectory directory isn't in the directory.
+//
+// Suppose directory empty
+//
+//	"name" -- the dir name to be removed
+//----------------------------------------------------------------------
+
+bool
+Directory::RemoveDirectory(const char *name)
+{
+    int i = FindIndex(name);
+
+    if (i == -1)
+        return FALSE;           // name not in directory
+
+    if (!table[i].isDir)
+        return FALSE;           // not a directory
+
+    Directory *sub = Directory::ReadAtSector(table[i].sector);
+    ASSERT(sub->IsEmpty());
+
+    delete sub;
+
+    table[i].inUse = FALSE;
+    return TRUE;
 }
 
 //----------------------------------------------------------------------
@@ -171,7 +232,7 @@ Directory::List()
 {
     for (int i = 0; i < tableSize; i++)
         if (table[i].inUse)
-            printf("%s\n", table[i].name);
+            printf("%c - %s\n", table[i].isDir ? 'd' : 'f', table[i].name);
 }
 
 //----------------------------------------------------------------------
@@ -185,6 +246,8 @@ Directory::Print()
 {
     FileHeader *hdr = new FileHeader;
 
+    printf("TODO : Implement recursive directory printing\n");
+    ASSERT(FALSE);
     printf("Directory contents:\n");
     for (int i = 0; i < tableSize; i++)
         if (table[i].inUse) {
@@ -195,3 +258,33 @@ Directory::Print()
     printf("\n");
     delete hdr;
 }
+
+//----------------------------------------------------------------------
+// Directory::IsEmpty
+// Check if a directory is empty
+//----------------------------------------------------------------------
+bool Directory::IsEmpty()
+{
+    int i = 0;
+    while (i < tableSize && !table[i].inUse)
+        i++;
+
+    return i == tableSize;
+}
+
+
+//----------------------------------------------------------------------
+// Directory::ReadAtSector
+// Open a directory at sector
+//----------------------------------------------------------------------
+Directory* Directory::ReadAtSector(int sector)
+{
+    // Try to open directory
+    Directory *sub = new Directory(NumDirEntries);
+    OpenFile *curDir = new OpenFile(sector);
+
+    sub->FetchFrom(curDir);
+
+    return sub;
+}
+

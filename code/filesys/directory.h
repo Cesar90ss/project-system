@@ -32,14 +32,15 @@
 class DirectoryEntry {
 public:
     bool inUse;				// Is this directory entry in use?
+    bool isDir;             // For sub-directory
     int sector;				// Location on disk to find the
     //   FileHeader for this file
     char name[FileNameMaxLen + 1];	// Text name for file, with +1 for
     // the trailing '\0'
 };
 
-// The following class defines a UNIX-like "directory".  Each entry in
-// the directory describes a file, and where to find it on disk.
+// The following class defines a UNIX-like "directory".  Each entry in the
+// directory describes a file/subdiretory, and where to find it on disk.
 //
 // The directory data structure can be stored in memory, or on disk.
 // When it is on disk, it is stored as a regular Nachos file.
@@ -59,17 +60,23 @@ public:
     // directory contents back to disk
 
     int Find(const char *name);		// Find the sector number of the
-    // FileHeader for file: "name"
+    // FileHeader/Directory for file: "name"
 
+    bool AddDirectory(const char *name, int newSector);  // Add a dir name into the directory
     bool Add(const char *name, int newSector);  // Add a file name into the directory
 
-    bool Remove(const char *name);	// Remove a file from the directory
+    bool RemoveDirectory(const char *name);	// Remove a dir from the directory
+    bool Remove(const char *name);	// Remove a dir from the directory
 
-    void List();			// Print the names of all the files
+    bool IsEmpty();             // Check if the directory is empty
+
+    void List();			// Print the names of all the files/dirs
     //  in the directory
     void Print();			// Verbose print of the contents
     //  of the directory -- all the file
     //  names and their contents.
+
+    static Directory* ReadAtSector(int sector); // read a directory available in sector
 
 private:
     int tableSize;			// Number of directory entries
