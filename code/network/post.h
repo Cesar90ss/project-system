@@ -139,4 +139,15 @@ class PostOffice {
     Lock *sendLock;		// Only one outgoing message at a time
 };
 
+class NachosSocket {
+	public:
+		NachosSocket();
+		~NachosSocket();
+		int Connect();
+		int Receive();
+		int Send();
+		int Disconnect();
+	private:
+		int id;
+};
 #endif

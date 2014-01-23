@@ -347,3 +347,39 @@ PostOffice::PacketSent()
 {
     messageSent->V();
 }
+
+
+
+//----------------------------------------------------------------------
+// NachosSocket::NachosSocket
+// 
+//----------------------------------------------------------------------
+NachosSocket::NachosSocket()
+{
+	
+}
+
+NachosSocket::~NachosSocket()
+{
+	
+}
+
+int NachosSocket::Connect()
+{
+	return 0;
+}
+
+int NachosSocket::Receive()
+{
+	return 0;
+}
+
+int NachosSocket::Send()
+{
+	return 0;
+}
+
+int NachosSocket::Disconnect()
+{
+	return 0;
+}

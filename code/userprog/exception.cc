@@ -259,7 +259,8 @@ void switch_CheckEnd()
 void switch_Connect()
 {
 	#ifdef NETWORK
-	synchconsole->SynchPutString("Unimplemented Connect\n");
+	//int farAddr = machine->ReadRegister(4);
+	//machine->WriteRegister(2, currentThread->space->OpenSocket(farAddr));
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Connect syscall\n");
 	ASSERT(FALSE);
