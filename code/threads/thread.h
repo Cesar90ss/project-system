@@ -127,6 +127,9 @@ class Thread
 
     void pushStack(int value) { *(++stackTop) = value; }
 
+    // Thread current directory (filesystem)
+    int ChangeCurrentDirectory(const char* name);
+
   private:
     // some of the private data for this class is listed above
 

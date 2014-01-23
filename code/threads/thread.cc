@@ -518,3 +518,8 @@ Thread::ForkExec (char *s)
 
 
 #endif
+
+int Thread::ChangeCurrentDirectory(const char* dirname)
+{
+    return -1;
+}

@@ -182,3 +182,48 @@ PerformanceTest()
     }
     stats->Print();
 }
+
+/**
+ * Directory structure should be
+ * /test
+ * /a/test
+ *
+ * and /test contains "test1", /a/test "test2"
+ **/
+void CurrentDirectoryTest()
+{
+    printf("Starting change directory test\n");
+
+    OpenFile *openFile;
+    int amountRead;
+    char *buffer;
+
+    // Open file in test
+    if ((openFile = fileSystem->Open("test")) == NULL) {
+        printf("Print: unable to open file test\n");
+        return;
+    }
+
+    buffer = new char[TransferSize];
+    while ((amountRead = openFile->Read(buffer, TransferSize)) > 0);
+
+    if (strncmp("test1", buffer, TransferSize) != 0)
+        Exit(-1);
+
+    delete openFile;		// close the Nachos file
+
+
+    // Change directory to /a
+    currentThread->ChangeCurrentDirectory("a");
+
+    if ((openFile = fileSystem->Open("test")) == NULL) {
+        printf("Print: unable to open file /a/test\n");
+        return;
+    }
+
+    buffer = new char[TransferSize];
+    while ((amountRead = openFile->Read(buffer, TransferSize)) > 0);
+
+    if (strncmp("test2", buffer, TransferSize) != 0)
+        Exit(-2);
+}

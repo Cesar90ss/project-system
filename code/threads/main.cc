@@ -63,6 +63,7 @@ extern void MailTest (int networkID);
 extern void SynchConsoleTest(char *in, char *out);
 extern void SynchConsoleTestChev(char *in, char *out);
 extern void SynchConsoleTestString(char *in, char *out);
+void CurrentDirectoryTest();
 
 //----------------------------------------------------------------------
 // main
@@ -200,6 +201,11 @@ main (int argc, char **argv)
 	    {			// performance test
 		PerformanceTest ();
 	    }
+
+	  else if (!strcmp (*argv, "-tk1"))
+      {			// kernel thread 1
+          CurrentDirectoryTest();
+      }
 
       // Memory leak
       currentThread = NULL;
