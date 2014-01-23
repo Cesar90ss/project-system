@@ -361,24 +361,69 @@ NachosSocket::NachosSocket()
 
 NachosSocket::~NachosSocket()
 {
-	
+
 }
 
-int NachosSocket::Connect()
+/**
+ * Connect to the remote machine "machine_to" using the mailbox
+ * "mail_to". Return the id of the machine if success,
+ * -1 if the machine is unreachable. 
+ */
+int NachosSocket::Connect(int machine_to, int mail_to)
 {
 	return 0;
 }
 
-int NachosSocket::Receive()
+
+/** Mark the socket as a passive one("receiver")
+ * It is not blocking and does not really connect the
+ * socket, accept will have to be called after.
+ * return -1 if socket does not exist
+ */
+int NachosSocket::Listen()
 {
 	return 0;
 }
 
-int NachosSocket::Send()
+/** accept(and wait for) incoming connection of the emitter(using connect)
+ * The call to this function is blocking. Return the id of the remote machine
+ */
+int NachosSocket::Accept()
 {
 	return 0;
 }
 
+/**
+ * Receive : read a message of at most size bytes from the socket 
+ * and write it inside the buffer given as argument. If it can
+ * not read full size, the actual readen size will be returned.
+ * Return 0 if there is nothing to read, -1 if the socket is closed
+ * -2 if the socket is waiting for connection
+ */
+int NachosSocket::Receive(char *buffer, size_t size)
+{
+	return 0;
+}
+
+
+/**
+ * Send : Write a message read from buffer of at most size bytes 
+ * in the socket  . If it can not read full size, the actual written size 
+ * will be returned.
+ * Return 0 if transmission is a success, -1 if the socket is closed
+ * -2 if the socket is waiting for connection, -3 if transmission
+ * problem.
+ */
+int NachosSocket::Send(char *buffer, size_t size)
+{
+	return 0;
+}
+
+
+/**
+ * Disconnect the socket(update its status).
+ * Return -1 if socket is already disconnected, 0 if no error.
+ */
 int NachosSocket::Disconnect()
 {
 	return 0;

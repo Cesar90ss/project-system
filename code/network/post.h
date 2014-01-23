@@ -139,15 +139,31 @@ class PostOffice {
     Lock *sendLock;		// Only one outgoing message at a time
 };
 
+enum SocketStatusEnum
+{
+    SOCKET_CONNECTED,			// Once connected
+    SOCKET_WAITING,			// after accept, or Connect wait for actual connection
+    SOCKET_CLOSED			// after call to disconnect
+};
+
 class NachosSocket {
 	public:
 		NachosSocket();
 		~NachosSocket();
-		int Connect();
-		int Receive();
-		int Send();
-		int Disconnect();
+		
+		int Connect();		// Connect to a distant socket("emiter")
+		
+		int Listen();		// Mark the socket as a passive one("receiver")
+		int Accept();		// accept(and wait for) incoming connection of the emitter(using connect)
+		
+		int Receive();		// wait for a message(and catch it)
+		int Send();		// send a message to the connected socket
+		
+		int Disconnect();	// Disconnect from remote socket(break the link)
 	private:
-		int id;
+		SocketStatusEnum status;// Status of the stocket(Connected, Disconnected...)
+		int MBX_from;		// Local mail box
+		int MBX_to;		// remote mail box
+		int machine_to;		// Remote machine
 };
 #endif
