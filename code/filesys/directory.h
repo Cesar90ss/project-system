@@ -78,6 +78,9 @@ public:
 
     static Directory* ReadAtSector(int sector); // read a directory available in sector
 
+    bool FileExists(const char* filename); /* Check if a file exists with this name */
+    bool DirExists(const char* dirname);   /* Check if a directory exists with this name */
+    bool CheckMaxEntries();                /* See if directory limit is not reached */
 private:
     int tableSize;			// Number of directory entries
     DirectoryEntry *table;		// Table of pairs:

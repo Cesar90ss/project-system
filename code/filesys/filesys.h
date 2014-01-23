@@ -65,6 +65,8 @@ public:
 };
 
 #else // FILESYS
+class Directory;
+
 class FileSystem {
 public:
     FileSystem(bool format);		// Initialize the file system.
@@ -82,9 +84,16 @@ public:
 
     bool Remove(const char *name);  // Delete a file (UNIX unlink)
 
-    void List();			// List all the files in the file system
+    void List(const char* name);			// List all the files in the file system
 
     void Print();			// List all the files and their contents
+
+    char *ExpandFileName(const char* filename); /* Get absolute path */
+    char *DirectoryName(const char* filename);  /* Get directory name */
+    char *FileName(const char* filename);       /* Get file name */
+    Directory *GetDirectoryByName(const char* dirname, int *store_sector); /* Get directory by name */
+    bool CheckNameLimitation(const char* name);         /* Check if the name is valid */
+    int CreateDirectory(const char *dirname);           /* Create a directory (any path) */
 
 private:
     OpenFile* freeMapFile;		// Bit map of free disk blocks,

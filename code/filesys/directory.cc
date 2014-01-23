@@ -25,6 +25,7 @@
 #include "filehdr.h"
 #include "directory.h"
 #include "filesys.h"
+#include <libgen.h>
 
 //----------------------------------------------------------------------
 // Directory::Directory
@@ -220,7 +221,7 @@ Directory::Remove(const char *name)
 
     if (table[i].isDir)
         return FALSE;
-    
+
     table[i].inUse = FALSE;
     return TRUE;
 }
@@ -249,8 +250,6 @@ Directory::Print()
 {
     FileHeader *hdr = new FileHeader;
 
-    printf("TODO : Implement recursive directory printing\n");
-    ASSERT(FALSE);
     printf("Directory contents:\n");
     for (int i = 0; i < tableSize; i++)
         if (table[i].inUse) {
@@ -288,6 +287,44 @@ Directory* Directory::ReadAtSector(int sector)
 
     sub->FetchFrom(curDir);
 
+    delete curDir;
     return sub;
 }
 
+/**
+ * Check if file exists in current directory
+ **/
+bool Directory::FileExists(const char *name)
+{
+    int i = FindIndex(name);
+
+    if (i == -1)
+        return FALSE;
+
+    return !table[i].isDir;
+}
+
+/**
+ * Check if dir exists in current directory
+ **/
+bool Directory::DirExists(const char *name)
+{
+    int i = FindIndex(name);
+
+    if (i == -1)
+        return FALSE;
+
+    return table[i].isDir;
+}
+
+/**
+ * Check if we does not have full directory
+ **/
+bool Directory::CheckMaxEntries()
+{
+    int i = 0;
+    while (i < tableSize && table[i].inUse)
+        i++;
+
+    return i == tableSize;
+}

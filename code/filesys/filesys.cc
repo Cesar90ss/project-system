@@ -50,6 +50,9 @@
 #include "directory.h"
 #include "filehdr.h"
 #include "filesys.h"
+#include <libgen.h>
+#include <list>
+#include <string>
 
 //----------------------------------------------------------------------
 // FileSystem::FileSystem
@@ -287,13 +290,23 @@ FileSystem::Remove(const char *name)
 //----------------------------------------------------------------------
 
 void
-FileSystem::List()
+FileSystem::List(const char *dirname)
 {
-    Directory *directory = new Directory(NumDirEntries);
+    char *expandname = ExpandFileName(dirname);
 
-    directory->FetchFrom(directoryFile);
-    directory->List();
-    delete directory;
+    DEBUG('f', "Seek directory %s\n", expandname);
+
+    // Get the parent directory
+    Directory *parent = GetDirectoryByName(expandname, NULL);
+
+    DEBUG('f', "Found directory %p\n", parent);
+    delete expandname;
+
+    if (parent == NULL)
+        return;
+
+    parent->List();
+    delete parent;
 }
 
 //----------------------------------------------------------------------
@@ -332,4 +345,266 @@ FileSystem::Print()
     delete dirHdr;
     delete freeMap;
     delete directory;
+}
+
+/**
+ * Create a directory
+ **/
+int FileSystem::CreateDirectory(const char* dirname)
+{
+    // Expand file name
+    char *expandname = ExpandFileName(dirname);
+    char *parentDirectory = DirectoryName(expandname);
+    char *childDirectory = FileName(expandname);
+
+    BitMap *freeMap = new BitMap(NumSectors);
+
+    // Get the parent directory
+    int parent_sector;
+
+    Directory *parent = GetDirectoryByName(parentDirectory, &parent_sector);
+
+    int error;
+
+    // Check if parent directory exists
+    if (parent == NULL)
+        error = -1;
+
+    // Check if name is not already existing
+    else if (parent->FileExists(childDirectory) || parent->DirExists(childDirectory))
+        error = -2;
+
+    // Name limitation
+    else if (!CheckNameLimitation(expandname))
+        error = -3;
+
+    // Directory limit
+    else if (parent->CheckMaxEntries())
+        error = -4;
+
+    // Finally create directory
+    else
+    {
+        // Find free sector
+        freeMap->FetchFrom(freeMapFile);
+
+        int sector = freeMap->Find();
+        if (sector == -1)
+        {
+            error = -5;
+        }
+        else if (!parent->AddDirectory(childDirectory, sector))
+        {
+            error = -6;
+        }
+        else
+        {
+            // Mark sector
+            freeMap->Mark(sector);
+
+            // Install directory (alloc space)
+            Directory *child = new Directory(NumDirEntries);
+            FileHeader *dirHdr = new FileHeader;
+
+            ASSERT(dirHdr->Allocate(freeMap, DirectoryFileSize));
+            dirHdr->WriteBack(sector);
+
+            // Write directory metadata
+            OpenFile *f = new OpenFile(sector);
+            child->WriteBack(f);
+
+            // Update free map
+            freeMap->WriteBack(freeMapFile);
+
+            delete f;
+            delete child;
+            delete dirHdr;
+            error = 0;
+        }
+    }
+
+    // Write back to disk
+    if (error == 0)
+    {
+        OpenFile *f = new OpenFile(parent_sector);
+        parent->WriteBack(f);
+        delete f;
+    }
+
+    if (parent != NULL)
+        delete parent;
+
+    delete [] expandname;
+    delete [] parentDirectory;
+    delete [] childDirectory;
+
+    return error;
+}
+
+/**
+ * Convert relative filename to absolute
+ *
+ * Return a dynamicly allocated name (should be freed)
+ **/
+char *FileSystem::ExpandFileName(const char* filename)
+{
+    char *cpy = new char[strlen(filename) + 1];
+    char *saveptr = cpy;
+
+    strcpy(cpy, filename);
+
+    char *name = strtok(cpy, "/");
+    std::list<std::string> final;
+
+    while (name != NULL)
+    {
+        if (strcmp(name, "..") == 0)
+        {
+            final.pop_back();
+        }
+        else if (strcmp(name, ".") != 0 && strcmp(name, "") != 0)
+        {
+            final.push_back(std::string(name));
+        }
+        // else it's . or //, no change
+
+        name = strtok(NULL, "/");
+    }
+
+    // Construct string
+    std::string final_string;
+    std::list<std::string>::iterator it;
+
+    for (it = final.begin(); it != final.end(); it++)
+    {
+        final_string += "/";
+        final_string += *it;
+    }
+
+    delete saveptr;
+
+    if (final_string.empty())
+        final_string = "/";
+
+    // Convert to char*
+    char *res = new char[final_string.size() + 1];
+    strcpy(res, final_string.c_str());
+
+    return res;
+}
+
+/**
+ * Extract dirname from filename
+ *
+ * Return a dynamicly allocated name (should be freed)
+ **/
+char *FileSystem::DirectoryName(const char* filename)
+{
+    char *cpy = new char[strlen(filename) + 1];
+    strcpy(cpy, filename);
+
+    char *result = dirname(cpy);
+    char *cpy2 = new char[strlen(result) + 1];
+    strcpy(cpy2, result);
+
+    delete cpy;
+
+    return cpy2;
+
+}
+
+/**
+ * Extract file name from filename
+ *
+ * Return a dynamicly allocated name (should be freed)
+ **/
+char *FileSystem::FileName(const char* filename)
+{
+    char *cpy = new char[strlen(filename) + 1];
+    strcpy(cpy, filename);
+
+    char *result = basename(cpy);
+    char *cpy2 = new char[strlen(result) + 1];
+    strcpy(cpy2, result);
+
+    delete cpy;
+
+    return cpy2;
+}
+
+/**
+ * Get directory by name
+ *
+ * Return a ptr to Directory on success, NULL otherwise
+ **/
+Directory *FileSystem::GetDirectoryByName(const char* dirname, int *store_sector)
+{
+    Directory *current = new Directory(NumDirEntries);
+    int sector = 0;
+    char *cpy = new char[strlen(dirname) + 1];
+    strcpy(cpy, dirname);
+
+    char *name = strtok(cpy, "/");
+
+    // Init first directory
+    current->FetchFrom(directoryFile);
+
+    // If root, just return current
+    if (strcmp(cpy, "/") == 0 || strcmp(cpy, ".") == 0)
+    {
+        if (store_sector != NULL)
+            *store_sector = DirectorySector;
+        return current;
+    }
+
+    // Search following inside current directory
+    sector = current->Find(name);
+    while(sector >= 0)
+    {
+        name = strtok(NULL, "/");
+
+        if (name == NULL)
+        {
+            if (store_sector != NULL)
+                *store_sector = sector;
+
+            current = Directory::ReadAtSector(sector);
+            return current;
+        }
+
+        current = Directory::ReadAtSector(sector);
+        sector = current->Find(name);
+    }
+    if (store_sector != NULL)
+        *store_sector = -1;
+    return NULL;
+
+}
+
+/**
+ * Check name limitation on dirname
+ **/
+bool FileSystem::CheckNameLimitation(const char* name)
+{
+    // Should not be only /
+    if (strcmp("/", name) == 0)
+        return FALSE;
+
+    // Filename should not be .
+    char *filename = FileName(name);
+    if (strcmp(".", filename) == 0)
+    {
+        delete filename;
+        return FALSE;
+    }
+
+    // Filename should not be ..
+    filename = FileName(name);
+    if (strcmp("..", filename) == 0)
+    {
+        delete filename;
+        return FALSE;
+    }
+
+    return TRUE;
 }
