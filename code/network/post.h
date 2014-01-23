@@ -129,6 +129,7 @@ class PostOffice {
 				// PostalDelivery)
 
   private:
+    Thread *NetworkDeamon;
     Network *network;		// Physical network connection
     NetworkAddress netAddr;	// Network address of this machine
     MailBox *boxes;		// Table of mail boxes to hold incoming mail

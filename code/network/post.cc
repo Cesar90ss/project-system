@@ -193,9 +193,9 @@ PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
 
 // Finally, create a thread whose sole job is to wait for incoming messages,
 //   and put them in the right mailbox.
-    Thread *t = new Thread("postal worker");
+    NetworkDeamon = new Thread("postal worker");
 
-    t->Fork_No_User_Space(PostalHelper, (int) this);
+    NetworkDeamon->Fork_No_User_Space(PostalHelper, (int) this);
 }
 
 //----------------------------------------------------------------------
@@ -210,6 +210,7 @@ PostOffice::~PostOffice()
     delete messageAvailable;
     delete messageSent;
     delete sendLock;
+    delete NetworkDeamon;
 }
 
 //----------------------------------------------------------------------
@@ -225,8 +226,9 @@ PostOffice::PostalDelivery()
 {
     PacketHeader pktHdr;
     MailHeader mailHdr;
-    char *buffer = new char[MaxPacketSize];
-
+    char m_buffer[MaxPacketSize];	//we want to avoid memory leak, so alloc on
+    char *buffer = m_buffer;		//stack and then point on allocated memory, the function will not exit so
+					// there is no risk of data loss
     for (;;) {
         // first, wait for a message
         messageAvailable->P();
@@ -263,7 +265,7 @@ PostOffice::PostalDelivery()
 void
 PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
 {
-    char* buffer = new char[MaxPacketSize];	// space to hold concatenated
+    char* buffer = new char[MaxPacketSize]();	// space to hold concatenated
 						// mailHdr + data
 
     if (DebugIsEnabled('n')) {

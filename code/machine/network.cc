@@ -118,7 +118,8 @@ Network::Send(PacketHeader hdr, char* data)
     }
 
     // concatenate hdr and data into a single buffer, and send it out
-    char *buffer = new char[MaxWireSize];
+    char *buffer = new char[MaxWireSize]();
+    //bzero(buffer,MaxWireSize);
     *(PacketHeader *)buffer = hdr;
     bcopy(data, buffer + sizeof(PacketHeader), hdr.length);
     SendToSocket(sock, buffer, MaxWireSize, toName);
