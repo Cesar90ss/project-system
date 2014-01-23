@@ -258,22 +258,42 @@ void switch_CheckEnd()
 //----------------------//
 void switch_Connect()
 {
+	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Connect\n");
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Connect syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
 }
 //----------------------//
 void switch_Send()
 {
+	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Send\n");
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Send syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
 }
 //----------------------//
 void switch_Receive()
 {
+	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Receive\n");
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Receive syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
 }
 //----------------------//
 void switch_Disconnect()
 {
+	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Disconnect\n");
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Disconnect syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
 }
 //----------------------//
 #endif //USER_PROGRAM

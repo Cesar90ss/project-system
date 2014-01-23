@@ -21,6 +21,7 @@
 
 #define SC_Halt                 0
 #define SC_Exit                 1
+
 #define SC_Exec                 2
 #define SC_Join                 3
 #define SC_Create               4
@@ -30,6 +31,7 @@
 #define SC_Close                8
 #define SC_ForkExec             9
 #define SC_Yield                10
+
 #define SC_PutChar              11
 #define SC_GetChar              12
 #define SC_PutString            13
@@ -221,11 +223,8 @@ int Waitpid(unsigned int pid, int *exitcode);
  */
 int CheckEnd(unsigned int pid);
 
-//TODO define these syscall only for NETWORK mode but the tests in /test do not compile because there all compiled in user mode only
-//this change should be done also in exception.cc
-
 //network syscalls
-int Connect();
+int Connect(int machineAddr);
 int Send();
 int Receive();
 int Disconnect();
