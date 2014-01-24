@@ -4,10 +4,10 @@ int main()
 {
 	Listen(1);
 	
-	if (Listen(1) != -1)
+	if (Listen(1) == -2)
 	{
-		PutString(" Error, did not catch multiple listen on same port\n");
-		return -1;
+		PutString(" The port is already used by another listener\n");
+		return -2;
 	}
 	PutString("OK\n");
 	
