@@ -21,6 +21,7 @@
 #include "system.h"
 #include "valgrind.h"
 #include "directory.h"
+#include <string>
 
 #define MAX_PROCESSES 30 //maximum number of processes
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
@@ -543,12 +544,18 @@ int Thread::SetCurrentDirectory(const char* dirname)
 {
 #ifndef FILESYS_STUB
     // Check directory validity
-    char *expandname = fileSystem->ExpandFileName(dirname);
-    Directory *dir = fileSystem->GetDirectoryByName(expandname, NULL);
+    char *ename = fileSystem->ExpandFileName(dirname);
+    std::string expandname = ename;
+
+    if (expandname[expandname.size() - 1] != '/')
+        expandname = expandname + "/";
+
+    Directory *dir = fileSystem->GetDirectoryByName(expandname.c_str(), NULL);
+
 
     if (dir == NULL)
     {
-        delete expandname;
+        delete ename;
         return -1;
     }
 
@@ -557,8 +564,8 @@ int Thread::SetCurrentDirectory(const char* dirname)
 #ifdef USER_PROGRAM
     if (space != NULL)
     {
-        int ret = space->SetCurrentDirectory(expandname);
-        delete expandname;
+        int ret = space->SetCurrentDirectory(expandname.c_str());
+        delete ename;
         return ret;
     }
 #endif
@@ -566,8 +573,9 @@ int Thread::SetCurrentDirectory(const char* dirname)
     // Delete previous dir
     delete currentDirectory;
 
-    char *tmp = new char[strlen(expandname) + 1];
-    strcpy(tmp, expandname);
+    char *tmp = new char[strlen(expandname.c_str()) + 1];
+    strcpy(tmp, expandname.c_str());
+    delete ename;
     currentDirectory = tmp;
 #endif
     return 0;

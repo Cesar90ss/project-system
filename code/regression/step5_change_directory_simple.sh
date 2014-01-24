@@ -12,10 +12,11 @@ echo -n "2" > /tmp/test2
 ./nachos-step5 -cp /tmp/test1 test
 ./nachos-step5 -md a
 ./nachos-step5 -cp /tmp/test2 a/test
+./nachos-step5 -cp change_directory_simple run
 
 # Test case
-./nachos-step5 -x change_directory_simple -rs 4
-OUTPUT=$(./nachos-step5 -x change_directory_simple -rs 4 | grep "//a/12")
+./nachos-step5 -x run -rs 4
+OUTPUT=$(./nachos-step5 -x run -rs 4 | grep "1//a/2")
 
 if [ -n "$OUTPUT" ]; then
     RETURN=0

@@ -1,5 +1,5 @@
 #include "syscall.h"
-#include "mem_alloc.c"
+#define NULL 0
 
 int sem;
 
@@ -21,7 +21,7 @@ int main()
 {
     int fd = Open("test");
     char c;
-    char *cur_dir = malloc(100);
+    char cur_dir[100];
     sem = UserSemaphoreCreate("", 0);
     int tid = UserThreadCreate(&fn, 0);
 
@@ -38,6 +38,5 @@ int main()
 
     UserThreadJoin(tid, NULL);
 
-    free(cur_dir);
     return 0;
 }

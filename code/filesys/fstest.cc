@@ -222,7 +222,7 @@ void CurrentDirectoryTest()
 
     buffer = new char[TransferSize];
     amountRead = openFile->Read(buffer, TransferSize);
-
+    buffer[amountRead] = '\0';
     if (strncmp("test2", buffer, TransferSize) != 0)
         Exit(-2);
 }
@@ -241,7 +241,8 @@ static void fn(int arg)
     }
 
     buffer = new char[TransferSize];
-    openFile->Read(buffer, TransferSize);
+    int amountRead = openFile->Read(buffer, TransferSize);
+    buffer[amountRead] = '\0';
 
     if (strncmp("test1", buffer, TransferSize) != 0)
         Exit(-1);
@@ -274,7 +275,8 @@ void CurrentDirectoryTest2()
     }
 
     buffer = new char[TransferSize];
-    openFile->Read(buffer, TransferSize);
+    int amountRead = openFile->Read(buffer, TransferSize);
+    buffer[amountRead] = '\0';
 
     if (strncmp("test2", buffer, TransferSize) != 0)
         Exit(-2);

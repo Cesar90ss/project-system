@@ -13,9 +13,11 @@ echo -n "2" > /tmp/test2
 ./nachos-step5 -md a
 ./nachos-step5 -cp /tmp/test2 a/test
 
+./nachos-step5 -cp change_directory_thread run
+
 # Test case
-./nachos-step5 -x change_directory_thread -rs 4
-OUTPUT=$(./nachos-step5 -x change_directory_thread -rs 4 | grep "//a/11")
+./nachos-step5 -x run -rs 4
+OUTPUT=$(./nachos-step5 -x run -rs 4 | grep "//a/22")
 
 if [ -n "$OUTPUT" ]; then
     RETURN=0

@@ -25,7 +25,7 @@ else
 fi
 
 #Clean up test
-./nachos-step5 -f
+#./nachos-step5 -f
 
 #return test result
 exit $RETURN

@@ -272,6 +272,24 @@ CheckEnd:
     j	$31
     .end CheckEnd
 
+/* ----------------------*/
+    .globl GetCurrentDirectory
+    .ent	GetCurrentDirectory
+GetCurrentDirectory:
+    addiu $2,$0,SC_GetCurrentDirectory
+    syscall
+    j	$31
+    .end GetCurrentDirectory
+
+/* ----------------------*/
+    .globl SetCurrentDirectory
+    .ent	SetCurrentDirectory
+SetCurrentDirectory:
+    addiu $2,$0,SC_SetCurrentDirectory
+    syscall
+    j	$31
+    .end SetCurrentDirectory
+
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main
