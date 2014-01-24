@@ -104,15 +104,18 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
     // Mark page only code as readOnly
     SetPageRights(noffH.code.virtualAddr, noffH.code.size/PageSize, READONLY);
 
-#ifdef USER_PROGRAM
     // Init stack mgr
     stackMgr = new StackMgr(this, codePages * PageSize);
     pid = processMgr->CreateProcess(this);
     heapMgr = new HeapMgr(this, codePages * PageSize);
-#endif
 
     semaphore_list = NULL;
     semaphore_counter = 0;
+
+    // Set default current directory
+    currentDirectory = new char[2];
+    currentDirectory[0] = '/';
+    currentDirectory[1] = '\0';
 }
 
 //----------------------------------------------------------------------
@@ -142,6 +145,9 @@ AddrSpace::~AddrSpace ()
 
     threads.clear();
 
+    // Delete current directory
+    delete currentDirectory;
+    
     // Free stack mgr
     delete stackMgr;
 
@@ -749,4 +755,20 @@ int AddrSpace::FreeHeapPage()
 #else
     return 0;
 #endif
+}
+
+const char* AddrSpace::GetCurrentDirectory()
+{
+    return currentDirectory;
+}
+
+int AddrSpace::SetCurrentDirectory(const char* dirname)
+{
+    // Delete previous dir
+    delete currentDirectory;
+
+    char *tmp = new char[strlen(dirname) + 1];
+    strcpy(tmp, dirname);
+    currentDirectory = tmp;
+    return 0;
 }

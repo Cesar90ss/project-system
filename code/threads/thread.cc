@@ -20,6 +20,7 @@
 #include "synch.h"
 #include "system.h"
 #include "valgrind.h"
+#include "directory.h"
 
 #define MAX_PROCESSES 30 //maximum number of processes
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
@@ -43,6 +44,11 @@ Thread::Thread (const char *threadName)
     status = JUST_CREATED;
 
     stats->totalThreads++;
+
+    // Set default current directory
+    currentDirectory = new char[2];
+    currentDirectory[0] = '/';
+    currentDirectory[1] = '\0';
 
 #ifdef USER_PROGRAM
     joinerThread = NULL;
@@ -75,7 +81,7 @@ Thread::~Thread ()
         VALGRIND_STACK_DEREGISTER (valgrind_id);
     }
 
-//    delete joinSemaphore;
+    delete currentDirectory;
 
 #ifdef USER_PROGRAM
     if (uf != NULL)
@@ -129,6 +135,9 @@ Thread::Fork (VoidFunctionPtr func, int arg)
     currentThread->space->AttachThread(this);
 
 #endif // USER_PROGRAM
+
+    // Current directory 
+    SetCurrentDirectory(currentThread->GetCurrentDirectory());
 
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
@@ -521,11 +530,44 @@ Thread::ForkExec (char *s)
 
 const char* Thread::GetCurrentDirectory()
 {
-    return "";
+#ifdef USER_PROGRAM
+    if (space != NULL)
+        return space->GetCurrentDirectory();
+#endif
+
+    return currentDirectory;
 }
 
 int Thread::SetCurrentDirectory(const char* dirname)
 {
-    // TODO : check directory validity
-    return -1;
+#ifndef FILESYS_STUB
+    // Check directory validity
+    char *expandname = fileSystem->ExpandFileName(dirname);
+    Directory *dir = fileSystem->GetDirectoryByName(expandname, NULL);
+
+    if (dir == NULL)
+    {
+        delete expandname;
+        return -1;
+    }
+
+    delete dir;
+
+#ifdef USER_PROGRAM
+    if (space != NULL)
+    {
+        int ret = space->SetCurrentDirectory(expandname);
+        delete expandname;
+        return ret;
+    }
+#endif
+
+    // Delete previous dir
+    delete currentDirectory;
+
+    char *tmp = new char[strlen(expandname) + 1];
+    strcpy(tmp, expandname);
+    currentDirectory = tmp;
+#endif
+    return 0;
 }

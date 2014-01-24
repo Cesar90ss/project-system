@@ -29,9 +29,9 @@ class Thread;
 #define NUM_VIRTUAL_PAGES    (NumPhysPages) // Num of virtual pages
 typedef struct slist
 {
-	int id;
-	Semaphore *sem;
-	struct slist* next;
+    int id;
+    Semaphore *sem;
+    struct slist* next;
 } *sem_list;
 
 /**
@@ -74,10 +74,10 @@ class AddrSpace
     void SaveState ();		// Save/restore address space-specific
     void RestoreState ();	// info on a context switch
 
-	int CreateSemaphore(char *name, int val);
-	int SemaphoreP(int id);
-	int SemaphoreV(int id);
-	int SemaphoreDestroy(int id);
+    int CreateSemaphore(char *name, int val);
+    int SemaphoreP(int id);
+    int SemaphoreV(int id);
+    int SemaphoreDestroy(int id);
 
     // Wrappers around StackMgr
     int FreeUserStack(unsigned int addr);
@@ -111,9 +111,13 @@ class AddrSpace
     // for processes
     unsigned int GetPid(void);
 
+    // Thread current directory (filesystem)
+    int SetCurrentDirectory(const char* name);
+    const char* GetCurrentDirectory();
+
     // Temporary
     OpenFile *currentFile;
-    
+
   private:
     TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!
@@ -127,16 +131,18 @@ class AddrSpace
     unsigned int max_tid;
     unsigned int num_threads; // Number of threads running currently
 
-	sem_list semaphore_list;
-	unsigned int semaphore_counter;
-	void CleanSemaphores();
+    sem_list semaphore_list;
+    unsigned int semaphore_counter;
+    void CleanSemaphores();
 
     void InitTranslation();
     void CleanPageTable();
     // address space
-    
+
     //For processes, set when creating the addrspace
-    unsigned int pid; 
+    unsigned int pid;
+
+    char *currentDirectory;
 };
 
 #endif // ADDRSPACE_H
