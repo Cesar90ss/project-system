@@ -362,14 +362,20 @@ PostOffice::PacketSent()
 // NachosSocket::NachosSocket
 // 
 //----------------------------------------------------------------------
-NachosSocket::NachosSocket()
+NachosSocket::NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int i_remote_port, int i_local_port)
 {
-	status = SOCKET_CREATED;
+	status = i_status;
+	
+	local_port = i_local_port;
+	remote_port = i_remote_port;
+	remote_machine = i_remote_machine;
+	
+	messages = NULL;
 }
 
 NachosSocket::~NachosSocket()
 {
-	
+	delete messages;
 }
 
 /**
@@ -425,4 +431,9 @@ int NachosSocket::Disconnect()
 	//TODO send the close message
 	status = SOCKET_CLOSED;
 	return 0;
+}
+
+bool NachosSocket::IsListening()
+{
+	return (status == SOCKET_LISTENING);
 }

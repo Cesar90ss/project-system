@@ -151,17 +151,22 @@ enum SocketStatusEnum
 
 class NachosSocket {
 	public:
-		NachosSocket();
+		NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int i_remote_port, int i_local_port);
 		~NachosSocket();
 		
 		int Receive(char *buffer, size_t size);			// wait for a message(and catch it)
 		int Send(char *buffer, size_t size);			// send a message to the connected socket
 		
 		int Disconnect();								// Disconnect from remote socket(break the link)
+
+		bool IsListening();
 	private:
 		SocketStatusEnum status;						// Status of the stocket(Connected, Disconnected...)
-		int MBX_from;									// Local mail box
-		int MBX_to;										// remote mail box
-		int machine_to;									// Remote machine
+
+		int local_port;									// Local mail box
+		int remote_port;								// remote mail box
+		int remote_machine;								// Remote machine
+		
+	    SynchList **messages;							//message list for this socket
 };
 #endif

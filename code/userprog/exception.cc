@@ -258,17 +258,30 @@ void switch_CheckEnd()
 //----------------------//
 void switch_Listen()
 {
-	/** Mark the socket as a passive one("receiver")
-	* It is not blocking and does not really connect the
-	* socket, accept will have to be called after.
-	* return -1 if socket does not exist if the socket
-	* is already on waiting or connected status, it will 
-	* return -2
-	*/
 	#ifdef NETWORK
-	synchconsole->SynchPutString("Unimplemented Listen\n");
-	//int remote_machine = machine->ReadRegister(4);
-	//int remote_port = machine->ReadRegister(5);
+	int local_port = machine->ReadRegister(4);
+
+	//check if the port exists
+	if(local_port>=0 && local_port<NB_BOX)
+	{
+		return -1;
+	}
+	
+	//if the corresponding mailbox is already listenning
+	if(postOffice->IsListening(local_port))
+	{
+		return -2;
+	}
+	
+	//else create a socket in listenning_mode for this box in the addrSpace list of socket.
+	int sid = currentThread->space->SocketCreate(SOCKET_LISTENING, 0, 0, local_port);
+	
+	//put the mailbox in listenning mode
+	postOffice->EnableListening(local_port);
+	
+	//the listenning socket can only be use for accept or close. (else error)
+	//return the listening socket id
+	machine->WriteRegister(2, sid);
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Listen syscall\n");
 	ASSERT(FALSE);
@@ -277,11 +290,51 @@ void switch_Listen()
 //----------------------//
 void switch_Accept()
 {	
-	/** accept(and wait for) incoming connection of the emitter(using connect)
-	 * The call to this function is blocking. Return the id of the remote machine
-	 * if the socket status is not waiting we cannot use this socket for accept
-	 * and return -1
-	 */
+	int listener_sid = machine->ReadRegister(4);
+	
+	NachosSocket* listener = currentThread->space->GetSocketPointer(listener_sid);
+	if(listener == NULL)
+	{
+		//this socket does not exist
+		return -1;
+	}
+	
+	if(!listener->IsListening())
+	{
+		//try to accept on a socket wich is not listening
+		return -2;
+	}
+	
+	//wait on the listening list of the mailbox (producer/consumer list)
+	Mail *request = listener->Receive();
+	
+	//extract this from the message
+	int machine_from = request->pktHdr.from;
+	int port_from = request->mailHdr.from;
+	
+	//take a place in the socket list of the mailbox or return -3 if no more place in this port
+	NachosSocket** new_connection_place = postOffice->FreeConnectionPlace(listener->LocalPort());
+	
+	if(new_connection_place == NULL)
+	{
+		//there is no place for new connections in this mailbox
+		return -3;
+	}
+	
+	//verify is this socket does not already exist (same machine with same port try to connect in this local port)
+	if(postOffice->searchConnection(listener->LocalPort(), machine_from, port_from))
+	{
+		//there is already an other connection from this requester in the mailbox
+		return -4;
+	}
+	
+	//create a connected socket with information in the received message, take a place in the mailbox list of socket
+	int socket_sid = currentThread->space->SocketCreate(SOCKET_CONNECTED, machine_from, port_from, listener->LocalPort());
+	*new_connection_place = currentThread->space->GetSocketPointer(socket_id);
+	
+	//send a confirmation message (retry some times if no response and then close the socket if no response at all)
+	currentThread->space->SocketSend(socket_sid, "CONNECT", 8);
+
 	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Accept\n");
 	#else
@@ -292,11 +345,21 @@ void switch_Accept()
 //----------------------//
 void switch_Connect()
 {
-	/**
-	* Connect to the remote machine "remote_machine" using the mailbox
-	* "mail_to". Return the id of the machine if success,
-	* -1 if the machine is unreachable. 
-	*/
+	int remote_machine = machine->ReadRegister(4);
+	int remote_port = machine->ReadRegister(5);
+
+	//create a socket in a mailbox (search for a local free port somewhere)
+	//we need to dispatch connection on different mailbox (if all connections in one, it coulb be slow)
+		postOffice->searchConnection(/*RANDOM*/, remote_machine, remote_port);
+	
+	//send a connection request to the remote_machine/remote_port with the port we define above
+	//TODO...
+	
+	//wait for the response in the socket just created
+	//TODO...
+	
+	//if response before timeout, send the last confirmation message in the socket and let's go
+	//else close the socket and return error (connection timeout)
 	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Connect\n");
 	#else
