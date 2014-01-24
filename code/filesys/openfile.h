@@ -54,7 +54,9 @@ public:
     int Length() { Lseek(file, 0, 2); return Tell(file); }
     // Read handling virtual memory
     int ReadAtVirtual(int virtualAddr, int numBytes, int position);
-
+    int WriteAtVirtual(int virtualAddr, int numBytes, int position);
+    int ReadVirtual(int virtualAddr, int numBytes) { return 0; };
+    int WriteVirtual(int virtualAddr, int numBytes) { return 0; };
 private:
     int file;
     int currentOffset;
@@ -73,6 +75,7 @@ public:
     // start reading/writing -- UNIX lseek
 
     int Read(char *into, int numBytes); // Read/write bytes from the file,
+
     // starting at the implicit position.
     // Return the # actually read/written,
     // and increment position in file.
@@ -90,6 +93,9 @@ public:
 
     // Read handling virtual memory
     int ReadAtVirtual(int virtualAddr, int numBytes, int position);
+    int WriteAtVirtual(int virtualAddr, int numBytes, int position);
+    int ReadVirtual(int virtualAddr, int numBytes);
+    int WriteVirtual(int virtualAddr, int numBytes);
 
 private:
     FileHeader *hdr;			// Header for this file

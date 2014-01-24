@@ -253,19 +253,39 @@ void switch_CheckEnd()
 
 void switch_Open()
 {
-    printf("To be implemented\n");
+    // Get file name from user space
+    char *filename = new char[MAX_STRING_SIZE + 1];
+    int write = copyStringFromMachine(machine->ReadRegister(4), filename, MAX_STRING_SIZE);
+    filename[write] = '\0';
+
+    // Try to open file
+    OpenFile *openFile;
+    if ((openFile = fileSystem->Open(filename)) == NULL)
+        machine->WriteRegister(2, -1);
+
+    // Attach file to space
+    currentThread->space->currentFile = openFile;
+    machine->WriteRegister(2, 0);
 }
 void switch_Close()
 {
-    printf("To be implemented\n");
+    delete currentThread->space->currentFile;
+    currentThread->space->currentFile = NULL;
+    machine->WriteRegister(2, 0);
 }
 void switch_Read()
 {
-    printf("To be implemented\n");
+    int to = machine->ReadRegister(4);
+    int size = machine->ReadRegister(5);
+
+    currentThread->space->currentFile->ReadVirtual(to, size);
 }
 void switch_Write()
 {
-    printf("To be implemented\n");
+    int from = machine->ReadRegister(4);
+    int size = machine->ReadRegister(5);
+
+    currentThread->space->currentFile->WriteVirtual(from, size);
 }
 void switch_Seek()
 {

@@ -87,6 +87,22 @@ OpenFile::Write(const char *into, int numBytes)
     return result;
 }
 
+int
+OpenFile::ReadVirtual(int virtualAddr, int numBytes)
+{
+    int result = ReadAtVirtual(virtualAddr, numBytes, seekPosition);
+    seekPosition += result;
+    return result;
+}
+
+int
+OpenFile::WriteVirtual(int virtualAddr, int numBytes)
+{
+    int result = WriteAtVirtual(virtualAddr, numBytes, seekPosition);
+    seekPosition += result;
+    return result;
+}
+
 //----------------------------------------------------------------------
 // OpenFile::ReadAt/WriteAt
 //  Read/write a portion of a file, starting at "position".
@@ -231,4 +247,16 @@ int OpenFile::ReadAtVirtual(int virtualAddr, int numBytes, int position)
     delete [] buffer;
 
     return ret;
+}
+
+int OpenFile::WriteAtVirtual(int virtualAddr, int numBytes, int position)
+{
+    char *c = new char[numBytes + 1];
+    int really_write = copyStringFromMachine(virtualAddr, c, numBytes);
+    c[really_write] = '\0';
+
+    int res = WriteAt(c, numBytes, position);
+    delete c;
+
+    return res;
 }

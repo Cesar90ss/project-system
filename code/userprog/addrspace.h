@@ -110,6 +110,10 @@ class AddrSpace
 
     // for processes
     unsigned int GetPid(void);
+
+    // Temporary
+    OpenFile *currentFile;
+    
   private:
     TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!
