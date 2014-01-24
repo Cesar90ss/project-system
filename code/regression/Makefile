@@ -19,6 +19,10 @@ clean:
 # Launch all test
 regression: clean $(ALL_TESTS)
 
+# Launch only tests for step5
+step5: $(wildcard step5*.sh)
+
+
 # Check for a test
 $(ALL_TESTS):
 	@echo -n "[Test] Running $* : "

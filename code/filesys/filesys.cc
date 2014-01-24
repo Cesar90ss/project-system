@@ -171,7 +171,6 @@ FileSystem::~FileSystem()
 bool
 FileSystem::Create(const char *name, int initialSize)
 {
-    Directory *directory;
     BitMap *freeMap;
     FileHeader *hdr;
     int sector;
@@ -179,35 +178,78 @@ FileSystem::Create(const char *name, int initialSize)
 
     DEBUG('f', "Creating file %s, size %d\n", name, initialSize);
 
-    directory = new Directory(NumDirEntries);
-    directory->FetchFrom(directoryFile);
+    // Expand file name
+    char *expandname = ExpandFileName(name);
+    char *parentDirectory = DirectoryName(expandname);
+    char *filename = FileName(expandname);
 
-    if (directory->Find(name) != -1)
-        success = FALSE;			// file is already in directory
-    else {
+    // Get the parent directory
+    int parent_sector;
+
+    Directory *directory = GetDirectoryByName(parentDirectory, &parent_sector);
+
+    // Check if parent directory exists
+    if (directory == NULL)
+    {
+        success = FALSE;
+    }
+    // File is already in directory
+    else if (directory->Find(filename) != -1)
+    {
+        success = FALSE;
+    }
+    else
+    {
         freeMap = new BitMap(NumSectors);
         freeMap->FetchFrom(freeMapFile);
-        sector = freeMap->Find();	// find a sector to hold the file header
+
+        // Find a sector to hold the file header
+        sector = freeMap->Find();
+
+        // No free block for file header
         if (sector == -1)
-            success = FALSE;		// no free block for file header
-        else if (!directory->Add(name, sector))
+        {
+            success = FALSE;
+        }
+        else if (!directory->Add(filename, sector))
+        {
             success = FALSE;	// no space in directory
-        else {
+        }
+        else
+        {
             hdr = new FileHeader;
+            // No space on disk for data
             if (!hdr->Allocate(freeMap, initialSize))
-                success = FALSE;	// no space on disk for data
-            else {
+            {
+                success = FALSE;
+            }
+            else
+            {
                 success = TRUE;
+
                 // everthing worked, flush all changes back to disk
+                OpenFile *f = new OpenFile(parent_sector);
+
+                // Write File header on disk
                 hdr->WriteBack(sector);
-                directory->WriteBack(directoryFile);
+
+                // Write directory structure on disk
+                directory->WriteBack(f);
+
+                // Write free sectors on disk
                 freeMap->WriteBack(freeMapFile);
+
+                delete f;
             }
             delete hdr;
         }
         delete freeMap;
     }
+
     delete directory;
+    delete expandname;
+    delete filename;
+
     return success;
 }
 
@@ -224,16 +266,36 @@ FileSystem::Create(const char *name, int initialSize)
 OpenFile *
 FileSystem::Open(const char *name)
 {
-    Directory *directory = new Directory(NumDirEntries);
     OpenFile *openFile = NULL;
     int sector;
 
     DEBUG('f', "Opening file %s\n", name);
-    directory->FetchFrom(directoryFile);
-    sector = directory->Find(name);
-    if (sector >= 0)
-        openFile = new OpenFile(sector);	// name was found in directory
-    delete directory;
+    // Expand file name
+    char *expandname = ExpandFileName(name);
+    char *parentDirectory = DirectoryName(expandname);
+    char *filename = FileName(expandname);
+
+    // Get the parent directory
+    int parent_sector;
+
+    Directory *directory = GetDirectoryByName(parentDirectory, &parent_sector);
+
+    if (directory == NULL)
+    {
+        openFile = NULL;
+    }
+    else
+    {
+        // Seek file on system
+        sector = directory->Find(filename);
+
+        // Filename was found in directory
+        if (sector >= 0)
+            openFile = new OpenFile(sector);
+
+        delete directory;
+    }
+
     return openFile;				// return NULL if not found
 }
 
@@ -254,33 +316,69 @@ FileSystem::Open(const char *name)
 bool
 FileSystem::Remove(const char *name)
 {
-    Directory *directory;
     BitMap *freeMap;
     FileHeader *fileHdr;
     int sector;
 
-    directory = new Directory(NumDirEntries);
-    directory->FetchFrom(directoryFile);
-    sector = directory->Find(name);
-    if (sector == -1) {
-        delete directory;
-        return FALSE;            // file not found
+    // Expand file name
+    char *expandname = ExpandFileName(name);
+    char *parentDirectory = DirectoryName(expandname);
+    char *filename = FileName(expandname);
+
+    // Get the parent directory
+    int parent_sector;
+
+    // Try to open parent directory
+    Directory *directory = GetDirectoryByName(parentDirectory, &parent_sector);
+
+    // If not found
+    if (directory == NULL)
+    {
+        delete expandname;
+        delete parentDirectory;
+        delete filename;
+        return FALSE;
     }
+
+    // Search for filename
+    sector = directory->Find(filename);
+    if (sector == -1) {
+        delete expandname;
+        delete parentDirectory;
+        delete filename;
+        delete directory;
+        return FALSE;
+    }
+
+    // Read file from disk
     fileHdr = new FileHeader;
     fileHdr->FetchFrom(sector);
 
+    // Get free sectors bitmap
     freeMap = new BitMap(NumSectors);
     freeMap->FetchFrom(freeMapFile);
 
-    fileHdr->Deallocate(freeMap);       // remove data blocks
-    freeMap->Clear(sector);			// remove header block
+    // Remove data block of file
+    fileHdr->Deallocate(freeMap);
+    // Remove header block
+    freeMap->Clear(sector);
+    // Remove filename from directory
     directory->Remove(name);
 
-    freeMap->WriteBack(freeMapFile);		// flush to disk
-    directory->WriteBack(directoryFile);        // flush to disk
+    // Flush freemap to disk
+    freeMap->WriteBack(freeMapFile);
+
+    // Write directory modifications to disk
+    OpenFile *f = new OpenFile(parent_sector);
+    directory->WriteBack(f);
+    delete f;
+
     delete fileHdr;
     delete directory;
     delete freeMap;
+    delete expandname;
+    delete parentDirectory;
+    delete filename;
     return TRUE;
 }
 
