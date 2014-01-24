@@ -50,6 +50,7 @@
 #include "directory.h"
 #include "filehdr.h"
 #include "filesys.h"
+#include "system.h"
 #include <libgen.h>
 #include <list>
 #include <string>
@@ -555,12 +556,21 @@ int FileSystem::CreateDirectory(const char* dirname)
  **/
 char *FileSystem::ExpandFileName(const char* filename)
 {
-    char *cpy = new char[strlen(filename) + 1];
+    // Take into account current directory
+    std::string filename_s = filename;
+
+    // If relative path
+    if (filename_s[0] != '/')
+    {
+        filename_s = currentThread->GetCurrentDirectory() + filename_s;
+    }
+
+    char *cpy = new char[strlen(filename_s.c_str()) + 1];
     char *saveptr = cpy;
 
-    strcpy(cpy, filename);
+    strcpy(cpy, filename_s.c_str());
 
-    if(strcmp(filename, "..") == 0)
+    if(strcmp(filename_s.c_str(), "..") == 0)
         return cpy;
 
     char *name = strtok(cpy, "/");
