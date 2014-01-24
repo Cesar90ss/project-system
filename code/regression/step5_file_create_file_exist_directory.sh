@@ -15,7 +15,7 @@ cd $NACHOS_DIR
 ./nachos-step5 -md dir
 
 OUTPUT=$(./nachos-step5 -l / | head -n -10 | tr "\n" "|")
-EXPECTED_OUTPUT="f - a|f - dir"
+EXPECTED_OUTPUT="f - a|f - dir|"
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then
     RETURN=0

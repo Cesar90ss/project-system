@@ -15,8 +15,9 @@ cd $NACHOS_DIR
 ./nachos-step5 -md dir3/dir4/dir5
 
 # Test case
+./nachos-step5 -l /dir3/../dir2/../dir3/dir4/./
 OUTPUT=$(./nachos-step5 -l /dir3/../dir2/../dir3/dir4/./ | head -n -10 | tr "\n" "|")
-EXPECTED_OUTPUT="d - dir5"
+EXPECTED_OUTPUT="d - dir5|"
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then
     RETURN=0

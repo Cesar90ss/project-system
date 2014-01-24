@@ -560,7 +560,7 @@ char *FileSystem::ExpandFileName(const char* filename)
 
     strcpy(cpy, filename);
 
-    if(strcmp(filename, ".."))
+    if(strcmp(filename, "..") == 0)
         return cpy;
 
     char *name = strtok(cpy, "/");
