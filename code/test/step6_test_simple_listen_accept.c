@@ -39,7 +39,7 @@ int main()
 	int i;
 	for( i=0; i< NB_LOOP; i++ )
 	{
-		if ( ( error_code = Send((char *)data,DATA_SIZE) ) == -2 )
+		if ( ( error_code = Send(connected_sid,(char *)data,DATA_SIZE) ) == -2 )
 		{
 			PutString("Could not send : Transission problem\n");
 			return -2;
@@ -52,9 +52,9 @@ int main()
 		
 		// Data is sent
 		
-		if ( ( error_code = Receive(buffer,ACK_SIZE) ) == -2 )
+		if ( ( error_code = Receive(connected_sid,buffer,ACK_SIZE) ) == -2 )
 		{
-			PutString("Could not receive : socket is waiting\n");
+			PutString("Could not receive : socket is waiting(listening socket)\n");
 			return -2;
 		}
 		if( error_code == -1 )

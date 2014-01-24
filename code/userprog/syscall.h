@@ -229,8 +229,8 @@ int CheckEnd(unsigned int pid);
 int Listen(int local_port);
 int Accept(int listening_socket);
 int Connect(int remote_machine, int remote_port);
-int Send(char* buffer, unsigned int size);
-int Receive(char* buffer, unsigned int size);
+int Send(int socket, char* buffer, unsigned int size);
+int Receive(int socket, char* buffer, unsigned int size);
 int Disconnect(int socket);
 
 #endif // IN_USER_MODE
