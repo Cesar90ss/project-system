@@ -48,6 +48,9 @@
 #define SC_Waitpid              26
 #define SC_CheckEnd             27
 #define SC_Seek                 28
+#define SC_GetCurrentDirectory  29
+#define SC_SetCurrentDirectory  30
+
 
 #ifdef IN_USER_MODE
 
@@ -213,6 +216,15 @@ int Waitpid(unsigned int pid, int *exitcode);
  */
 int CheckEnd(unsigned int pid);
 
+/**
+ * Get the current directory of a process
+ **/
+char *GetCurrentDirectory();
+
+/**
+ * Set the current directory of a process
+ **/
+int SetCurrentDirectory(char *name);
 #endif // IN_USER_MODE
 
 #endif /* SYSCALL_H */

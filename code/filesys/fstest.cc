@@ -214,7 +214,7 @@ void CurrentDirectoryTest()
 
 
     // Change directory to /a
-    currentThread->ChangeCurrentDirectory("a");
+    currentThread->SetCurrentDirectory("a");
 
     if ((openFile = fileSystem->Open("test")) == NULL) {
         printf("Print: unable to open file /a/test\n");
@@ -264,7 +264,7 @@ void CurrentDirectoryTest2()
     t1->Fork(fn, 0);
 
     // Change directory to /a
-    currentThread->ChangeCurrentDirectory("a");
+    currentThread->SetCurrentDirectory("a");
 
     OpenFile *openFile;
     int amountRead;

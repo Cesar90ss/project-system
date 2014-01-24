@@ -267,12 +267,14 @@ void switch_Open()
     currentThread->space->currentFile = openFile;
     machine->WriteRegister(2, 0);
 }
+
 void switch_Close()
 {
     delete currentThread->space->currentFile;
     currentThread->space->currentFile = NULL;
     machine->WriteRegister(2, 0);
 }
+
 void switch_Read()
 {
     int to = machine->ReadRegister(4);
@@ -280,6 +282,7 @@ void switch_Read()
 
     currentThread->space->currentFile->ReadVirtual(to, size);
 }
+
 void switch_Write()
 {
     int from = machine->ReadRegister(4);
@@ -287,10 +290,32 @@ void switch_Write()
 
     currentThread->space->currentFile->WriteVirtual(from, size);
 }
+
 void switch_Seek()
 {
     printf("To be implemented\n");
 }
+
+void switch_GetCurrentDirectory()
+{
+    int to = machine->ReadRegister(4);
+    int n = strlen(currentThread->GetCurrentDirectory());
+
+    // Copy buffer to string
+    copyStringToMachine(to, currentThread->GetCurrentDirectory(), n);
+    machine->WriteRegister(2, machine->ReadRegister(4));
+}
+
+void switch_SetCurrentDirectory()
+{
+    int from = machine->ReadRegister(4);
+    char *buffer = new char[MAX_STRING_SIZE + 1];
+
+    // Copy buffer to string
+    copyStringFromMachine(from, buffer, MAX_STRING_SIZE);
+    machine->WriteRegister(2, currentThread->SetCurrentDirectory(buffer));
+}
+
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -453,6 +478,16 @@ ExceptionHandler (ExceptionType which)
                 case SC_Write:
                 {
                     switch_Write();
+                    break;
+                }
+                case SC_GetCurrentDirectory:
+                {
+                    switch_GetCurrentDirectory();
+                    break;
+                }
+                case SC_SetCurrentDirectory:
+                {
+                    switch_SetCurrentDirectory();
                     break;
                 }
                 #endif

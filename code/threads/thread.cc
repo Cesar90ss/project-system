@@ -519,7 +519,13 @@ Thread::ForkExec (char *s)
 
 #endif
 
-int Thread::ChangeCurrentDirectory(const char* dirname)
+const char* Thread::GetCurrentDirectory()
 {
+    return "";
+}
+
+int Thread::SetCurrentDirectory(const char* dirname)
+{
+    // TODO : check directory validity
     return -1;
 }

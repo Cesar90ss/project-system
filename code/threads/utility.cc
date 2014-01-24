@@ -43,7 +43,7 @@ int copyStringFromMachine(int from, char *to, unsigned int size)
 	return i;
 }
 
-int copyStringToMachine(int to, char *from, unsigned int size)
+int copyStringToMachine(int to, const char *from, unsigned int size)
 {
 	unsigned int fSize, i;
 	fSize = strlen(from);
