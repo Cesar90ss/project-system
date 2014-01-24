@@ -13,19 +13,19 @@ cd $NACHOS_DIR
 # Make directory
 ./nachos-step5 -md dir1
 ./nachos-step5 -md dir2
-./nachos-step5 -cp ../Makefile dir3
+./nachos-step5 -cp ../Makefile file3
 ./nachos-step5 -md dir4
-./nachos-step5 -cp ../Makefile dir5
+./nachos-step5 -cp ../Makefile file5
 ./nachos-step5 -md dir6
-./nachos-step5 -cp ../Makefile dir7
+./nachos-step5 -cp ../Makefile file7
 ./nachos-step5 -md dir8
-./nachos-step5 -cp ../Makefile dir9
+./nachos-step5 -cp ../Makefile file9
 ./nachos-step5 -md dir10
-./nachos-step5 -cp ../Makefile dir11
+./nachos-step5 -cp ../Makefile file11
 ./nachos-step5 -md dir12
 
 OUTPUT=$(./nachos-step5 -l / | head -n -10 | tr "\n" "|")
-EXPECTED_OUTPUT="f - a|d - dir1|d - dir2|f - dir3|d - dir4|f - dir5|d - dir6|f - dir7|d - dir8|f - dir9"
+EXPECTED_OUTPUT="f - a|d - dir1|d - dir2|f - file3|d - dir4|f - file5|d - dir6|f - file7|d - dir8|f - file9|"
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then
     RETURN=0
