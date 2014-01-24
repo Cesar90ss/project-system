@@ -199,9 +199,19 @@ main (int argc, char **argv)
             fileSystem->List(*(argv + 1));
             argCount = 2;
 	    }
+	  else if (!strcmp (*argv, "-lr"))
+	    {			// list Nachos directory
+            fileSystem->ListRec(*(argv + 1));
+            argCount = 2;
+	    }
 	  else if (!strcmp (*argv, "-md"))
 	    {			// create Nachos directory
             DEBUG('f', "Return of create dir = %d\n", fileSystem->CreateDirectory(*(argv + 1)));
+            argCount = 2;
+	    }
+	  else if (!strcmp (*argv, "-rd"))
+	    {			// create Nachos directory
+            DEBUG('f', "Return of delete dir = %d\n", fileSystem->RemoveDirectory(*(argv + 1)));
             argCount = 2;
 	    }
 	  else if (!strcmp (*argv, "-D"))

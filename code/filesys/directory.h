@@ -73,6 +73,7 @@ public:
     void List();			// Print the names of all the files/dirs
     //  in the directory
     void Print();			// Verbose print of the contents
+    void PrintRec(const char *prefix);			// Recursive printing of directory
     //  of the directory -- all the file
     //  names and their contents.
 

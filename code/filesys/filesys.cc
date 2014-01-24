@@ -363,7 +363,7 @@ FileSystem::Remove(const char *name)
     // Remove header block
     freeMap->Clear(sector);
     // Remove filename from directory
-    directory->Remove(name);
+    directory->Remove(filename);
 
     // Flush freemap to disk
     freeMap->WriteBack(freeMapFile);
@@ -708,4 +708,120 @@ bool FileSystem::CheckNameLimitation(const char* name)
     }
 
     return TRUE;
+}
+
+//----------------------------------------------------------------------
+// FileSystem::RemoveDirectory
+//  Remove a directory from the file system.  This requires:
+//
+//	Return TRUE if the directory was deleted, FALSE if the directory wasn't
+//	in the file system or empty.
+//
+//	"name" -- the text name of the file to be removed
+//----------------------------------------------------------------------
+
+bool FileSystem::RemoveDirectory(const char *name)
+{
+    BitMap *freeMap;
+    FileHeader *fileHdr;
+
+    // Expand file name
+    char *expandname = ExpandFileName(name);
+    char *parentDirectory = DirectoryName(expandname);
+    char *filename = FileName(expandname);
+
+    // Get the parent directory
+    int parent_sector;
+
+    // Try to open parent directory
+    Directory *directory = GetDirectoryByName(parentDirectory, &parent_sector);
+
+    // Try open child directory
+    int child_sector;
+    Directory *child = GetDirectoryByName(expandname, &child_sector);
+
+    // If not found
+    if (directory == NULL || child == NULL)
+    {
+        if (directory == NULL)
+            delete directory;
+        if (child == NULL)
+            delete child;
+
+        delete expandname;
+        delete parentDirectory;
+        delete filename;
+        return FALSE;
+    }
+
+    // Check if child directory is empty
+    if (!child->IsEmpty())
+    {
+        delete directory;
+        delete child;
+        delete expandname;
+        delete filename;
+        return FALSE;
+    }
+
+    // Delete child directory from disk
+    // Read file from disk
+    fileHdr = new FileHeader;
+    fileHdr->FetchFrom(child_sector);
+
+    // Get free sectors bitmap
+    freeMap = new BitMap(NumSectors);
+    freeMap->FetchFrom(freeMapFile);
+
+    // Remove data block of file
+    fileHdr->Deallocate(freeMap);
+
+    // Remove header block
+    freeMap->Clear(child_sector);
+
+    // Remove directory from directory
+    directory->RemoveDirectory(filename);
+
+    // Flush freemap to disk
+    freeMap->WriteBack(freeMapFile);
+
+    // Write directory modifications to disk
+    OpenFile *f = new OpenFile(parent_sector);
+    directory->WriteBack(f);
+    delete f;
+
+    delete fileHdr;
+    delete directory;
+    delete freeMap;
+    delete expandname;
+    delete parentDirectory;
+    delete filename;
+    return TRUE;
+}
+
+//----------------------------------------------------------------------
+// FileSystem::ListRec
+//  List recursively all the files in the file system directory.
+//----------------------------------------------------------------------
+void FileSystem::ListRec(const char *dirname)
+{
+    char *expandname = ExpandFileName(dirname);
+    std::string name = expandname;
+
+    if (name.size() != 1 && name[name.size()] != '/')
+        name += "/";
+
+    // Get the parent directory
+    Directory *parent = GetDirectoryByName(name.c_str(), NULL);
+
+    if (parent == NULL)
+    {
+        printf("Dir %s not found\n", dirname);
+        delete expandname;
+        return;
+    }
+
+    parent->PrintRec(name.c_str());
+    delete expandname;
+    delete parent;
 }

@@ -94,7 +94,8 @@ public:
     Directory *GetDirectoryByName(const char* dirname, int *store_sector); /* Get directory by name */
     bool CheckNameLimitation(const char* name);         /* Check if the name is valid */
     int CreateDirectory(const char *dirname);           /* Create a directory (any path) */
-
+    bool RemoveDirectory(const char *name);             /* Remove a directory */
+    void ListRec(const char *name);             /* List recursivly a directory */
 private:
     OpenFile* freeMapFile;		// Bit map of free disk blocks,
     // represented as a file

@@ -26,6 +26,7 @@
 #include "directory.h"
 #include "filesys.h"
 #include <libgen.h>
+#include <string>
 
 //----------------------------------------------------------------------
 // Directory::Directory
@@ -327,4 +328,25 @@ bool Directory::CheckMaxEntries()
         i++;
 
     return i == tableSize;
+}
+
+/**
+ * Print recursively
+ **/
+void Directory::PrintRec(const char *prefix)
+{
+    for (int i = 0; i < tableSize; i++)
+    {
+        if (table[i].inUse)
+        {
+            printf("%s%s\n", prefix, table[i].name);
+            if (table[i].isDir)
+            {
+                Directory *next = Directory::ReadAtSector(table[i].sector);
+                std::string pr = std::string(prefix) + std::string(table[i].name) + "/";
+                next->PrintRec(pr.c_str());
+                delete next;
+            }
+        }
+    }
 }
