@@ -14,7 +14,7 @@ cd $NACHOS_DIR
 ./nachos-step5 -md a
 
 # Test case
-OUTPUT=$(./nachos-step5 -l | head -n -10 | tr "\n" "|")
+OUTPUT=$(./nachos-step5 -l / | head -n -10 | tr "\n" "|")
 EXPECTED_OUTPUT="d - a|d - b|d -c"
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then

@@ -13,7 +13,7 @@ cd $NACHOS_DIR
 # Make directory
 ./nachos-step5 -md "/"
 
-OUTPUT=$(./nachos-step5 -l | head -n -10 | tr "\n" "|")
+OUTPUT=$(./nachos-step5 -l / | head -n -10 | tr "\n" "|")
 EXPECTED_OUTPUT="f - a"
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then

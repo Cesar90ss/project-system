@@ -15,7 +15,7 @@ cd $NACHOS_DIR
 ./nachos-step5 -md dir/dir2
 ./nachos-step5 -md dir/dir2/dir3/.././../dir/dir2/dir3
 
-OUTPUT=$(./nachos-step5 -l/dir/dir2 | head -n -10 | tr "\n" "|")
+OUTPUT=$(./nachos-step5 -l /dir/dir2 | head -n -10 | tr "\n" "|")
 EXPECTED_OUTPUT="d - dir3"
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then
