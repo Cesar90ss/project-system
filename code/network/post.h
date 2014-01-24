@@ -145,6 +145,7 @@ enum SocketStatusEnum
     SOCKET_CREATED,						// when declared 
 	SOCKET_CONNECTED,					// Once connected
     SOCKET_WAITING,						// after accept, or Connect wait for actual connection
+	SOCKET_LISTENING,
     SOCKET_CLOSED						// after call to disconnect
 };
 
@@ -152,11 +153,6 @@ class NachosSocket {
 	public:
 		NachosSocket();
 		~NachosSocket();
-		
-		int Connect(int remote_machine, int mail_to);	// Connect to a distant socket("emiter")
-		
-		int Listen();									// Mark the socket as a passive one("receiver")
-		int Accept();									// accept(and wait for) incoming connection of the emitter(using connect)
 		
 		int Receive(char *buffer, size_t size);			// wait for a message(and catch it)
 		int Send(char *buffer, size_t size);			// send a message to the connected socket

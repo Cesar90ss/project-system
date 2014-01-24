@@ -274,6 +274,22 @@ CheckEnd:
     j	$31
     .end CheckEnd
 /* ----------------------*/
+    .globl Listen
+    .ent	Listen
+Listen:
+    addiu $2,$0,SC_Listen
+    syscall
+    j	$31
+    .end Listen
+/* ----------------------*/
+    .globl Accept
+    .ent	Accept
+Accept:
+    addiu $2,$0,SC_Accept
+    syscall
+    j	$31
+    .end Accept
+/* ----------------------*/
     .globl Connect
     .ent	Connect
 Connect:

@@ -256,11 +256,49 @@ void switch_CheckEnd()
 	machine->WriteRegister(2, processMgr->ProcessEnded(pid));
 }
 //----------------------//
+void switch_Listen()
+{
+	/** Mark the socket as a passive one("receiver")
+	* It is not blocking and does not really connect the
+	* socket, accept will have to be called after.
+	* return -1 if socket does not exist if the socket
+	* is already on waiting or connected status, it will 
+	* return -2
+	*/
+	#ifdef NETWORK
+	synchconsole->SynchPutString("Unimplemented Listen\n");
+	//int remote_machine = machine->ReadRegister(4);
+	//int remote_port = machine->ReadRegister(5);
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Listen syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
+}
+//----------------------//
+void switch_Accept()
+{	
+	/** accept(and wait for) incoming connection of the emitter(using connect)
+	 * The call to this function is blocking. Return the id of the remote machine
+	 * if the socket status is not waiting we cannot use this socket for accept
+	 * and return -1
+	 */
+	#ifdef NETWORK
+	synchconsole->SynchPutString("Unimplemented Accept\n");
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Accept syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
+}
+//----------------------//
 void switch_Connect()
 {
+	/**
+	* Connect to the remote machine "remote_machine" using the mailbox
+	* "mail_to". Return the id of the machine if success,
+	* -1 if the machine is unreachable. 
+	*/
 	#ifdef NETWORK
-	//int farAddr = machine->ReadRegister(4);
-	//machine->WriteRegister(2, currentThread->space->OpenSocket(farAddr));
+	synchconsole->SynchPutString("Unimplemented Connect\n");
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Connect syscall\n");
 	ASSERT(FALSE);
@@ -434,6 +472,16 @@ ExceptionHandler (ExceptionType which)
                  case SC_CheckEnd:
                 {
                     switch_CheckEnd();
+                    break;
+                }
+				case SC_Listen:
+                {
+                    switch_Listen();
+                    break;
+                }
+                case SC_Accept:
+                {
+                    switch_Accept();
                     break;
                 }
                  case SC_Connect:

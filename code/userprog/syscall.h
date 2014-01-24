@@ -54,10 +54,12 @@
 #define SC_Waitpid				26
 #define SC_CheckEnd				27
 
-#define SC_Connect				28
-#define SC_Send					29
-#define SC_Receive				30
-#define SC_Disconnect			31
+#define SC_Listen				28
+#define SC_Accept				29
+#define SC_Connect				30
+#define SC_Send					31
+#define SC_Receive				32
+#define SC_Disconnect			33
 
 #ifdef IN_USER_MODE
 
@@ -224,10 +226,12 @@ int Waitpid(unsigned int pid, int *exitcode);
 int CheckEnd(unsigned int pid);
 
 //network syscalls
-int Connect(int machineAddr);
-int Send();
-int Receive();
-int Disconnect();
+int Listen(int local_port);
+int Accept(int listening_socket);
+int Connect(int remote_machine, int remote_port);
+int Send(char* buffer, unsigned int size);
+int Receive(char* buffer, unsigned int size);
+int Disconnect(int socket);
 
 #endif // IN_USER_MODE
 

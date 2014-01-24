@@ -373,56 +373,6 @@ NachosSocket::~NachosSocket()
 }
 
 /**
- * Connect to the remote machine "remote_machine" using the mailbox
- * "mail_to". Return the id of the machine if success,
- * -1 if the machine is unreachable. 
- */
-int NachosSocket::Connect(int remote_machine, int mail_to)
-{
-	MBX_to = mail_to;
-	machine_to = remote_machine;
-	return 0;
-}
-
-
-/** Mark the socket as a passive one("receiver")
- * It is not blocking and does not really connect the
- * socket, accept will have to be called after.
- * return -1 if socket does not exist if the socket
- * is already on waiting or connected status, it will 
- * return -2
- */
-int NachosSocket::Listen()
-{
-	
-	if(status == SOCKET_WAITING || status == SOCKET_CONNECTED)
-	{
-		return -2;
-	}
-	
-	if(MBX_from < 0)
-	{
-		return -1;
-	}
-	status = SOCKET_WAITING;
-	return 0;
-}
-
-/** accept(and wait for) incoming connection of the emitter(using connect)
- * The call to this function is blocking. Return the id of the remote machine
- * if the socket status is not waiting we cannot use this socket for accept
- * and return -1
- */
-int NachosSocket::Accept()
-{
-	if(status != SOCKET_WAITING)
-	{
-		return -1;
-	}
-	return 0;
-}
-
-/**
  * Receive : read a message of at most size bytes from the socket 
  * and write it inside the buffer given as argument. If it can
  * not read full size, the actual readen size will be returned.
@@ -431,6 +381,12 @@ int NachosSocket::Accept()
  */
 int NachosSocket::Receive(char *buffer, size_t size)
 {
+	if(status != SOCKET_CONNECTED)
+	{
+		return -1;
+	}
+	
+	//get size bytes in the buffer or less if we can't and return the number of read bytes
 	return 0;
 }
 
@@ -439,12 +395,18 @@ int NachosSocket::Receive(char *buffer, size_t size)
  * Send : Write a message read from buffer of at most size bytes 
  * in the socket  . If it can not read full size, the actual written size 
  * will be returned.
- * Return 0 if transmission is a success, -1 if the socket is closed
- * -2 if the socket is waiting for connection, -3 if transmission
- * problem.
+ * Return 0 if transmission is a success, -1 if the socket is not 
+ * connected, -2 if a transmission problem.
  */
 int NachosSocket::Send(char *buffer, size_t size)
 {
+	if(status != SOCKET_CONNECTED)
+	{
+		return -1;
+	}
+	
+	//TODO Sending, return -2 if fail many times
+	
 	return 0;
 }
 
@@ -455,5 +417,12 @@ int NachosSocket::Send(char *buffer, size_t size)
  */
 int NachosSocket::Disconnect()
 {
+	if(status != SOCKET_CONNECTED)
+	{
+		return -1;
+	}
+
+	//TODO send the close message
+	status = SOCKET_CLOSED;
 	return 0;
 }
