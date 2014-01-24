@@ -28,12 +28,25 @@
 - Tests for absolute paths (user mode) (DONE)
 -----------------------
 
---> Friday
+- FINISH TEST;
 - (2h) Open files table
+    - ouvrir plusieurs fichier et voir si quand on ecrit ou quand on lit bien
+      au bon endroit (plusieurs ouvertures et fermetures à la fois) USER
+    - limite de 10 fichiers ouverts en meme temps
+    - |-> limite par process --> si on fork on doit pouvoir en rouvrir 10
+
 - (2h) Create/delete file directory concurrently
+    - On doit pas pouvoir supprimer un fichier deja ouvert
+    - Pas 2 processus peuvent ouvrir le meme fichier en meme temps
+    - Deux threads utilisateur n'on pas le droit d'ouvrir le meme fichier
+
 - (1h) Increase file size
+    - Essayer de faire des fichier plus gros que 3,5 ne doit pas lever de segfault
+    - Essayer de surcharger le disque
+
 - (1h30) Dynamic file size
-    
+    - Creation d'un fichier que l'on fait grossir jusque remplir le disque
+
 --> Monday
 - (1h30) Absolute path
 - (4h) Multiple thread concurrency (reader/writer)
