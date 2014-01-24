@@ -186,6 +186,10 @@ FileSystem::Create(const char *name, int initialSize)
     // Get the parent directory
     int parent_sector;
 
+    printf("exp = %s\n", expandname);
+    printf("parentDirectory = %s\n", parentDirectory);
+    printf("filename = %s\n", filename);
+
     Directory *directory = GetDirectoryByName(parentDirectory, &parent_sector);
 
     // Check if parent directory exists
@@ -195,6 +199,11 @@ FileSystem::Create(const char *name, int initialSize)
     }
     // File is already in directory
     else if (directory->Find(filename) != -1)
+    {
+        success = FALSE;
+    }
+    // Name limitation on file
+    else if (!CheckNameLimitation(filename))
     {
         success = FALSE;
     }
@@ -601,8 +610,14 @@ char *FileSystem::ExpandFileName(const char* filename)
  **/
 char *FileSystem::DirectoryName(const char* filename)
 {
-    char *cpy = new char[strlen(filename) + 1];
-    strcpy(cpy, filename);
+    // Trick dir name
+    std::string st = filename;
+    if (st[st.size() - 1] == '/')
+        st += "no";
+
+
+    char *cpy = new char[strlen(st.c_str()) + 1];
+    strcpy(cpy, st.c_str());
 
     char *result = dirname(cpy);
     char *cpy2 = new char[strlen(result) + 1];
@@ -621,8 +636,17 @@ char *FileSystem::DirectoryName(const char* filename)
  **/
 char *FileSystem::FileName(const char* filename)
 {
-    char *cpy = new char[strlen(filename) + 1];
-    strcpy(cpy, filename);
+    // Trick dir name and file name
+    std::string st = filename;
+    if (st[st.size() - 1] == '/')
+    {
+        char *cpy = new char[1];
+        cpy[0] = '\0';
+        return cpy;
+    }
+
+    char *cpy = new char[strlen(st.c_str()) + 1];
+    strcpy(cpy, st.c_str());
 
     char *result = basename(cpy);
     char *cpy2 = new char[strlen(result) + 1];
