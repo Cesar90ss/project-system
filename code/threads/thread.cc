@@ -132,7 +132,8 @@ Thread::Fork (VoidFunctionPtr func, int arg)
 
 #ifdef USER_PROGRAM
     // Attach thread to the adress space
-    currentThread->space->AttachThread(this);
+    if (currentThread->space != NULL)
+        currentThread->space->AttachThread(this);
 
 #endif // USER_PROGRAM
 

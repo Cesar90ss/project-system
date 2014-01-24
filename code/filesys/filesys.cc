@@ -187,10 +187,6 @@ FileSystem::Create(const char *name, int initialSize)
     // Get the parent directory
     int parent_sector;
 
-    printf("exp = %s\n", expandname);
-    printf("parentDirectory = %s\n", parentDirectory);
-    printf("filename = %s\n", filename);
-
     Directory *directory = GetDirectoryByName(parentDirectory, &parent_sector);
 
     // Check if parent directory exists

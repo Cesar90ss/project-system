@@ -192,8 +192,6 @@ PerformanceTest()
  **/
 void CurrentDirectoryTest()
 {
-    printf("Starting change directory test\n");
-
     OpenFile *openFile;
     int amountRead;
     char *buffer;
@@ -205,8 +203,9 @@ void CurrentDirectoryTest()
     }
 
     buffer = new char[TransferSize];
-    while ((amountRead = openFile->Read(buffer, TransferSize)) > 0);
+    amountRead = openFile->Read(buffer, TransferSize);
 
+    buffer[amountRead] = '\0';
     if (strncmp("test1", buffer, TransferSize) != 0)
         Exit(-1);
 
@@ -222,18 +221,19 @@ void CurrentDirectoryTest()
     }
 
     buffer = new char[TransferSize];
-    while ((amountRead = openFile->Read(buffer, TransferSize)) > 0);
+    amountRead = openFile->Read(buffer, TransferSize);
 
     if (strncmp("test2", buffer, TransferSize) != 0)
         Exit(-2);
 }
 
+Semaphore *sync;
 static void fn(int arg)
 {
     OpenFile *openFile;
-    int amountRead;
     char *buffer;
 
+    sync->P();
     // Open file in test
     if ((openFile = fileSystem->Open("test")) == NULL) {
         printf("Print: unable to open file test\n");
@@ -241,7 +241,7 @@ static void fn(int arg)
     }
 
     buffer = new char[TransferSize];
-    while ((amountRead = openFile->Read(buffer, TransferSize)) > 0);
+    openFile->Read(buffer, TransferSize);
 
     if (strncmp("test1", buffer, TransferSize) != 0)
         Exit(-1);
@@ -258,8 +258,7 @@ static void fn(int arg)
  **/
 void CurrentDirectoryTest2()
 {
-    printf("Starting change directory test\n");
-
+    sync = new Semaphore("test", 0);
     Thread *t1 = new Thread("filesys");
     t1->Fork(fn, 0);
 
@@ -267,7 +266,6 @@ void CurrentDirectoryTest2()
     currentThread->SetCurrentDirectory("a");
 
     OpenFile *openFile;
-    int amountRead;
     char *buffer;
 
     if ((openFile = fileSystem->Open("test")) == NULL) {
@@ -276,10 +274,14 @@ void CurrentDirectoryTest2()
     }
 
     buffer = new char[TransferSize];
-    while ((amountRead = openFile->Read(buffer, TransferSize)) > 0);
+    openFile->Read(buffer, TransferSize);
 
     if (strncmp("test2", buffer, TransferSize) != 0)
         Exit(-2);
+
+    delete openFile;
+
+    sync->V();
 
     currentThread->Yield();
 }
