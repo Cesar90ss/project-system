@@ -551,12 +551,15 @@ char *FileSystem::ExpandFileName(const char* filename)
 
     strcpy(cpy, filename);
 
+    if(strcmp(filename, ".."))
+        return cpy;
+
     char *name = strtok(cpy, "/");
     std::list<std::string> final;
 
     while (name != NULL)
     {
-        if (strcmp(name, "..") == 0)
+        if (strcmp(name, "..") == 0 && !final.empty())
         {
             final.pop_back();
         }
