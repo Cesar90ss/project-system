@@ -53,7 +53,7 @@ int main()
 		PutString(buffer);
 		if( !strcmp(buffer,(char*)data) )
 		{
-			PutString(" Erro : The data is corrupted(not the one that was expected\n");
+			PutString(" Error : The data is corrupted(not the one that was expected\n");
 			return -4;
 		}
 		
