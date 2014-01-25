@@ -160,12 +160,19 @@ class NachosSocket {
 		int Disconnect();								// Disconnect from remote socket(break the link)
 
 		bool IsListening();
+		int SocketCreate(int i_status, int i_remote_machine, int i_remote_port, int i_local_port);		//To create socket
+		int EnableListening(int i_local_port);
+		int FreeConnectionPlace(int i_local_port);
+		int searchConnection(int i_local_port, int i_remote_machine, int i_remote_port);
+		int GetSocketPointer(int i_local_port);
+		
 	private:
 		SocketStatusEnum status;						// Status of the stocket(Connected, Disconnected...)
 
 		int local_port;									// Local mail box
 		int remote_port;								// remote mail box
 		int remote_machine;								// Remote machine
+		
 		
 	    SynchList **messages;							//message list for this socket
 };

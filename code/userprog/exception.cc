@@ -330,10 +330,10 @@ void switch_Accept()
 	
 	//create a connected socket with information in the received message, take a place in the mailbox list of socket
 	int socket_sid = currentThread->space->SocketCreate(SOCKET_CONNECTED, machine_from, port_from, listener->LocalPort());
-	*new_connection_place = currentThread->space->GetSocketPointer(socket_id);
+	*new_connection_place = currentThread->space->GetSocketPointer(socket_sid);
 	
 	//send a confirmation message (retry some times if no response and then close the socket if no response at all)
-	currentThread->space->SocketSend(socket_sid, "CONNECT", 8);
+	currentThread->space->SocketSend(socket_sid, "ACCEPTED", 9);
 
 	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Accept\n");
@@ -345,23 +345,40 @@ void switch_Accept()
 //----------------------//
 void switch_Connect()
 {
+	#ifdef NETWORK
 	int remote_machine = machine->ReadRegister(4);
 	int remote_port = machine->ReadRegister(5);
+	
 
 	//create a socket in a mailbox (search for a local free port somewhere)
 	//we need to dispatch connection on different mailbox (if all connections in one, it coulb be slow)
-		postOffice->searchConnection(/*RANDOM*/, remote_machine, remote_port);
-	
+	//TODO declare new function on the PostOffice
+	int mailbox = postOffice->searchConnection(remote_machine, remote_port);
+	NachosSocket** new_connection_place = postOffice->FreeConnectionPlace(mailbox);
 	//send a connection request to the remote_machine/remote_port with the port we define above
 	//TODO...
+	int socket_sid = currentThread->space->SocketCreate(SOCKET_CONNECTED, remote_machine, remote_port, mailbox);
+	*new_connection_place = currentThread->space->GetSocketPointer(socket_sid);
 	
+	//send a confirmation message (retry some times if no response and then close the socket if no response at all)
+	currentThread->space->SocketSend(socket_sid, "CONNECT", 8);
+
 	//wait for the response in the socket just created
 	//TODO...
+	Mail *response = *new_connection_place->Receive();
 	
 	//if response before timeout, send the last confirmation message in the socket and let's go
-	//else close the socket and return error (connection timeout)
-	#ifdef NETWORK
-	synchconsole->SynchPutString("Unimplemented Connect\n");
+	if(response!=NULL)
+	{
+		currentThread->space->SocketSend(socket_sid, "AGREED!", 8);
+	}else{
+		*new_connection_place->Disconnect();		//else close the socket and return error (connection timeout)
+		return -1;
+	}
+	
+	machine->WriteRegister(2,socket_sid);
+		
+	//synchconsole->SynchPutString("Unimplemented Connect\n");
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Connect syscall\n");
 	ASSERT(FALSE);
@@ -370,6 +387,13 @@ void switch_Connect()
 //----------------------//
 void switch_Send()
 {
+	int socket = machine->ReadRegister(4);
+	int buffer = machine->ReadRegister(5);
+	int size = machine->ReadRegister(6);
+    char c[MAX_STRING_SIZE + 1];
+    int really_write = copyStringFromMachine(buffer,c,MAX_STRING_SIZE);
+    c[really_write] = '\0';
+	*new_connection_place = currentThread->space->GetSocketPointer(socket);
 	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Send\n");
 	#else
@@ -381,7 +405,12 @@ void switch_Send()
 void switch_Receive()
 {
 	#ifdef NETWORK
-	synchconsole->SynchPutString("Unimplemented Receive\n");
+	int socket = machine->ReadRegister(4);
+	char *buffer;
+	int size = machine->ReadRegister(6);
+	currentThread->space->GetSocketPointer(socket)->Receive(buffer, size);
+	copyStringToMachine(buffer,machine->ReadRegister(5),size);
+	//synchconsole->SynchPutString("Unimplemented Receive\n");
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Receive syscall\n");
 	ASSERT(FALSE);
@@ -391,7 +420,9 @@ void switch_Receive()
 void switch_Disconnect()
 {
 	#ifdef NETWORK
-	synchconsole->SynchPutString("Unimplemented Disconnect\n");
+	//synchconsole->SynchPutString("Unimplemented Disconnect\n");
+	int socket = machine->ReadRegister(4);
+	currentThread->space->GetSocketPointer(socket)->Disconnect();
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Disconnect syscall\n");
 	ASSERT(FALSE);
