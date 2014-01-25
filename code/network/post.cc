@@ -23,7 +23,7 @@
 
 #include <strings.h> /* for bzero */
 
-#define NB_BOX 10
+
 #define NB_INTERNAL_PORTS 256
 #define MAX_NB_PORT (NB_BOX * NB_INTERNAL_PORTS) 		//number of mailbox times number of internal available port used to communicate
 //----------------------------------------------------------------------
@@ -357,6 +357,27 @@ PostOffice::PacketSent()
 }
 
 
+// enable listening on a "port"
+int PostOffice::EnableListening(int i_local_port)
+{
+	return 0;
+}
+
+NachosSocket** PostOffice::FreeConnectionPlace(int i_local_port)
+{
+	return NULL;
+}
+	
+//Retrieve connection from a port
+int PostOffice::searchConnection( int i_local_port,int i_remote_machine, int i_remote_port)
+{
+	return 0;
+}
+
+bool PostOffice::IsListening(int i_local_port)
+{
+	return false;
+}
 
 //----------------------------------------------------------------------
 // NachosSocket::NachosSocket
@@ -385,15 +406,15 @@ NachosSocket::~NachosSocket()
  * Return 0 if there is nothing to read, -1 if the socket is closed
  * -2 if the socket is waiting for connection
  */
-int NachosSocket::Receive(char *buffer, size_t size)
+Mail *NachosSocket::Receive(char *buffer, size_t size)
 {
-	if(status != SOCKET_CONNECTED)
+	/*if(status != SOCKET_CONNECTED)
 	{
 		return -1;
-	}
+	}*/
 	
 	//get size bytes in the buffer or less if we can't and return the number of read bytes
-	return 0;
+	return NULL;
 }
 
 
@@ -431,6 +452,11 @@ int NachosSocket::Disconnect()
 	//TODO send the close message
 	status = SOCKET_CLOSED;
 	return 0;
+}
+
+int NachosSocket::LocalPort()
+{
+	return local_port;
 }
 
 bool NachosSocket::IsListening()

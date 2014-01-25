@@ -31,6 +31,9 @@
 #include "network.h"
 #include "synchlist.h"
 
+#define NB_BOX 10
+
+class NachosSocket;
 // Mailbox address -- uniquely identifies a mailbox on a given machine.
 // A mailbox is just a place for temporary storage for messages.
 typedef int MailBoxAddress;
@@ -128,7 +131,13 @@ class PostOffice {
 										// packet has arrived and can be pulled
 										// off of network (i.e., time to call
 										// PostalDelivery)
-
+				
+	int EnableListening(int i_local_port);		// enable listening on a "port"
+	NachosSocket **FreeConnectionPlace(int i_local_port);	
+	
+	//Retrieve connection from a port
+	int searchConnection( int i_local_port,int i_remote_machine, int i_remote_port);
+	bool IsListening(int i_local_port);
   private:
     Thread *NetworkDeamon;
     Network *network;					// Physical network connection
@@ -154,18 +163,14 @@ class NachosSocket {
 		NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int i_remote_port, int i_local_port);
 		~NachosSocket();
 		
-		int Receive(char *buffer, size_t size);			// wait for a message(and catch it)
+		Mail *Receive(char *buffer, size_t size);			// wait for a message(and catch it)
 		int Send(char *buffer, size_t size);			// send a message to the connected socket
 		
-		int Disconnect();								// Disconnect from remote socket(break the link)
-
 		bool IsListening();
-		int SocketCreate(int i_status, int i_remote_machine, int i_remote_port, int i_local_port);		//To create socket
-		int EnableListening(int i_local_port);
-		int FreeConnectionPlace(int i_local_port);
-		int searchConnection(int i_local_port, int i_remote_machine, int i_remote_port);
-		int GetSocketPointer(int i_local_port);
 		
+		int Disconnect();								// Disconnect from remote socket(break the link)
+		
+		int LocalPort();
 	private:
 		SocketStatusEnum status;						// Status of the stocket(Connected, Disconnected...)
 

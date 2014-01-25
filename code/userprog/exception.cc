@@ -30,6 +30,8 @@
 #endif
 extern SynchConsole *synchconsole;
 extern ProcessMgr *processMgr;
+extern PostOffice *postOffice;
+#include "../network/post.h"
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -264,13 +266,15 @@ void switch_Listen()
 	//check if the port exists
 	if(local_port>=0 && local_port<NB_BOX)
 	{
-		return -1;
+		machine->WriteRegister(2,-2);
+		return;
 	}
 	
 	//if the corresponding mailbox is already listenning
 	if(postOffice->IsListening(local_port))
 	{
-		return -2;
+		machine->WriteRegister(2,-2);
+		return;
 	}
 	
 	//else create a socket in listenning_mode for this box in the addrSpace list of socket.
@@ -292,21 +296,23 @@ void switch_Accept()
 {	
 	int listener_sid = machine->ReadRegister(4);
 	
-	NachosSocket* listener = currentThread->space->GetSocketPointer(listener_sid);
+	NachosSocket* listener =(NachosSocket*) currentThread->space->GetSocketPointer(listener_sid);
 	if(listener == NULL)
 	{
 		//this socket does not exist
-		return -1;
+		machine->WriteRegister(2,-1);
+		return;
 	}
 	
 	if(!listener->IsListening())
 	{
 		//try to accept on a socket wich is not listening
-		return -2;
+		machine->WriteRegister(2,-2);
+		return;
 	}
 	
 	//wait on the listening list of the mailbox (producer/consumer list)
-	Mail *request = listener->Receive();
+	Mail *request = listener->Receive(NULL,0);
 	
 	//extract this from the message
 	int machine_from = request->pktHdr.from;
@@ -318,14 +324,16 @@ void switch_Accept()
 	if(new_connection_place == NULL)
 	{
 		//there is no place for new connections in this mailbox
-		return -3;
+		machine->WriteRegister(2,-3);
+		return;
 	}
 	
 	//verify is this socket does not already exist (same machine with same port try to connect in this local port)
-	if(postOffice->searchConnection(listener->LocalPort(), machine_from, port_from))
+	if(postOffice->searchConnection(listener->LocalPort(), (int)machine_from,(int) port_from))
 	{
 		//there is already an other connection from this requester in the mailbox
-		return -4;
+		machine->WriteRegister(2,-4);
+		return;
 	}
 	
 	//create a connected socket with information in the received message, take a place in the mailbox list of socket
@@ -333,7 +341,7 @@ void switch_Accept()
 	*new_connection_place = currentThread->space->GetSocketPointer(socket_sid);
 	
 	//send a confirmation message (retry some times if no response and then close the socket if no response at all)
-	currentThread->space->SocketSend(socket_sid, "ACCEPTED", 9);
+	currentThread->space->SocketSend(socket_sid,(char*) "ACCEPTED", 9);
 
 	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Accept\n");
@@ -349,11 +357,12 @@ void switch_Connect()
 	int remote_machine = machine->ReadRegister(4);
 	int remote_port = machine->ReadRegister(5);
 	
+	int random_port = 0; /*SHOULD BE RANDOM*/
 
 	//create a socket in a mailbox (search for a local free port somewhere)
 	//we need to dispatch connection on different mailbox (if all connections in one, it coulb be slow)
 	//TODO declare new function on the PostOffice
-	int mailbox = postOffice->searchConnection(remote_machine, remote_port);
+	int mailbox = postOffice->searchConnection(random_port,remote_machine, remote_port);
 	NachosSocket** new_connection_place = postOffice->FreeConnectionPlace(mailbox);
 	//send a connection request to the remote_machine/remote_port with the port we define above
 	//TODO...
@@ -361,19 +370,20 @@ void switch_Connect()
 	*new_connection_place = currentThread->space->GetSocketPointer(socket_sid);
 	
 	//send a confirmation message (retry some times if no response and then close the socket if no response at all)
-	currentThread->space->SocketSend(socket_sid, "CONNECT", 8);
+	currentThread->space->SocketSend(socket_sid, (char*)"CONNECT", 8);
 
 	//wait for the response in the socket just created
 	//TODO...
-	Mail *response = *new_connection_place->Receive();
+	Mail *response = (*new_connection_place)->Receive(NULL,0);
 	
 	//if response before timeout, send the last confirmation message in the socket and let's go
 	if(response!=NULL)
 	{
-		currentThread->space->SocketSend(socket_sid, "AGREED!", 8);
+		currentThread->space->SocketSend(socket_sid, (char*)"AGREED!", 8);
 	}else{
-		*new_connection_place->Disconnect();		//else close the socket and return error (connection timeout)
-		return -1;
+		(*new_connection_place)->Disconnect();		//else close the socket and return error (connection timeout)
+		machine->WriteRegister(2,-1);
+		return;
 	}
 	
 	machine->WriteRegister(2,socket_sid);
@@ -391,9 +401,10 @@ void switch_Send()
 	int buffer = machine->ReadRegister(5);
 	int size = machine->ReadRegister(6);
     char c[MAX_STRING_SIZE + 1];
-    int really_write = copyStringFromMachine(buffer,c,MAX_STRING_SIZE);
+    int really_write = copyStringFromMachine(buffer,c,size);
     c[really_write] = '\0';
-	*new_connection_place = currentThread->space->GetSocketPointer(socket);
+    currentThread->space->SocketSend(socket,c, really_write);
+	//NachosSocket *new_connection_place = currentThread->space->GetSocketPointer(socket);
 	#ifdef NETWORK
 	synchconsole->SynchPutString("Unimplemented Send\n");
 	#else
@@ -406,10 +417,10 @@ void switch_Receive()
 {
 	#ifdef NETWORK
 	int socket = machine->ReadRegister(4);
-	char *buffer;
+	char buffer[MAX_STRING_SIZE];
 	int size = machine->ReadRegister(6);
-	currentThread->space->GetSocketPointer(socket)->Receive(buffer, size);
-	copyStringToMachine(buffer,machine->ReadRegister(5),size);
+	( (NachosSocket*) currentThread->space->GetSocketPointer(socket) )->Receive(buffer, size);
+	copyStringToMachine(machine->ReadRegister(5),buffer,size);
 	//synchconsole->SynchPutString("Unimplemented Receive\n");
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Receive syscall\n");
@@ -422,7 +433,7 @@ void switch_Disconnect()
 	#ifdef NETWORK
 	//synchconsole->SynchPutString("Unimplemented Disconnect\n");
 	int socket = machine->ReadRegister(4);
-	currentThread->space->GetSocketPointer(socket)->Disconnect();
+	( (NachosSocket*) currentThread->space->GetSocketPointer(socket))->Disconnect();
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Disconnect syscall\n");
 	ASSERT(FALSE);

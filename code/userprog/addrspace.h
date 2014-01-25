@@ -21,7 +21,7 @@
 #include "processmgr.h"
 
 #include <map>
-
+#include "../network/post.h"
 class Thread;
 
 #define UserStackSize		1024	// increase this as necessary!
@@ -81,13 +81,14 @@ class AddrSpace
 	int SemaphoreDestroy(int id);
 
 	#ifdef NETWORK
-	int SocketCreate(char *name);
+	int SocketCreate(SocketStatusEnum status, int remote_machine, int remote_port,int mailbox);
 	int SocketConnect(int id);
 	int SocketListen(int id);
-	int SocketSend(int id);
+	int SocketSend(int id, char* buffer, unsigned int size);
 	int SocketReceive(int id);
 	int SocketDisconnect(int id);
 	int SocketDestroy(int id);
+	NachosSocket* GetSocketPointer(int i_local_port);
 	#endif //NETWORK
 	
     // Wrappers around StackMgr

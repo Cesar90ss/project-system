@@ -355,14 +355,14 @@ void AddrSpace::CleanSemaphores()
  * SOCKETS
  **/
 #ifdef NETWORK
-int AddrSpace::SocketCreate(char *name)
+int AddrSpace::SocketCreate(SocketStatusEnum status, int remote_machine, int remote_port,int mailbox)
 {
 	//create a new socket
 	id_list new_sock = new struct id_l;
 	new_sock->id = socket_counter;
 	
 	//TODO add arguments for the socket creation here
-	new_sock->item = (void*)new NachosSocket();
+	new_sock->item = (void*)new NachosSocket(status, remote_machine, remote_port, mailbox);
 
 	//add it to the list
 	new_sock->next = socket_list;
@@ -383,7 +383,7 @@ int AddrSpace::SocketListen(int id)
 	return 0;
 }
 
-int AddrSpace::SocketSend(int id)
+int AddrSpace::SocketSend(int id, char* buffer, unsigned int size)
 {
 	return 0;
 }
@@ -447,6 +447,11 @@ void AddrSpace::CleanSockets()
         delete (NachosSocket*)destructor->item;
         delete destructor;
     }
+}
+
+NachosSocket * AddrSpace::GetSocketPointer(int i_local_port)
+{
+	return 0;
 }
 
 #endif //NETWORK
