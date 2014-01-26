@@ -10,7 +10,7 @@
         --> return currentDir of @space
     - otherwise
         --> cur dir of kernel thread
-    
+
 - Cur dir as a char which need to be concatenated inside expand filename (DONE)
     --> take care of absolute path name
 - two methods :

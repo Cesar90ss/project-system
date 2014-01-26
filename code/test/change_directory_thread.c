@@ -10,7 +10,7 @@ void *fn(void *arg)
     int fd = Open("test");
     char c;
 
-    Read(&c, 1, fd);
+    Read(fd, &c, 1);
     PutChar(c);
     Close(fd);
 
@@ -19,7 +19,6 @@ void *fn(void *arg)
 
 int main()
 {
-    int fd = Open("test");
     char c;
     char cur_dir[100];
     sem = UserSemaphoreCreate("", 0);
@@ -29,8 +28,8 @@ int main()
     SetCurrentDirectory("a");
     PutString(GetCurrentDirectory(cur_dir));
 
-    Open("test");
-    Read(&c, 1, fd);
+    int fd = Open("test");
+    Read(fd, &c, 1);
     PutChar(c);
     Close(fd);
 

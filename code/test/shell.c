@@ -13,25 +13,23 @@ main ()
     prompt[1] = '-';
 
     while (1)
-      {
-	  Write (prompt, 2, output);
+    {
+        Write (output, prompt, 2);
 
-	  i = 0;
+        i = 0;
 
-	  do
+        do
 	    {
-
-		Read (&buffer[i], 1, input);
-
+            Read (input, &buffer[i], 1);
 	    }
-	  while (buffer[i++] != '\n');
+        while (buffer[i++] != '\n');
 
-	  buffer[--i] = '\0';
+        buffer[--i] = '\0';
 
-	  if (i > 0)
+        if (i > 0)
 	    {
-		newProc = Exec (buffer);
-		Join (newProc);
+            newProc = Exec (buffer);
+            Join (newProc);
 	    }
-      }
+    }
 }

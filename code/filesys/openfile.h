@@ -51,6 +51,7 @@ public:
         return numWritten;
     }
 
+    void Seek(int position) { Lseek(file, position, 0); }
     int Length() { Lseek(file, 0, 2); return Tell(file); }
     // Read handling virtual memory
     int ReadAtVirtual(int virtualAddr, int numBytes, int position);

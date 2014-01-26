@@ -258,42 +258,57 @@ void switch_Open()
     int write = copyStringFromMachine(machine->ReadRegister(4), filename, MAX_STRING_SIZE);
     filename[write] = '\0';
 
-    // Try to open file
-    OpenFile *openFile;
-    if ((openFile = fileSystem->Open(filename)) == NULL)
-        machine->WriteRegister(2, -1);
+    // Expand filename
+    char *absname = fileSystem->ExpandFileName(filename);
+    delete filename;
 
-    // Attach file to space
-    currentThread->space->currentFile = openFile;
-    machine->WriteRegister(2, 0);
+    // Try to open file
+    int ret = currentThread->space->FileOpen(absname);
+    delete absname;
+
+    // Notify user of result
+    machine->WriteRegister(2, ret);
 }
 
 void switch_Close()
 {
-    delete currentThread->space->currentFile;
-    currentThread->space->currentFile = NULL;
-    machine->WriteRegister(2, 0);
+    // Read id from userspace
+    int id = machine->ReadRegister(4);
+
+    // Close file & notify user
+    machine->WriteRegister(2, currentThread->space->FileClose(id));
 }
 
 void switch_Read()
 {
-    int to = machine->ReadRegister(4);
-    int size = machine->ReadRegister(5);
+    // Retrieve arguments
+    int id = machine->ReadRegister(4);
+    int to = machine->ReadRegister(5);
+    int size = machine->ReadRegister(6);
 
-    currentThread->space->currentFile->ReadVirtual(to, size);
+    // Read from file & notify user
+    machine->WriteRegister(2, currentThread->space->FileRead(id, to, size));
 }
 
 void switch_Write()
 {
-    int from = machine->ReadRegister(4);
-    int size = machine->ReadRegister(5);
+    // Retrieve arguments
+    int id = machine->ReadRegister(4);
+    int from = machine->ReadRegister(5);
+    int size = machine->ReadRegister(6);
 
-    currentThread->space->currentFile->WriteVirtual(from, size);
+    // Write from file & notify user
+    machine->WriteRegister(2, currentThread->space->FileWrite(id, from, size));
 }
 
 void switch_Seek()
 {
-    printf("To be implemented\n");
+    // Retrieve arguments
+    int id = machine->ReadRegister(4);
+    int position = machine->ReadRegister(5);
+
+    // Seek to position
+    machine->WriteRegister(2, currentThread->space->FileSeek(id, position));
 }
 
 void switch_GetCurrentDirectory()

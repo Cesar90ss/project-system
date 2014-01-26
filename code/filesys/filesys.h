@@ -56,7 +56,7 @@ public:
         return TRUE;
     }
 
-    OpenFile* Open(char *name) {
+    OpenFile* Open(const char *name) {
         int fileDescriptor = OpenForReadWrite(name, FALSE);
 
         if (fileDescriptor == -1) return NULL;

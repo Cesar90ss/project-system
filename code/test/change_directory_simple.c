@@ -6,7 +6,7 @@ int main()
     char c;
     char cur_dir[100];
 
-    Read(&c, 1, fd);
+    Read(fd, &c, 1);
     PutChar(c);
     Close(fd);
 
@@ -15,7 +15,7 @@ int main()
     PutString(GetCurrentDirectory(cur_dir));
 
     Open("test");
-    Read(&c, 1, fd);
+    Read(fd, &c, 1);
     PutChar(c);
     Close(fd);
     PutChar('\n');
