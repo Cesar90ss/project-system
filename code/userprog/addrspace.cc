@@ -355,14 +355,15 @@ void AddrSpace::CleanSemaphores()
  * SOCKETS
  **/
 #ifdef NETWORK
-int AddrSpace::SocketCreate(SocketStatusEnum status, int remote_machine, int remote_port,int mailbox)
+int AddrSpace::SocketCreate(NachosSocket **socket, SocketStatusEnum status, int remote_machine, int remote_port, int mailbox)
 {
 	//create a new socket
 	id_list new_sock = new struct id_l;
 	new_sock->id = socket_counter;
 	
-	//TODO add arguments for the socket creation here
-	new_sock->item = (void*)new NachosSocket(status, remote_machine, remote_port, mailbox);
+	// create a new socket and add it to the struct we created
+	*socket = new NachosSocket(status, remote_machine, remote_port, mailbox);
+	new_sock->item = (void*) *socket;
 
 	//add it to the list
 	new_sock->next = socket_list;
@@ -372,31 +373,7 @@ int AddrSpace::SocketCreate(SocketStatusEnum status, int remote_machine, int rem
 	socket_counter++;
 	return new_sock->id;
 }
-
-int AddrSpace::SocketConnect(int id)
-{
-	return 0;
-}
-
-int AddrSpace::SocketListen(int id)
-{
-	return 0;
-}
-
-int AddrSpace::SocketSend(int id, char* buffer, unsigned int size)
-{
-	return 0;
-}
-
-int AddrSpace::SocketReceive(int id)
-{
-	return 0;
-}
-
-int AddrSpace::SocketDisconnect(int id)
-{
-	return 0;
-}	
+	
 /**
  * Remove the corresponding socket from the list or return -1 if it doesn't exist
  **/
@@ -449,9 +426,23 @@ void AddrSpace::CleanSockets()
     }
 }
 
-NachosSocket * AddrSpace::GetSocketPointer(int i_local_port)
+/**
+ * Search for the sopcket identified by the id and return a pointer to it
+ **/
+NachosSocket *AddrSpace::GetSocketPointer(int id)
 {
-	return 0;
+	id_list cursor = socket_list;
+
+	while(cursor != NULL)
+	{
+		if(cursor->id == id)	// Found the entry we search, return the socket.
+		{
+			return ( (NachosSocket*) cursor->item );
+		}
+		cursor = cursor->next;
+	}
+
+	return NULL; // we did not find anything
 }
 
 #endif //NETWORK

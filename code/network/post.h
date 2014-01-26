@@ -32,6 +32,7 @@
 #include "synchlist.h"
 
 #define NB_BOX 10
+#define NB_CONNECTION_PER_PORT 10
 
 class NachosSocket;
 // Mailbox address -- uniquely identifies a mailbox on a given machine.
@@ -42,9 +43,17 @@ typedef int MailBoxAddress;
 // This is prepended to the message by the PostOffice, before the message
 // is sent to the Network.
 
+
+enum MailType {
+	REQUEST_CONNECTION,
+	CONNECTION_CONFIRMATION,
+	CONFIRMATION,
+	MESSAGE
+};
+
 class MailHeader {
   public:
-	int sid;					//socket id to make sure message will send to which socket
+	MailType mailType;
     MailBoxAddress to;					// Destination mail box
     MailBoxAddress from;				// Mail box to reply to
     unsigned length;					// Bytes of message data (excluding the
@@ -84,14 +93,20 @@ class MailBox {
     MailBox();							// Allocate and initialize mail box
     ~MailBox();							// De-allocate mail box
 
-    void Put(PacketHeader pktHdr, MailHeader mailHdr, char *data);
-										// Atomically put a message into the mailbox
+    void Put(int sid,PacketHeader pktHdr, MailHeader mailHdr, char *data );
+										// Atomically put a message into the mailbox of a socket
+
+	void PutRequest(PacketHeader pktHdr, MailHeader mailHdr, char *data);
+
     void Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data, int sid);
 										// Atomically get a message out of the
 										// mailbox (and wait if there is no message
 										// to get!)
-  private:
-    SynchList **messages;				// A mailbox is just a list of arrived messages
+
+	int SearchByRemote(int machine_from, int mailBox_from);
+
+	NachosSocket *Listener;
+	NachosSocket **Sockets;				// A mailbox is just a list of arrived messages
 };
 
 // The following class defines a "Post Office", or a collection of
@@ -131,13 +146,11 @@ class PostOffice {
 										// packet has arrived and can be pulled
 										// off of network (i.e., time to call
 										// PostalDelivery)
-				
-	int EnableListening(int i_local_port);		// enable listening on a "port"
-	NachosSocket **FreeConnectionPlace(int i_local_port);	
 	
-	//Retrieve connection from a port
-	int searchConnection( int i_local_port,int i_remote_machine, int i_remote_port);
-	bool IsListening(int i_local_port);
+	bool IsListening(int i_local_port); //if the mailbox's listener is NULL, return false else true.			
+	int EnableListening(int i_local_port, NachosSocket *socket);		// enable listening on a "port"
+	int ReserveSlot(NachosSocket **slot, int mailbox, int remote_machine, int remote_port); // reserve a socket slot in the mailbox
+	
   private:
     Thread *NetworkDeamon;
     Network *network;					// Physical network connection
@@ -163,22 +176,31 @@ class NachosSocket {
 		NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int i_remote_port, int i_local_port);
 		~NachosSocket();
 		
-		Mail *Receive(char *buffer, size_t size);			// wait for a message(and catch it)
-		int Send(char *buffer, size_t size);			// send a message to the connected socket
+		int Receive(char *buffer, size_t size);			// wait for a message(and catch it)
+		int Send(char *buffer, size_t size);		// send a message to the connected socket
+		void SendRequest();
+		void SendConfirmation();
+		Mail* PickARequest();
 		
 		bool IsListening();
 		
 		int Disconnect();								// Disconnect from remote socket(break the link)
 		
 		int LocalPort();
+		int RemotePort();
+		int RemoteMachine();
+		bool wait_confirm;								// Waiting for confirm
+
+		SynchList *messages;							//message list for this socket
 	private:
 		SocketStatusEnum status;						// Status of the stocket(Connected, Disconnected...)
 
 		int local_port;									// Local mail box
 		int remote_port;								// remote mail box
 		int remote_machine;								// Remote machine
+
 		
 		
-	    SynchList **messages;							//message list for this socket
+	    
 };
 #endif

@@ -81,14 +81,9 @@ class AddrSpace
 	int SemaphoreDestroy(int id);
 
 	#ifdef NETWORK
-	int SocketCreate(SocketStatusEnum status, int remote_machine, int remote_port,int mailbox);
-	int SocketConnect(int id);
-	int SocketListen(int id);
-	int SocketSend(int id, char* buffer, unsigned int size);
-	int SocketReceive(int id);
-	int SocketDisconnect(int id);
-	int SocketDestroy(int id);
-	NachosSocket* GetSocketPointer(int i_local_port);
+	int SocketCreate(NachosSocket** socket, SocketStatusEnum status, int remote_machine, int remote_port, int mailbox);
+	int SocketDestroy(int id); 
+	NachosSocket* GetSocketPointer(int id);
 	#endif //NETWORK
 	
     // Wrappers around StackMgr
@@ -140,7 +135,7 @@ class AddrSpace
 	void CleanSemaphores();
 
 	#ifdef NETWORK
-	id_list socket_list;
+	id_list socket_list; // Socket's list
 	unsigned int socket_counter;
 	void CleanSockets();
 	#endif //NETWORK
