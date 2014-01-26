@@ -311,6 +311,28 @@ void switch_Seek()
     machine->WriteRegister(2, currentThread->space->FileSeek(id, position));
 }
 
+void switch_Create()
+{
+    // Get file name from user space
+    char *filename = new char[MAX_STRING_SIZE + 1];
+    int write = copyStringFromMachine(machine->ReadRegister(4), filename, MAX_STRING_SIZE);
+    filename[write] = '\0';
+
+    // Expand filename
+    char *absname = fileSystem->ExpandFileName(filename);
+    delete filename;
+
+    // Get size from userspace
+    int size = 0;               // 0 as file is dynamicly resized
+
+    // Try to create file
+    bool ret = fileSystem->Create(absname, size);
+    delete absname;
+
+    // Notify user of result
+    machine->WriteRegister(2, ret ? 0 : -1);
+}
+
 void switch_GetCurrentDirectory()
 {
     int to = machine->ReadRegister(4);
@@ -473,6 +495,11 @@ ExceptionHandler (ExceptionType which)
                 case SC_Open:
                 {
                     switch_Open();
+                    break;
+                }
+                case SC_Create:
+                {
+                    switch_Create();
                     break;
                 }
                 case SC_Close:
