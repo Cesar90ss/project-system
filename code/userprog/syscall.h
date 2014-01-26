@@ -50,6 +50,7 @@
 #define SC_Seek                 28
 #define SC_GetCurrentDirectory  29
 #define SC_SetCurrentDirectory  30
+#define SC_Unlink               31
 
 
 #ifdef IN_USER_MODE
@@ -132,10 +133,13 @@ void Write(OpenFileId id, char *buffer, int size);
 int Read(OpenFileId id, char *buffer, int size);
 
 /* Close the file, we're done reading and writing to it. */
-void Close(OpenFileId id);
+int Close(OpenFileId id);
 
 /* Seek into the file at position pos */
-void Seek(OpenFileId id, int pos);
+int Seek(OpenFileId id, int pos);
+
+/* Unlink file */
+int Unlink(const char *name);
 
 
 

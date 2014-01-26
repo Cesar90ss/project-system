@@ -116,6 +116,14 @@ Seek:
     j	$31
     .end Seek
 /* ----------------------*/
+    .globl Unlink
+    .ent	Unlink
+Unlink:
+    addiu $2,$0,SC_Unlink
+    syscall
+    j	$31
+    .end Unlink
+/* ----------------------*/
     .globl Yield
     .ent	Yield
 Yield:

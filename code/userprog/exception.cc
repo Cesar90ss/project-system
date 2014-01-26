@@ -333,6 +333,25 @@ void switch_Create()
     machine->WriteRegister(2, ret ? 0 : -1);
 }
 
+void switch_Unlink()
+{
+    // Get file name from user space
+    char *filename = new char[MAX_STRING_SIZE + 1];
+    int write = copyStringFromMachine(machine->ReadRegister(4), filename, MAX_STRING_SIZE);
+    filename[write] = '\0';
+
+    // Expand filename
+    char *absname = fileSystem->ExpandFileName(filename);
+    delete [] filename;
+
+    // Try to delete
+    bool ret = fileSystem->Remove(absname);
+    delete [] absname;
+
+    // Notify user of result
+    machine->WriteRegister(2, ret ? 0 : -1);
+}
+
 void switch_GetCurrentDirectory()
 {
     int to = machine->ReadRegister(4);
