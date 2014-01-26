@@ -28,20 +28,24 @@ int main()
     const char *ack = "Got it!";
     char buffer[20]; // buffer used for receive
     
-    listen_sid = Listen(1); // Just arbitrary port 
+
+	PutString("Start\n");
+    listen_sid = Listen(1); // Just arbitrary port
+	PutString("Listening...\n"); 
 	connected_sid = Accept(listen_sid);
 	if(connected_sid < 0)
 	{
 		PutString("Message Apocalyptique :  TO BE DEFINED\n");
 		return -3;
 	}
+	PutString("Connection established\n");
 	
 	int i;
 	for( i=0; i< NB_LOOP; i++ )
 	{
 		if ( ( error_code = Send(connected_sid,(char *)data,DATA_SIZE) ) == -2 )
 		{
-			PutString("Could not send : Transission problem\n");
+			PutString("Could not send : Transmission problem\n");
 			return -2;
 		}
 		if( error_code == -1 )

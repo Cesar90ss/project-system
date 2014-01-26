@@ -149,7 +149,7 @@ class PostOffice {
 	
 	bool IsListening(int i_local_port); //if the mailbox's listener is NULL, return false else true.			
 	int EnableListening(int i_local_port, NachosSocket *socket);		// enable listening on a "port"
-	int ReserveSlot(NachosSocket **slot, int mailbox, int remote_machine, int remote_port); // reserve a socket slot in the mailbox
+	int ReserveSlot(NachosSocket ***slot, int mailbox, int remote_machine, int remote_port); // reserve a socket slot in the mailbox
 	
   private:
     Thread *NetworkDeamon;

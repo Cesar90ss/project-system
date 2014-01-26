@@ -124,7 +124,7 @@ void
 MailBox::PutRequest(PacketHeader pktHdr, MailHeader mailHdr, char *data)
 {
     Mail *mail = new Mail(pktHdr, mailHdr, data);
-    Listener->messages->Append((void *)mail);	// put on the end of the list of
+	Listener->messages->Append((void *)mail);	// put on the end of the list of
 													// arrived messages, and wake up
 													// any waiter on the socket
 }
@@ -436,7 +436,7 @@ int PostOffice::EnableListening(int i_local_port, NachosSocket *socket)
 	return 0;
 }
 
-int PostOffice::ReserveSlot(NachosSocket **slot, int mailbox, int remote_machine, int remote_port) //reserve a socket slot in the mailbox
+int PostOffice::ReserveSlot(NachosSocket ***slot, int mailbox, int remote_machine, int remote_port) //reserve a socket slot in the mailbox
 {
 	MailBox *box = &boxes[mailbox];
 	NachosSocket** free_slot = NULL;
@@ -455,10 +455,9 @@ int PostOffice::ReserveSlot(NachosSocket **slot, int mailbox, int remote_machine
 			free_slot = &(box->Sockets[i]);
 		}
 	}
-
 	if(free_slot != NULL)
 	{
-		slot = free_slot;
+		*slot = free_slot;
 		return 0;
 	}
 

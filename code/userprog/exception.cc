@@ -325,7 +325,7 @@ void switch_Accept()
 	//verify is this socket does not already exist (same machine with same port try to connect in this local port)
 	int error;
 	NachosSocket **socket_slot = NULL;
-	if((error = postOffice->ReserveSlot(socket_slot, listener->LocalPort(), machine_from, port_from)) < 0)
+	if((error = postOffice->ReserveSlot(&socket_slot, listener->LocalPort(), machine_from, port_from)) < 0)
 	{
 		//error = -1 is no free slot, -2 if this connection already exist
 		machine->WriteRegister(2,error-2);
@@ -360,18 +360,26 @@ void switch_Connect()
 	int remote_machine = machine->ReadRegister(4);
 	int remote_port = machine->ReadRegister(5);
 	int error;
-	int random_port = 0; /*SHOULD BE RANDOM*/
+	int local_port = 0;
 
 	//create a socket in a mailbox (search for a local free port somewhere)
 	//we need to dispatch connection on different mailbox (if all connections in one, it coulb be slow)
 	NachosSocket **socket_slot = NULL;
-	while((error = postOffice->ReserveSlot(socket_slot, random_port, remote_machine, remote_port)) < 0);
-	
+	while((error = postOffice->ReserveSlot(&socket_slot, local_port, remote_machine, remote_port)) < 0 && local_port<NB_BOX)
+	{
+		local_port++;
+	}
+
+	if(local_port == NB_BOX)
+	{
+		machine->WriteRegister(2,-1);
+	}
+
 	//send a connection request to the remote_machine/remote_port with the port we define above
 	//TODO...
 	int socket_sid = currentThread->space->SocketCreate
-		(socket_slot, SOCKET_CONNECTED, remote_machine, remote_port, random_port);
-	
+		(socket_slot, SOCKET_CONNECTED, remote_machine, remote_port, local_port);
+
 	//send a request message (retry some times if no response and then close the socket if no response at all)
 	(*socket_slot)->SendRequest(); //envoi et n'attend rien
 

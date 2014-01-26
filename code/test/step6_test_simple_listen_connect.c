@@ -27,12 +27,14 @@ int main()
     const char *ack = "Got it!";
     char buffer[20]; // buffer used for receive
     
+	PutString("Start\n");
 	connected_sid = Connect(0,1); // we connect to the macine 0 on port 1(see step6_test_simple_listen_accept.c)
 	if(connected_sid < 0)
 	{
 		PutString("Message Apocalyptique :  TO BE DEFINED\n");
 		return -3;
 	}
+	PutString("Connected\n");
 	
 	int i;
 	for( i=0; i< NB_LOOP; i++ )
