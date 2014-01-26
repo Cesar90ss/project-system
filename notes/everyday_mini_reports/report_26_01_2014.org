@@ -3,4 +3,5 @@
 ** TODO Check inside test Seek syscall
 ** DONE Implement create syscall
 ** TODO Test Create syscall
-** TODO Documents all new syscalls
+** DONE Documents all new syscalls
+** TODO Send valgrind patch to teach

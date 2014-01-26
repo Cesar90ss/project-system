@@ -193,3 +193,87 @@
     - -2 if process is dead
     - -3 if waiting for itself
     - 0 otherwise
+
+*** NAME : Open
+**** SYNOPSIS :
+     int Open(const char* filename)
+**** DESCRIPTION :
+     Open try to open file *filename* taking into account current directory,
+     returning a uniq identifier
+**** RETURN :
+    - -1 if file can not be opened
+    - -2 if MAX_OPEN_FILES (default 10) are already opened
+    - id (\in [0; MAX_OPEN_FILES[ a uniq identifier used for future syscal
+
+
+*** NAME : Close
+**** SYNOPSIS :
+     int Close(int id)
+**** DESCRIPTION :
+     Close try to close file with identifier *id*.
+**** RETURN :
+    - -1 if file *id* does not exists
+    - 0 otherwise
+
+
+*** NAME : Create
+**** SYNOPSIS :
+     int Create(const char *filename)
+**** DESCRIPTION :
+     Create file *filename* taking into account current directory.
+**** RETURN :
+    - -1 if creation failed
+    - 0 otherwise
+
+
+*** NAME : Read
+**** SYNOPSIS :
+     int Read(int id, char *buffer, int numBytes)
+**** DESCRIPTION :
+     Try to read *numBytes* inside file *id* and store result inside *buffer*.
+     *buffer* should be large enough to fit *numBytes*
+**** RETURN :
+    - -1 if file does not exists
+    - other *numReadBytes* the real number of bytes read
+
+
+*** NAME : Write
+**** SYNOPSIS :
+     int Write(int id, const char* from, int numBytes)
+**** DESCRIPTION :
+     Try to write inside file *id* at most *numBytes* bytes stored inside *from*
+     memory.
+**** RETURN :
+    - -1 if the file does not exists
+    - otherwise *numWriteBytes* the real number of bytes
+
+
+*** NAME : Seek
+**** SYNOPSIS :
+     int Seek(int id, int position)
+**** DESCRIPTION :
+     Move at position *position* inside file *id* relative to the beginning of
+     the file.
+**** RETURN :
+    - -1 if the file does not exists
+    - 0 otherwise
+
+
+*** NAME : GetCurrentDirectory
+**** SYNOPSIS :
+     char *GetCurrentDirectory(char *result)
+**** DESCRIPTION :
+     Write the current process directory (absolute path) inside buffer *result*
+**** RETURN :
+    - address of *result* (never fail, can be ignored)
+
+
+*** NAME : SetCurrentDirectory
+**** SYNOPSIS :
+     int SetCurrentDirectory(const char* dirname)
+**** DESCRIPTION :
+     Set the current directory to *dirname* of current process.
+     *dirname* can be relative path to current directory.
+**** RETURN :
+    - -1 if *dirname* does not exists
+    - 0 otherwise
