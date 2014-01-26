@@ -1,0 +1,106 @@
+From d611cfeebb6e7b0743ade9dd11f78ff694d37d79 Mon Sep 17 00:00:00 2001
+From: Guiroux Hugo <gx.hugo@gmail.com>
+Date: Sun, 26 Jan 2014 12:44:36 +0100
+Subject: [PATCH] Valgrind: Support for stack to not pollute valgrind output.
+
+All credits to http://serignemodou.wagne.emi.u-bordeaux1.fr/projets/Master_1/Syst%C3%A8mes_d'Exploitation_Nachos/Nachos%203/Nachos/code/
+Found after googling "nachos valgrind"
+---
+ code/Makefile.sysdep    |  4 ++++
+ code/threads/thread.cc  |  7 ++++++-
+ code/threads/thread.h   |  1 +
+ code/threads/valgrind.h | 23 +++++++++++++++++++++++
+ 4 files changed, 34 insertions(+), 1 deletion(-)
+ create mode 100644 code/threads/valgrind.h
+
+diff --git a/code/Makefile.sysdep b/code/Makefile.sysdep
+index 79f7ce1..26d8870 100644
+--- a/code/Makefile.sysdep
++++ b/code/Makefile.sysdep
+@@ -61,6 +61,10 @@ HOST = -DHOST_i386 -DSOLARIS
+ endif
+ endif # SOLARIS_SYS
+ 
++# Add valgrind header if existent
++NACHOS_VALGRIND := $(shell test -r /usr/include/valgrind/valgrind.h && echo -DHAVE_VALGRIND)
++HOST += $(NACHOS_VALGRIND)
++
+ # HP PA-RISC, HP_UX
+ # HOST = -DHOST_SNAKE -DHOST_IS_BIG_ENDIAN
+ 
+diff --git a/code/threads/thread.cc b/code/threads/thread.cc
+index 5a24de8..2d610df 100644
+--- a/code/threads/thread.cc
++++ b/code/threads/thread.cc
+@@ -19,6 +19,7 @@
+ #include "switch.h"
+ #include "synch.h"
+ #include "system.h"
++#include "valgrind.h"
+ 
+ #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
+ 					// execution stack, for detecting 
+@@ -66,7 +67,10 @@ Thread::~Thread ()
+ 
+     ASSERT (this != currentThread);
+     if (stack != NULL)
+-	DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
++    {
++        DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
++        VALGRIND_STACK_DEREGISTER (valgrind_id);
++    }
+ }
+ 
+ //----------------------------------------------------------------------
+@@ -338,6 +342,7 @@ void
+ Thread::StackAllocate (VoidFunctionPtr func, int arg)
+ {
+     stack = (int *) AllocBoundedArray (StackSize * sizeof (int));
++    valgrind_id = VALGRIND_STACK_REGISTER(stack, stack + StackSize);
+ 
+ #ifdef HOST_SNAKE
+     // HP stack works from low addresses to high addresses
+diff --git a/code/threads/thread.h b/code/threads/thread.h
+index c48ea2c..fa9a9c1 100644
+--- a/code/threads/thread.h
++++ b/code/threads/thread.h
+@@ -119,6 +119,7 @@ class Thread
+     int *stack;			// Bottom of the stack 
+     // NULL if this is the main thread
+     // (If NULL, don't deallocate stack)
++    unsigned int valgrind_id; // valgrind ID for the stack
+     ThreadStatus status;	// ready, running or blocked
+     const char *name;
+ 
+diff --git a/code/threads/valgrind.h b/code/threads/valgrind.h
+new file mode 100644
+index 0000000..cbfc12e
+--- /dev/null
++++ b/code/threads/valgrind.h
+@@ -0,0 +1,23 @@
++// valgrind.h
++//     Valgrind hooks to announce stack allocation/deallocation
++//
++// Copyright (c) 2009 Samuel Thibault
++// All rights reserved.  See copyright.h for copyright notice and limitation
++// of liability and disclaimer of warranty provisions.
++
++#ifndef VALGRIND_H
++#define VALGRIND_H
++
++#ifdef HAVE_VALGRIND
++#include <valgrind/valgrind.h>
++#endif
++
++#ifndef VALGRIND_STACK_REGISTER
++#define VALGRIND_STACK_REGISTER(start, end) 0
++#endif
++
++#ifndef VALGRIND_STACK_DEREGISTER
++#define VALGRIND_STACK_DEREGISTER(id) ((void)0)
++#endif
++
++#endif // VALGRIND_H
+-- 
+1.8.5.2
+
