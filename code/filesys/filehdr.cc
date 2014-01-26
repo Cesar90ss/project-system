@@ -29,7 +29,7 @@
 
 FileHeader::FileHeader() : numBytes(0), numSectors(0)
 {
-    memset(dataSectors, 0, sizeof(int) * NumDirect);
+    memset(dataSectors, 0, sizeof(DataBlockInfo) * NumDirect);
 }
 
 //----------------------------------------------------------------------
@@ -51,8 +51,26 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
     if (freeMap->NumClear() < numSectors)
         return FALSE;		// not enough space
 
+    int sector;
+
     for (int i = 0; i < numSectors; i++)
-        dataSectors[i] = freeMap->Find();
+    {
+        // New indirect block
+        if (i % NumIndirect == 0)
+        {
+            // Initialize structure for data block
+            dataSectors[i / NumIndirect] = new DataBlockInfo;
+            dataSectors[i / NumIndirect]->data = new DataBlockHdr;
+
+            // Find sector for data block
+            sector = freeMap->Find();
+            dataSectors[i / NumIndirect]->sector = sector;
+        }
+
+        // Write to indirect block
+        dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect] = freeMap->Find();
+    }
+
     return TRUE;
 }
 
@@ -65,10 +83,21 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
 
 void
 FileHeader::Deallocate(BitMap *freeMap)
-{
-    for (int i = 0; i < numSectors; i++) {
-        ASSERT(freeMap->Test((int) dataSectors[i]));  // ought to be marked!
-        freeMap->Clear((int) dataSectors[i]);
+{    int sector;
+
+    for (int i = 0; i < numSectors; i++)
+    {
+        // Delete indirect block
+        if ((i - 1) % NumIndirect == 0)
+        {
+            // Delete previous data block to disk
+            ASSERT(freeMap->Test(dataSectors[(i - 1) / NumIndirect]->sector));
+            freeMap->Clear(dataSectors[(i - 1) / NumIndirect]->sector);
+        }
+
+        // Delete data block
+        ASSERT(freeMap->Test(dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect]));
+        freeMap->Clear(dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect]);
     }
 }
 
@@ -82,6 +111,14 @@ FileHeader::Deallocate(BitMap *freeMap)
 void
 FileHeader::FetchFrom(int sector)
 {
+    /*
+      fill this with data inside sector :
+      synchDisk->ReadSector(sector, (char *)this);
+
+      for each data inside dataSectors
+      set new structure with sector = data
+      read dataBlocHdr (synchDisk->ReadSector(sector, (char *)this))
+    */
     synchDisk->ReadSector(sector, (char *)this);
 }
 
@@ -95,6 +132,14 @@ FileHeader::FetchFrom(int sector)
 void
 FileHeader::WriteBack(int sector)
 {
+    /*
+      for each datablockinfo inside data sector
+      write data->data inside sector data->sector
+
+      update this->dataSectors with dataSections->sector
+
+      write this inside sector *sector*
+    */
     synchDisk->WriteSector(sector, (char *)this);
 }
 
@@ -111,6 +156,10 @@ FileHeader::WriteBack(int sector)
 int
 FileHeader::ByteToSector(int offset)
 {
+    /*
+      compute the data block with (offset / SectorSize) / SectorSize
+      and (offest / SectorSize) % SectorSize
+    */
     return(dataSectors[offset / SectorSize]);
 }
 

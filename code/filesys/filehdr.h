@@ -17,6 +17,21 @@
 #include "disk.h"
 #include "bitmap.h"
 
+#define NumIndirect SectorSize / sizeof(int)
+
+// Data block hdr structure
+struct DataBlockHdr
+{
+    int dataSectors[NumIndirect];		// Disk sector numbers for each data
+};
+
+// Memory structure for data block info
+struct DataBlockInfo
+{
+    DataBlockHdr *data;
+    int sector;
+};
+
 // 2 * sizeint = numBytes + numSectors
 #define NumDirect   ((SectorSize - 2 * sizeof(int)) / sizeof(int))
 #define MaxFileSize     (NumDirect * SectorSize)
@@ -62,8 +77,9 @@ public:
 private:
     int numBytes;			// Number of bytes in the file
     int numSectors;			// Number of data sectors in the file
-    int dataSectors[NumDirect];		// Disk sector numbers for each data
+    DataBlockInfo *dataSectors[NumDirect];		// DataBlockHdr for each block
     // block in the file
 };
+
 
 #endif // FILEHDR_H
