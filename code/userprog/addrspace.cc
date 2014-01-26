@@ -830,7 +830,10 @@ int AddrSpace::FileOpen(const char* filename)
     if (handler == NULL)
         return -1;
 
-    // TODO: check if file is not already opened
+    // Check if file is not already opened
+    for (int i = 0; i < MAX_OPEN_FILES; i++)
+        if (i != index && filetable[i].inUse && strcmp(filename, filetable[i].absoluteName) == 0)
+            return -3;
 
 
     // Fill structure
@@ -843,6 +846,23 @@ int AddrSpace::FileOpen(const char* filename)
     filetable[index].inUse = true;
 
     return index;
+}
+
+/**
+ * Try to remove a file
+ *
+ * Return -1 if file cannot be found
+ * Return -2 if the file is already opened
+ * 0 otherwise
+ **/
+int AddrSpace::FileRemove(const char* filename)
+{
+    // Check if file is not already opened
+    for (int i = 0; i < MAX_OPEN_FILES; i++)
+        if (filetable[i].inUse && strcmp(filename, filetable[i].absoluteName) == 0)
+            return -1;
+
+    return fileSystem->Remove(filename) ? 1 : 0;
 }
 
 /**
@@ -861,7 +881,9 @@ int AddrSpace::FileClose(int id)
     if (!filetable[id].inUse)
         return -1;
 
-    // TODO : maybe only owner can close the file ?
+    // Only owner can close the file
+    if (filetable[id].owner != currentThread)
+        return -2;
 
     // Clean structure
     delete filetable[id].handler;
@@ -891,7 +913,9 @@ int AddrSpace::FileWrite(int id, int into, int numBytes)
     if (!filetable[id].inUse)
         return -1;
 
-    // TODO : maybe only owner can write to the file ?
+    // Only the owner can write to the file
+    if (filetable[id].owner != currentThread)
+        return -2;
 
     // Pass request to handler
     return filetable[id].handler->WriteVirtual(into, numBytes);
@@ -915,7 +939,9 @@ int AddrSpace::FileRead(int id, int buffer, int numBytes)
     if (!filetable[id].inUse)
         return -1;
 
-    // TODO : maybe only owner can read from the file ?
+    // Only owner can read from the file
+    if (filetable[id].owner != currentThread)
+        return -2;
 
     // Pass request to handler
     return filetable[id].handler->ReadVirtual(buffer, numBytes);
@@ -937,7 +963,9 @@ int AddrSpace::FileSeek(int id, int position)
     if (!filetable[id].inUse)
         return -1;
 
-    // TODO : maybe only owner can read from the file ?
+    // Only owner can seek into the file
+    if (filetable[id].owner != currentThread)
+        return -2;
 
     // Pass request to handler
     filetable[id].handler->Seek(position);

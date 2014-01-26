@@ -194,6 +194,7 @@
     - -3 if waiting for itself
     - 0 otherwise
 
+
 *** NAME : Open
 **** SYNOPSIS :
      int Open(const char* filename)
@@ -203,6 +204,7 @@
 **** RETURN :
     - -1 if file can not be opened
     - -2 if MAX_OPEN_FILES (default 10) are already opened
+    - -3 if the file is already opened by another thread
     - id (\in [0; MAX_OPEN_FILES[ a uniq identifier used for future syscal
 
 
@@ -213,6 +215,7 @@
      Close try to close file with identifier *id*.
 **** RETURN :
     - -1 if file *id* does not exists
+    - -2 if the calling thread try to close a file that he does not own
     - 0 otherwise
 
 
@@ -234,6 +237,7 @@
      *buffer* should be large enough to fit *numBytes*
 **** RETURN :
     - -1 if file does not exists
+    - -2 if the threead trying to read is not the owner of the file
     - other *numReadBytes* the real number of bytes read
 
 
@@ -245,6 +249,7 @@
      memory.
 **** RETURN :
     - -1 if the file does not exists
+    - -2 if the threead trying to write is not the owner of the file
     - otherwise *numWriteBytes* the real number of bytes
 
 
@@ -256,6 +261,18 @@
      the file.
 **** RETURN :
     - -1 if the file does not exists
+    - -2 if the threead trying to seek is not the owner of the file
+    - 0 otherwise
+
+
+*** NAME : Unlink
+**** SYNOPSIS :
+     int Unlink(const char* name)
+**** DESCRIPTION :
+     Delete file named *name*.
+**** RETURN :
+    - -1 if the file does not exists
+    - -2 if the file is opened by another process
     - 0 otherwise
 
 

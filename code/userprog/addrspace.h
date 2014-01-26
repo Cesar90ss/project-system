@@ -134,6 +134,7 @@ class AddrSpace
     int FileWrite(int id, int into, int numBytes);
     int FileRead(int id, int buffer, int numBytes);
     int FileSeek(int id, int position);
+    int FileRemove(const char* filename);
 
     private:
 

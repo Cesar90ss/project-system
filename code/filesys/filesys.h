@@ -63,7 +63,7 @@ public:
         return new OpenFile(fileDescriptor);
     }
 
-    bool Remove(char *name) { return Unlink(name) == 0; }
+    bool Remove(const char *name) { return Unlink(name) == 0; }
     Directory *GetDirectoryByName(const char* dirname, int *store_sector){ return NULL; }
     char *ExpandFileName(const char* filename) { return NULL; }
 };

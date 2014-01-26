@@ -345,11 +345,11 @@ void switch_Unlink()
     delete [] filename;
 
     // Try to delete
-    bool ret = fileSystem->Remove(absname);
+    int ret = currentThread->space->FileRemove(absname);
     delete [] absname;
 
     // Notify user of result
-    machine->WriteRegister(2, ret ? 0 : -1);
+    machine->WriteRegister(2, ret);
 }
 
 void switch_GetCurrentDirectory()
