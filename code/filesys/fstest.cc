@@ -207,8 +207,12 @@ void CurrentDirectoryTest()
 
     buffer[amountRead] = '\0';
     if (strncmp("test1", buffer, TransferSize) != 0)
+    {
+        delete [] buffer;
         Exit(-1);
+    }
 
+    delete [] buffer;
     delete openFile;		// close the Nachos file
 
 
@@ -222,9 +226,15 @@ void CurrentDirectoryTest()
 
     buffer = new char[TransferSize];
     amountRead = openFile->Read(buffer, TransferSize);
+    delete openFile;
+    
     buffer[amountRead] = '\0';
     if (strncmp("test2", buffer, TransferSize) != 0)
+    {
+        delete [] buffer;
         Exit(-2);
+    }
+    delete [] buffer;
 }
 
 Semaphore *sync;
@@ -245,9 +255,15 @@ static void fn(int arg)
     buffer[amountRead] = '\0';
 
     if (strncmp("test1", buffer, TransferSize) != 0)
+    {
+        delete [] buffer;
         Exit(-1);
+    }
+
+    delete [] buffer;
 
     delete openFile;		// close the Nachos file
+    sync->V();
 }
 
 /**
@@ -271,6 +287,7 @@ void CurrentDirectoryTest2()
 
     if ((openFile = fileSystem->Open("test")) == NULL) {
         printf("Print: unable to open file /a/test\n");
+        delete openFile;
         return;
     }
 
@@ -278,12 +295,19 @@ void CurrentDirectoryTest2()
     int amountRead = openFile->Read(buffer, TransferSize);
     buffer[amountRead] = '\0';
 
-    if (strncmp("test2", buffer, TransferSize) != 0)
-        Exit(-2);
-
     delete openFile;
+
+    if (strncmp("test2", buffer, TransferSize) != 0)
+    {
+        delete [] buffer;
+        Exit(-2);
+    }
+
+    delete [] buffer;
 
     sync->V();
 
     currentThread->Yield();
+    sync->P();
+    delete sync;
 }

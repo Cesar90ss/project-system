@@ -260,11 +260,11 @@ void switch_Open()
 
     // Expand filename
     char *absname = fileSystem->ExpandFileName(filename);
-    delete filename;
+    delete [] filename;
 
     // Try to open file
     int ret = currentThread->space->FileOpen(absname);
-    delete absname;
+    delete [] absname;
 
     // Notify user of result
     machine->WriteRegister(2, ret);
@@ -320,14 +320,14 @@ void switch_Create()
 
     // Expand filename
     char *absname = fileSystem->ExpandFileName(filename);
-    delete filename;
+    delete [] filename;
 
     // Get size from userspace
     int size = 0;               // 0 as file is dynamicly resized
 
     // Try to create file
     bool ret = fileSystem->Create(absname, size);
-    delete absname;
+    delete [] absname;
 
     // Notify user of result
     machine->WriteRegister(2, ret ? 0 : -1);
@@ -351,6 +351,7 @@ void switch_SetCurrentDirectory()
     // Copy buffer to string
     copyStringFromMachine(from, buffer, MAX_STRING_SIZE);
     machine->WriteRegister(2, currentThread->SetCurrentDirectory(buffer));
+    delete [] buffer;
 }
 
 #endif //USER_PROGRAM

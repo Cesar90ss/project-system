@@ -1,7 +1,8 @@
-* Taks for filesys
+* Tasks for filesys
 ** DONE Implement open file tables
 ** TODO Check inside test Seek syscall
 ** DONE Implement create syscall
 ** TODO Test Create syscall
 ** DONE Documents all new syscalls
 ** DONE Send valgrind patch to teach
+** DONE Remove memory leak

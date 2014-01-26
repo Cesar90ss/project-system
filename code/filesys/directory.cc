@@ -41,6 +41,8 @@
 Directory::Directory(int size)
 {
     table = new DirectoryEntry[size];
+    bzero(table, sizeof(DirectoryEntry) * size);
+
     tableSize = size;
     for (int i = 0; i < tableSize; i++)
         table[i].inUse = FALSE;

@@ -179,6 +179,7 @@ OpenFile::WriteAt(const char *from, int numBytes, int position)
     numSectors = 1 + lastSector - firstSector;
 
     buf = new char[numSectors * SectorSize];
+    bzero(buf, numSectors * SectorSize);
 
     firstAligned = (position == (firstSector * SectorSize));
     lastAligned = ((position + numBytes) == ((lastSector + 1) * SectorSize));

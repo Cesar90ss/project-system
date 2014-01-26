@@ -148,7 +148,7 @@ AddrSpace::~AddrSpace ()
     threads.clear();
 
     // Delete current directory
-    delete currentDirectory;
+    delete [] currentDirectory;
 
     // Free stack mgr
     delete stackMgr;
@@ -769,7 +769,7 @@ const char* AddrSpace::GetCurrentDirectory()
 int AddrSpace::SetCurrentDirectory(const char* dirname)
 {
     // Delete previous dir
-    delete currentDirectory;
+    delete [] currentDirectory;
 
     char *tmp = new char[strlen(dirname) + 1];
     strcpy(tmp, dirname);
@@ -793,7 +793,7 @@ void AddrSpace::CleanOpenFiles()
             filetable[i].handler = NULL;
 
             // Delete filename
-            delete filetable[i].absoluteName;
+            delete [] filetable[i].absoluteName;
             filetable[i].absoluteName = NULL;
 
             // Detach owner
@@ -866,7 +866,7 @@ int AddrSpace::FileClose(int id)
     // Clean structure
     delete filetable[id].handler;
     filetable[id].handler = NULL;
-    delete filetable[id].absoluteName;
+    delete [] filetable[id].absoluteName;
     filetable[id].absoluteName = NULL;
     filetable[id].owner = NULL;
     filetable[id].inUse = false;

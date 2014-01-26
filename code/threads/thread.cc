@@ -82,7 +82,7 @@ Thread::~Thread ()
         VALGRIND_STACK_DEREGISTER (valgrind_id);
     }
 
-    delete currentDirectory;
+    delete [] currentDirectory;
 
 #ifdef USER_PROGRAM
     if (uf != NULL)
@@ -552,10 +552,9 @@ int Thread::SetCurrentDirectory(const char* dirname)
 
     Directory *dir = fileSystem->GetDirectoryByName(expandname.c_str(), NULL);
 
-
     if (dir == NULL)
     {
-        delete ename;
+        delete [] ename;
         return -1;
     }
 
@@ -565,17 +564,17 @@ int Thread::SetCurrentDirectory(const char* dirname)
     if (space != NULL)
     {
         int ret = space->SetCurrentDirectory(expandname.c_str());
-        delete ename;
+        delete [] ename;
         return ret;
     }
 #endif
 
     // Delete previous dir
-    delete currentDirectory;
+    delete [] currentDirectory;
 
     char *tmp = new char[strlen(expandname.c_str()) + 1];
     strcpy(tmp, expandname.c_str());
-    delete ename;
+    delete [] ename;
     currentDirectory = tmp;
 #endif
     return 0;

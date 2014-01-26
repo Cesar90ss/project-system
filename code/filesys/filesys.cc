@@ -119,12 +119,12 @@ FileSystem::FileSystem(bool format)
         if (DebugIsEnabled('f')) {
             freeMap->Print();
             directory->Print();
-
-            delete freeMap;
-            delete directory;
-            delete mapHdr;
-            delete dirHdr;
         }
+        delete freeMap;
+        delete directory;
+        delete mapHdr;
+        delete dirHdr;
+        
     } else {
         // if we are not formatting the disk, just open the files representing
         // the bitmap and directory; these are left open while Nachos is running
@@ -253,8 +253,9 @@ FileSystem::Create(const char *name, int initialSize)
     }
 
     delete directory;
-    delete expandname;
-    delete filename;
+    delete [] parentDirectory;
+    delete [] expandname;
+    delete [] filename;
 
     return success;
 }
@@ -301,6 +302,10 @@ FileSystem::Open(const char *name)
 
         delete directory;
     }
+
+    delete [] parentDirectory;
+    delete [] expandname;
+    delete [] filename;
 
     return openFile;				// return NULL if not found
 }
@@ -404,7 +409,7 @@ FileSystem::List(const char *dirname)
     Directory *parent = GetDirectoryByName(expandname, NULL);
 
     DEBUG('f', "Found directory %p\n", parent);
-    delete expandname;
+    delete [] expandname;
 
     if (parent == NULL)
         return;
@@ -541,6 +546,7 @@ int FileSystem::CreateDirectory(const char* dirname)
     delete [] expandname;
     delete [] parentDirectory;
     delete [] childDirectory;
+    delete freeMap;
 
     return error;
 }
@@ -597,7 +603,7 @@ char *FileSystem::ExpandFileName(const char* filename)
         final_string += *it;
     }
 
-    delete saveptr;
+    delete [] saveptr;
 
     if (final_string.empty())
         final_string = "/";
@@ -629,7 +635,7 @@ char *FileSystem::DirectoryName(const char* filename)
     char *cpy2 = new char[strlen(result) + 1];
     strcpy(cpy2, result);
 
-    delete cpy;
+    delete [] cpy;
 
     return cpy2;
 
@@ -658,7 +664,7 @@ char *FileSystem::FileName(const char* filename)
     char *cpy2 = new char[strlen(result) + 1];
     strcpy(cpy2, result);
 
-    delete cpy;
+    delete [] cpy;
 
     return cpy2;
 }
@@ -685,6 +691,7 @@ Directory *FileSystem::GetDirectoryByName(const char* dirname, int *store_sector
     {
         if (store_sector != NULL)
             *store_sector = DirectorySector;
+        delete [] cpy;
         return current;
     }
 
@@ -699,15 +706,23 @@ Directory *FileSystem::GetDirectoryByName(const char* dirname, int *store_sector
             if (store_sector != NULL)
                 *store_sector = sector;
 
+            delete current;
+
             current = Directory::ReadAtSector(sector);
+            delete [] cpy;
             return current;
         }
 
+        delete current;
         current = Directory::ReadAtSector(sector);
         sector = current->Find(name);
     }
+
     if (store_sector != NULL)
         *store_sector = -1;
+    delete [] cpy;
+    delete current;
+
     return NULL;
 
 }
@@ -725,17 +740,18 @@ bool FileSystem::CheckNameLimitation(const char* name)
     char *filename = FileName(name);
     if (strcmp(".", filename) == 0)
     {
-        delete filename;
+        delete [] filename;
         return FALSE;
     }
 
     // Filename should not be ..
-    filename = FileName(name);
     if (strcmp("..", filename) == 0)
     {
-        delete filename;
+        delete [] filename;
         return FALSE;
     }
+
+    delete [] filename;
 
     return TRUE;
 }
@@ -773,14 +789,14 @@ bool FileSystem::RemoveDirectory(const char *name)
     // If not found
     if (directory == NULL || child == NULL)
     {
-        if (directory == NULL)
+        if (directory != NULL)
             delete directory;
-        if (child == NULL)
+        if (child != NULL)
             delete child;
 
-        delete expandname;
-        delete parentDirectory;
-        delete filename;
+        delete [] expandname;
+        delete [] parentDirectory;
+        delete [] filename;
         return FALSE;
     }
 
@@ -789,8 +805,8 @@ bool FileSystem::RemoveDirectory(const char *name)
     {
         delete directory;
         delete child;
-        delete expandname;
-        delete filename;
+        delete [] expandname;
+        delete [] filename;
         return FALSE;
     }
 
@@ -820,12 +836,13 @@ bool FileSystem::RemoveDirectory(const char *name)
     directory->WriteBack(f);
     delete f;
 
+    delete child;
     delete fileHdr;
     delete directory;
     delete freeMap;
-    delete expandname;
-    delete parentDirectory;
-    delete filename;
+    delete [] expandname;
+    delete [] parentDirectory;
+    delete [] filename;
     return TRUE;
 }
 
@@ -847,11 +864,11 @@ void FileSystem::ListRec(const char *dirname)
     if (parent == NULL)
     {
         printf("Dir %s not found\n", dirname);
-        delete expandname;
+        delete [] expandname;
         return;
     }
 
     parent->PrintRec(name.c_str());
-    delete expandname;
+    delete [] expandname;
     delete parent;
 }

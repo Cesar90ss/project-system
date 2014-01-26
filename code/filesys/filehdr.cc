@@ -27,6 +27,11 @@
 #include "system.h"
 #include "filehdr.h"
 
+FileHeader::FileHeader() : numBytes(0), numSectors(0)
+{
+    memset(dataSectors, 0, sizeof(int) * NumDirect);
+}
+
 //----------------------------------------------------------------------
 // FileHeader::Allocate
 //  Initialize a fresh file header for a newly created file.
