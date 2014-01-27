@@ -8,10 +8,12 @@ cd $NACHOS_DIR
 echo "abcd" > /tmp/test
 #copy c file in nachos
 ./nachos-step5 -cp /tmp/test test
-./nachos-step5 -cp step5_create run
-./nachos-step5 -x run
+./nachos-step5 -cp step5_seek run
+
 # Test case
-OUTPUT=$(./nachos-step5 -ls | grep -E "c")
+OUTPUT=$(./nachos-step5 -x run | grep "Victory")
+
+echo "$OUTPUT"
 
 #Clean up test
 ./nachos-step5 -f

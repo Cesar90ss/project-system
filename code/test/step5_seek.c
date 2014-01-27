@@ -9,6 +9,10 @@ int main()
 
     Read(fd, &c, 1);
     PutChar(c);
+    if(c=='c')
+    {
+        PutString("Victory");
+    }
     Close(fd);
 
     PutChar('\n');
