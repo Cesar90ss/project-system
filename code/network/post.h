@@ -35,6 +35,7 @@
 #define NB_CONNECTION_PER_PORT 10
 
 class NachosSocket;
+
 // Mailbox address -- uniquely identifies a mailbox on a given machine.
 // A mailbox is just a place for temporary storage for messages.
 typedef int MailBoxAddress;
@@ -45,8 +46,8 @@ typedef int MailBoxAddress;
 
 
 enum MailType {
-	REQUEST_CONNECTION,
-	CONNECTION_CONFIRMATION,
+	REQUEST,
+	ACK,
 	CONFIRMATION,
 	MESSAGE
 };
@@ -166,7 +167,7 @@ enum SocketStatusEnum
 {
     SOCKET_CREATED,						// when declared 
 	SOCKET_CONNECTED,					// Once connected
-    SOCKET_WAITING,						// after accept, or Connect wait for actual connection
+	SOCKET_CONNECTING,					// Connecting
 	SOCKET_LISTENING,
     SOCKET_CLOSED						// after call to disconnect
 };
@@ -177,9 +178,12 @@ class NachosSocket {
 		~NachosSocket();
 		
 		int Receive(char *buffer, size_t size);			// wait for a message(and catch it)
-		int Send(char *buffer, size_t size);		// send a message to the connected socket
-		void SendRequest();
-		void SendConfirmation();
+		//int Send(char *buffer, size_t size);		// send a message to the connected socket
+		int SendRequest();
+		int SendAck();
+		int SendMail(char* buffer,unsigned int size);
+		int WaitTimeoutAck();
+		
 		Mail* PickAMail();
 		
 		bool IsListening();
@@ -189,14 +193,19 @@ class NachosSocket {
 		int LocalPort();
 		int RemotePort();
 		int RemoteMachine();
-		bool wait_confirm;								// Waiting for confirm
+		bool confirm;									// state of the confirmation
+		bool ack;										// state of acknowledgement
+		void SetStatus(SocketStatusEnum new_status);
 
 		SynchList *messages;							//message list for this socket
 	private:
+		int Send(PacketHeader packetHdr,MailHeader mailHdr,char* data);
+		
 		SocketStatusEnum status;						// Status of the stocket(Connected, Disconnected...)
-
+		
 		int local_port;									// Local mail box
 		int remote_port;								// remote mail box
 		int remote_machine;								// Remote machine
+		
 };
 #endif

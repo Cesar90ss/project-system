@@ -333,18 +333,21 @@ void switch_Accept()
 	
 	//create a connected socket with information in the received message, take a place in the mailbox list of socket
 	int socket_sid = currentThread->space->SocketCreate
-		(socket_slot, SOCKET_CONNECTED, machine_from, port_from, listener->LocalPort());
-
-	//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-	/*int loop;
-	do
+		(socket_slot, SOCKET_CONNECTING, machine_from, port_from, listener->LocalPort());
+	//Add timer for check SendAnd and Wait
+	if((*socket_slot)->SendAck() < 0)
 	{
-		//send a confirmation message
-		(*socket_slot)->SendConfirmation();
-		// And wait for handshake
-	 
-	} while ( (*socket_slot)->Receive() == 0 )*/
-
+		machine->WriteRegister(2,-5);
+		return;
+	}
+	if((*socket_slot)->WaitTimeoutAck() < 0)
+	{
+		machine->WriteRegister(2,-6);
+		return;
+	}
+	
+	(*socket_slot)->SetStatus(SOCKET_CONNECTED);
+	
 	machine->WriteRegister(2, socket_sid);
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Accept syscall\n");
@@ -375,13 +378,24 @@ void switch_Connect()
 
 	//send a connection request to the remote_machine/remote_port from the local_port just defined
 	int socket_sid = currentThread->space->SocketCreate
-		(socket_slot, SOCKET_CONNECTED, remote_machine, remote_port, local_port);
+		(socket_slot, SOCKET_CONNECTING, remote_machine, remote_port, local_port);
 
 	//send a request message (retry some times if no response and then close the socket if no response at all)
 	(*socket_slot)->SendRequest();
 
-	(*socket_slot)->Receive(NULL,0);
-	//check if we receive from the good person and check if its a connection confirmation
+	if((*socket_slot)->WaitTimeoutAck() < 0)
+	{		
+		machine->WriteRegister(2,-2);
+		return;
+	}
+	if((*socket_slot)->SendAck() < 0)
+	{
+
+		machine->WriteRegister(2,-3);
+		return;
+	}
+	
+	(*socket_slot)->SetStatus(SOCKET_CONNECTED);
 	
 	machine->WriteRegister(2,socket_sid);
 		
@@ -411,7 +425,8 @@ void switch_Send()
 		machine->WriteRegister(2,-1);	
 		return;
 	}
-    socket->Send(c, really_write);
+	
+    machine->WriteRegister(2,socket->SendMail(c,really_write));		
 	//NachosSocket *new_connection_place = currentThread->space->GetSocketPointer(socket);
 	
 	//synchconsole->SynchPutString("Unimplemented Send\n");
@@ -428,10 +443,11 @@ void switch_Receive()
 	char buffer[MAX_STRING_SIZE];
 	bzero(buffer, MAX_STRING_SIZE);
 	int size = machine->ReadRegister(6);
-	( (NachosSocket*) currentThread->space->GetSocketPointer(socket) )->Receive(buffer, size);
+	Mail *mail = ( (NachosSocket*) currentThread->space->GetSocketPointer(socket) )->PickAMail();
+	strcpy(buffer, mail->data);
+	delete mail;
 	int string_to_machine = machine->ReadRegister(5);
 	copyStringToMachine(string_to_machine,buffer,size);
-	//synchconsole->SynchPutString("Unimplemented Receive\n");
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Receive syscall\n");
 	ASSERT(FALSE);
