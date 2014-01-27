@@ -318,9 +318,9 @@ void switch_Accept()
 	Mail *request = listener->PickAMail();
 	
 	//extract this from the message
-	int machine_from = request->pktHdr.from;
-	int port_from = request->mailHdr.from;	
-	
+	int machine_from = (int) request->pktHdr.from;
+	int port_from = (int) request->mailHdr.from;
+	delete request;
 	//verify is this socket does not already exist (same machine with same port try to connect in this local port)
 	int error;
 	NachosSocket **socket_slot = NULL;
@@ -426,9 +426,11 @@ void switch_Receive()
 	#ifdef NETWORK
 	int socket = machine->ReadRegister(4);
 	char buffer[MAX_STRING_SIZE];
+	bzero(buffer, MAX_STRING_SIZE);
 	int size = machine->ReadRegister(6);
 	( (NachosSocket*) currentThread->space->GetSocketPointer(socket) )->Receive(buffer, size);
-	copyStringToMachine(machine->ReadRegister(5),buffer,size);
+	int string_to_machine = machine->ReadRegister(5);
+	copyStringToMachine(string_to_machine,buffer,size);
 	//synchconsole->SynchPutString("Unimplemented Receive\n");
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Receive syscall\n");

@@ -133,7 +133,7 @@ MailBox::PutRequest(PacketHeader pktHdr, MailHeader mailHdr, char *data)
 	Listener->messages->Append((void *)mail);	// put on the end of the list of
 													// arrived messages, and wake up
 													// any waiter on the socket
-	delete mail;
+	//delete mail;
 }
 
 
