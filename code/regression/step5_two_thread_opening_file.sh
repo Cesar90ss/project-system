@@ -11,7 +11,7 @@ echo -n "1" > /tmp/test1
 ./nachos-step5 -cp step5_two_threads_opening_file run
 
 # Test case
-OUTPUT=$(./nachos-step5 -x run | grep "1212")
+OUTPUT=$(./nachos-step5 -x run | grep -E "(Opening successfullOpening failed)|(Opening failedOpening successfull)")
 
 #Clean up test
 ./nachos-step5 -f
