@@ -32,7 +32,8 @@ StartProcess (char *filename)
         printf ("Unable to open file %s\n", filename);
         return;
     }
-    space = new AddrSpace (executable);
+    space = new AddrSpace();
+    space->LoadExecutable(executable);
     space->AttachThread(currentThread);
 
     delete executable;		// close file

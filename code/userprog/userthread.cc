@@ -131,8 +131,20 @@ int do_UserThreadJoin()
     return 0;
 }
 //should be in the process we want to create now
-void StartProc(int filename)
-{ 
+void StartProc(int name)
+{
+    char *filename = (char *)name;
+
+    OpenFile *executable = fileSystem->Open(filename);
+    if (executable == NULL)
+    {
+        printf ("Unable to open file %s\n", filename);
+        return;
+    }
+    currentThread->space->LoadExecutable(executable);
+
+    delete executable;
+
     currentThread->space->InitRegisters ();	// set the initial register values
     currentThread->space->RestoreState ();	// load page table register
     machine->Run ();		// jump to the user progam

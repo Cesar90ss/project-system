@@ -61,7 +61,28 @@ SwapHeader (NoffHeader * noffH)
 
 extern ProcessMgr *processMgr;
 
-AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
+AddrSpace::AddrSpace() : max_tid(0), num_threads(0)
+{
+    // Init Page Table Translation
+    InitTranslation();
+
+    pid = processMgr->CreateProcess(this);
+
+    semaphore_list = NULL;
+    semaphore_counter = 0;
+
+    // Set default current directory
+    currentDirectory = new char[2];
+    currentDirectory[0] = '/';
+    currentDirectory[1] = '\0';
+
+    // Init open file table as unused
+    int i;
+    for (i = 0; i < MAX_OPEN_FILES; i++)
+        filetable[i].inUse = false;
+}
+
+void AddrSpace::LoadExecutable(OpenFile * executable)
 {
     NoffHeader noffH;
 
@@ -70,9 +91,6 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
         (WordToHost (noffH.noffMagic) == NOFFMAGIC))
         SwapHeader (&noffH);
     ASSERT (noffH.noffMagic == NOFFMAGIC);
-
-    // Init Page Table Translation
-    InitTranslation();
 
     // Compute size for code + data & allocate page for it
     unsigned int codePages = noffH.code.size + noffH.initData.size + noffH.uninitData.size;
@@ -106,21 +124,7 @@ AddrSpace::AddrSpace (OpenFile * executable) : max_tid(0), num_threads(0)
 
     // Init stack mgr
     stackMgr = new StackMgr(this, codePages * PageSize);
-    pid = processMgr->CreateProcess(this);
     heapMgr = new HeapMgr(this, codePages * PageSize);
-
-    semaphore_list = NULL;
-    semaphore_counter = 0;
-
-    // Set default current directory
-    currentDirectory = new char[2];
-    currentDirectory[0] = '/';
-    currentDirectory[1] = '\0';
-
-    // Init open file table as unused
-    int i;
-    for (i = 0; i < MAX_OPEN_FILES; i++)
-        filetable[i].inUse = false;
 }
 
 //----------------------------------------------------------------------

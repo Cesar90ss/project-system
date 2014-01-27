@@ -510,20 +510,18 @@ Thread::ForkExec (char *s)
         printf ("Unable to open file %s\n", s);
         return -2;
     }
-    t_space = new AddrSpace (executable);
+    t_space = new AddrSpace();
     t_space->AttachThread(this);
 
-    delete executable;		// close file
+    delete executable;
 
-    StackAllocate(StartProc,0);
+    StackAllocate(StartProc, (int)s);
 
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
-    scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts
-    // are disabled!
+    scheduler->ReadyToRun (this);
     (void) interrupt->SetLevel (oldLevel);
 
-    currentThread->space->RestoreState(); //need to restore the previous page table since the creation of a new
-					  //address space changed the machine's register
+    currentThread->space->RestoreState();
     return (int)t_space->GetPid();
 }
 
