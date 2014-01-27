@@ -85,7 +85,6 @@ MailBox::~MailBox()
 	if(Listener != NULL)
 	{
 		delete Listener;
-		printf("I delete the Listener \n");
 	}
 }
 
@@ -254,11 +253,11 @@ PostOffice::PostOffice(NetworkAddress addr, double reliability)
 PostOffice::~PostOffice()
 {
     delete network;
-    delete [] boxes;
+	delete [] boxes;
     delete messageAvailable;
     delete messageSent;
     delete sendLock;
-    delete NetworkDeamon;
+	delete NetworkDeamon;
 }
 
 //----------------------------------------------------------------------
@@ -495,12 +494,6 @@ NachosSocket::NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int 
 
 NachosSocket::~NachosSocket()
 {
-	Mail* mail;
-	while((mail = ((Mail*)messages->Remove())) != NULL)
-	{
-		delete mail;
-	}
-
 	delete messages;
 }
 
@@ -555,7 +548,7 @@ void NachosSocket::SendRequest()
 	packetHdr.to = remote_machine;
 
 	postOffice->Send(packetHdr, *mailHdr, NULL);
-	delete mailHdr;
+	
 }
 
 void NachosSocket::SendConfirmation()
