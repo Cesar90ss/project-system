@@ -425,11 +425,8 @@ void switch_Send()
 		machine->WriteRegister(2,-1);	
 		return;
 	}
-	
-    machine->WriteRegister(2,socket->SendMail(c,really_write));		
-	//NachosSocket *new_connection_place = currentThread->space->GetSocketPointer(socket);
-	
-	//synchconsole->SynchPutString("Unimplemented Send\n");
+
+    machine->WriteRegister(2,socket->SendMail(c,really_write));
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Send syscall\n");
 	ASSERT(FALSE);

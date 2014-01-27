@@ -38,7 +38,7 @@ int main()
 		PutString("Message Apocalyptique :  TO BE DEFINED\n");
 		return -3;
 	}
-	PutString("Connection established\n");
+	PutString("Connected\n");
 	
 	int i;
 	for( i=0; i< NB_LOOP; i++ )
@@ -70,6 +70,7 @@ int main()
 		// We received the message
 		PutString("Received message : ");
 		PutString(buffer);
+		PutString("\n");
 		
 		if( !strcmp(buffer,(char*)ack) )
 		{

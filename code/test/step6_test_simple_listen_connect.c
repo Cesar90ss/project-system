@@ -54,6 +54,7 @@ int main()
 		// We received the message
 		PutString("Received message : ");
 		PutString(buffer);
+		PutString("\n");
 		if( !strcmp(buffer,(char*)data) )
 		{
 			PutString(" Error : The data is corrupted(not the one that was expected\n");
@@ -62,7 +63,7 @@ int main()
 		
 		if ( ( error_code = Send(connected_sid,(char*)ack,ACK_SIZE) ) == -2 )
 		{
-			PutString("Could not send : Transission problem\n");
+			PutString("Could not send : Transmission problem\n");
 			return -2;
 		}
 		if( error_code == -1 )

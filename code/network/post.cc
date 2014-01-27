@@ -291,9 +291,10 @@ PostOffice::PostalDelivery()
         pktHdr = network->Receive(buffer);
 
         mailHdr = *(MailHeader *)buffer;
-        if (DebugIsEnabled('n')) {
-	    printf("Putting mail into mailbox: ");
-	    PrintHeader(pktHdr, mailHdr);
+        if (DebugIsEnabled('n'))
+		{
+		    printf("Putting mail into mailbox: ");
+		    PrintHeader(pktHdr, mailHdr);
         }
 
 		// check that arriving message is legal!
@@ -301,32 +302,52 @@ PostOffice::PostalDelivery()
 		ASSERT(mailHdr.length <= MaxMailSize);
 
 		// put into mailbox
-		if(mailHdr.mailType == MESSAGE)
+
+		switch(mailHdr.mailType)
 		{
-			boxes[mailHdr.to].Put(boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from), pktHdr, mailHdr, buffer + sizeof(MailHeader));
+			case CONFIRMATION:
+			{
+				boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)]->confirm = true;
+				break;
+			}
+			case ACK:
+			{
+				boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)]->ack = true;
+				break;
+			}
+			case REQUEST:
+			{
+				if(IsListening(mailHdr.to))
+				{
+					boxes[mailHdr.to].PutRequest(pktHdr, mailHdr, buffer + sizeof(MailHeader)); // we send the request to the listener
+				}
+				break;
+			}
+			case MESSAGE:
+			{
+				boxes[mailHdr.to].Put(boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from), pktHdr, mailHdr, buffer + sizeof(MailHeader));
+				break;
+			}
+			default:
+			{
+				//unknown message type
+				ASSERT(FALSE);
+				break;
+			}
 		}
-		conf_pktHdr.to = pktHdr.from;
-		conf_pktHdr.from = pktHdr.to;
-		conf_pktHdr.length = sizeof(MailHeader);
-			
-		conf_mailHdr.to = mailHdr.from;
-		conf_mailHdr.from = mailHdr.to;
-		conf_mailHdr.mailType = CONFIRMATION;
-		conf_mailHdr.length = 4;
-		Send(conf_pktHdr,conf_mailHdr,(const char*)"ack");
 
-		if(mailHdr.mailType == CONFIRMATION)
-			boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)]->confirm = true;
-		if(mailHdr.mailType == ACK)
-			boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)]->ack = true;
-
-		if(mailHdr.mailType == REQUEST)
+		if(mailHdr.mailType != CONFIRMATION)
 		{
-			if( IsListening(mailHdr.to) )
-				boxes[mailHdr.to].PutRequest(pktHdr, mailHdr, buffer + sizeof(MailHeader)); // we send the request to the listener
-			
-		}
+			conf_pktHdr.to = pktHdr.from;
+			conf_pktHdr.from = pktHdr.to;
+			conf_pktHdr.length = sizeof(MailHeader);
 
+			conf_mailHdr.to = mailHdr.from;
+			conf_mailHdr.from = mailHdr.to;
+			conf_mailHdr.mailType = CONFIRMATION;
+			conf_mailHdr.length = 0;
+			Send(conf_pktHdr,conf_mailHdr,NULL);
+		}
     }
 }
 
@@ -349,9 +370,10 @@ PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
     char* buffer = new char[MaxPacketSize]();	// space to hold concatenated
 						// mailHdr + data
 
-    if (DebugIsEnabled('n')) {
-	printf("Post send: ");
-	PrintHeader(pktHdr, mailHdr);
+    if (DebugIsEnabled('n'))
+	{
+		printf("Post send: ");
+		PrintHeader(pktHdr, mailHdr);
     }
     ASSERT(mailHdr.length <= MaxMailSize);
     ASSERT(0 <= mailHdr.to && mailHdr.to < numBoxes);
