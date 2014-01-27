@@ -265,9 +265,9 @@
     - 0 otherwise
 
 
-*** NAME : Unlink
+*** NAME : Remove
 **** SYNOPSIS :
-     int Unlink(const char* name)
+     int Remove(const char* name)
 **** DESCRIPTION :
      Delete file named *name*.
 **** RETURN :

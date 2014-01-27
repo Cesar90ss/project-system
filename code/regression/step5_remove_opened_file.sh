@@ -10,19 +10,16 @@ echo -n "1" > /tmp/test1
 
 ./nachos-step5 -cp /tmp/test1 test
 
-./nachos-step5 -cp step5_remove_opened_file
+./nachos-step5 -cp step5_remove_opened_file run
+./nachos-step5 -x run
 
 # Test case
-OUTPUT=$(./nachos-step5 -x run | grep "True")
+OUTPUT=$(./nachos-step5 -ls | grep "Didnt removed the file")
 
 ./nachos-step5 -f
 
-if [ -n "$OUTPUT" ]; then
-    return 0
+if [ -n $OUTPUT ]; then
+    exit 0
 else
-    return -1
+    exit -1
 fi
-
-#Clean up test
-
-#return test result

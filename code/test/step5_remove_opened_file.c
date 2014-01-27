@@ -2,14 +2,12 @@
 
 int main()
 {
-    int fd = Open("est");;
-    int ret = Remove("test");
+    int fd = Open("test");;
 
-    if(ret != 0)
+    if(Remove("test") != 0)
     {
-        PutString("True");
+        PutString("Didnt removed the file");
     } 
-
     Close(fd);
     PutChar('\n');
 

@@ -30,14 +30,13 @@
 
 - FINISH TEST;
 - (2h) Open files table
-    - ouvrir plusieurs fichier et voir si quand on ecrit ou quand on lit bien
+    - ouvrir plusieurs fichiers et voir si quand on ecrit ou quand on lit bien
       au bon endroit (plusieurs ouvertures et fermetures à la fois) USER
     - limite de 10 fichiers ouverts en meme temps
     - |-> limite par process --> si on fork on doit pouvoir en rouvrir 10
 
 - (2h) Create/delete file directory concurrently
-    - On doit pas pouvoir supprimer un fichier deja ouvert
-    - Pas 2 processus peuvent ouvrir le meme fichier en meme temps
+    - On doit pas pouvoir supprimer un fichier deja ouvert (DONE)
     - Deux threads utilisateur n'on pas le droit d'ouvrir le meme fichier
 
 - (1h) Increase file size
