@@ -56,7 +56,7 @@ public:
     FileHeader();
     ~FileHeader();
 
-    bool Allocate(BitMap *bitMap, int fileSize);// Initialize a file header,
+    bool AskForSectors(BitMap *bitMap, int addSize); // Ask for new file space
     //  including allocating space
     //  on disk for the file data
     void Deallocate(BitMap *bitMap);        // De-allocate this file's

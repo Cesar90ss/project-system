@@ -98,6 +98,7 @@ public:
     int CreateDirectory(const char *dirname);           /* Create a directory (any path) */
     bool RemoveDirectory(const char *name);             /* Remove a directory */
     void ListRec(const char *name);             /* List recursivly a directory */
+    OpenFile* GetFreeMapFile() { return freeMapFile; }
 private:
     OpenFile* freeMapFile;		// Bit map of free disk blocks,
     // represented as a file

@@ -35,7 +35,7 @@ public:
         Lseek(file, position, 0);
         return ReadPartial(file, into, numBytes);
     }
-    int WriteAt(const char *from, int numBytes, int position) {
+    int WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space = false) {
         Lseek(file, position, 0);
         WriteFile(file, from, numBytes);
         return numBytes;
@@ -85,7 +85,7 @@ public:
     int ReadAt(char *into, int numBytes, int position);
     // Read/write bytes from the file,
     // bypassing the implicit position.
-    int WriteAt(const char *from, int numBytes, int position);
+    int WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space = false);
 
     int Length();           // Return the number of bytes in the
     // file (this interface is simpler
@@ -101,6 +101,7 @@ public:
 private:
     FileHeader *hdr;			// Header for this file
     int seekPosition;			// Current position within the file
+    int fileSector;                 // Keep sector for file resize
 };
 
 #endif // FILESYS

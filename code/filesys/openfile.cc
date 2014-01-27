@@ -13,6 +13,7 @@
 
 #include "copyright.h"
 #include "filehdr.h"
+#include "filesys.h"
 #include "openfile.h"
 #include "system.h"
 
@@ -32,6 +33,7 @@ OpenFile::OpenFile(int sector)
     hdr = new FileHeader;
     hdr->FetchFrom(sector);
     seekPosition = 0;
+    fileSector = sector;
 }
 
 //----------------------------------------------------------------------
@@ -82,7 +84,7 @@ OpenFile::Read(char *into, int numBytes)
 int
 OpenFile::Write(const char *into, int numBytes)
 {
-    int result = WriteAt(into, numBytes, seekPosition);
+    int result = WriteAt(into, numBytes, seekPosition, true);
     seekPosition += result;
     return result;
 }
@@ -160,23 +162,44 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
 }
 
 int
-OpenFile::WriteAt(const char *from, int numBytes, int position)
+OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space)
 {
     int fileLength = hdr->FileLength();
     int i, firstSector, lastSector, numSectors;
     bool firstAligned, lastAligned;
     char *buf;
 
-    if ((numBytes <= 0) || (position >= fileLength))
+    if (numBytes <= 0)
         return 0;				// check request
-    if ((position + numBytes) > fileLength)
-        numBytes = fileLength - position;
+
     DEBUG('f', "Writing %d bytes at %d, from file of length %d.\n",
           numBytes, position, fileLength);
 
     firstSector = divRoundDown(position, SectorSize);
     lastSector = divRoundDown(position + numBytes - 1, SectorSize);
     numSectors = 1 + lastSector - firstSector;
+
+    // Compute total size of files
+    int total_size = position + numBytes;
+
+    // Ask for new sector if needed
+    if (allow_dynamic_space)
+    {
+        BitMap *freeMap;
+        freeMap = new BitMap(NumSectors);
+        freeMap->FetchFrom(fileSystem->GetFreeMapFile());
+
+        if (!hdr->AskForSectors(freeMap, total_size - hdr->FileLength()))
+        {
+            delete freeMap;
+            return 0;
+        }
+
+        hdr->WriteBack(fileSector);
+        freeMap->WriteBack(fileSystem->GetFreeMapFile());
+
+        delete freeMap;
+    }
 
     buf = new char[numSectors * SectorSize];
     bzero(buf, numSectors * SectorSize);
@@ -256,7 +279,7 @@ int OpenFile::WriteAtVirtual(int virtualAddr, int numBytes, int position)
     int really_write = copyStringFromMachine(virtualAddr, c, numBytes);
     c[really_write] = '\0';
 
-    int res = WriteAt(c, numBytes, position);
+    int res = WriteAt(c, numBytes, position, true);
     delete c;
 
     return res;

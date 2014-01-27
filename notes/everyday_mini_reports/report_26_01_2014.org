@@ -8,6 +8,5 @@
 ** DONE Remove memory leak
 ** DONE Protect inside one process for concurrent access
 ** TODO Test limitations due to previous point
-** TODO Mimic unlink behavior as on Linux
 ** TODO Big file size
 ** TODO Dynamic file size
