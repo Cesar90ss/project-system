@@ -237,7 +237,7 @@
      *buffer* should be large enough to fit *numBytes*
 **** RETURN :
     - -1 if file does not exists
-    - -2 if the threead trying to read is not the owner of the file
+    - -2 if the thread trying to read is not the owner of the file
     - other *numReadBytes* the real number of bytes read
 
 
@@ -249,7 +249,7 @@
      memory.
 **** RETURN :
     - -1 if the file does not exists
-    - -2 if the threead trying to write is not the owner of the file
+    - -2 if the thread trying to write is not the owner of the file
     - otherwise *numWriteBytes* the real number of bytes
 
 
@@ -261,7 +261,7 @@
      the file.
 **** RETURN :
     - -1 if the file does not exists
-    - -2 if the threead trying to seek is not the owner of the file
+    - -2 if the thread trying to seek is not the owner of the file
     - 0 otherwise
 
 
