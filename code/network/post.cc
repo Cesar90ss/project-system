@@ -81,7 +81,7 @@ MailBox::~MailBox()
 			delete Sockets[i];
 		}
 	}
-	delete Sockets;
+	delete [] Sockets;
 	if(Listener != NULL)
 	{
 		delete Listener;
@@ -133,6 +133,7 @@ MailBox::PutRequest(PacketHeader pktHdr, MailHeader mailHdr, char *data)
 	Listener->messages->Append((void *)mail);	// put on the end of the list of
 													// arrived messages, and wake up
 													// any waiter on the socket
+	delete mail;
 }
 
 
@@ -538,17 +539,16 @@ int NachosSocket::Send(char *buffer, size_t size)
 
 void NachosSocket::SendRequest()
 {
-	MailHeader *mailHdr = new MailHeader();
-	mailHdr->mailType = REQUEST_CONNECTION;
-    mailHdr->to = remote_port;
-    mailHdr->from = local_port;
-    mailHdr->length = 0;
+	MailHeader mailHdr; //= new MailHeader();
+	mailHdr.mailType = REQUEST_CONNECTION;
+    mailHdr.to = remote_port;
+    mailHdr.from = local_port;
+    mailHdr.length = 0;
 
 	PacketHeader packetHdr;
 	packetHdr.to = remote_machine;
 
-	postOffice->Send(packetHdr, *mailHdr, NULL);
-	
+	postOffice->Send(packetHdr, mailHdr, NULL);
 }
 
 void NachosSocket::SendConfirmation()
