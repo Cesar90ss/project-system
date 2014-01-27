@@ -421,7 +421,7 @@ void AddrSpace::CleanSockets()
     {
         destructor = cursor;
         cursor = cursor->next;
-        delete (NachosSocket*)destructor->item;
+        //delete (NachosSocket*)destructor->item;
         delete destructor;
     }
 }

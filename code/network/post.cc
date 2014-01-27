@@ -82,7 +82,11 @@ MailBox::~MailBox()
 		}
 	}
 	delete Sockets;
-	delete Listener;
+	if(Listener != NULL)
+	{
+		delete Listener;
+		printf("I delete the Listener \n");
+	}
 }
 
 //----------------------------------------------------------------------
@@ -551,6 +555,7 @@ void NachosSocket::SendRequest()
 	packetHdr.to = remote_machine;
 
 	postOffice->Send(packetHdr, *mailHdr, NULL);
+	delete mailHdr;
 }
 
 void NachosSocket::SendConfirmation()

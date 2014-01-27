@@ -14,7 +14,7 @@
 
 #include "copyright.h"
 #include "synchlist.h"
-
+extern Thread *currentThread;
 //----------------------------------------------------------------------
 // SynchList::SynchList
 //      Allocate and initialize the data structures needed for a
