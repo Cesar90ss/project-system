@@ -180,7 +180,7 @@ class NachosSocket {
 		int Send(char *buffer, size_t size);		// send a message to the connected socket
 		void SendRequest();
 		void SendConfirmation();
-		Mail* PickARequest();
+		Mail* PickAMail();
 		
 		bool IsListening();
 		
@@ -198,9 +198,5 @@ class NachosSocket {
 		int local_port;									// Local mail box
 		int remote_port;								// remote mail box
 		int remote_machine;								// Remote machine
-
-		
-		
-	    
 };
 #endif

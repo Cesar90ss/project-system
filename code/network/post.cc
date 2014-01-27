@@ -76,7 +76,10 @@ MailBox::~MailBox()
     int i;
 	for(i=0;i<NB_CONNECTION_PER_PORT;i++)
 	{
-		delete Sockets[i];
+		if(Sockets[i] != NULL)
+		{
+			delete Sockets[i];
+		}
 	}
 	delete Sockets;
 	delete Listener;
@@ -488,6 +491,12 @@ NachosSocket::NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int 
 
 NachosSocket::~NachosSocket()
 {
+	Mail* mail;
+	while((mail = ((Mail*)messages->Remove())) != NULL)
+	{
+		delete mail;
+	}
+
 	delete messages;
 }
 
@@ -534,42 +543,32 @@ void NachosSocket::SendRequest()
 {
 	MailHeader *mailHdr = new MailHeader();
 	mailHdr->mailType = REQUEST_CONNECTION;
-	
-
     mailHdr->to = remote_port;
     mailHdr->from = local_port;
-	char* buffer = (char*)"ack";
-    mailHdr->length = 4;
+    mailHdr->length = 0;
 
 	PacketHeader packetHdr;
 	packetHdr.to = remote_machine;
 
-	postOffice->Send(packetHdr, *mailHdr, buffer);
+	postOffice->Send(packetHdr, *mailHdr, NULL);
 }
 
 void NachosSocket::SendConfirmation()
 {
 	MailHeader *mailHdr = new MailHeader();
 	mailHdr->mailType = CONNECTION_CONFIRMATION;
-
     mailHdr->to = remote_port;
     mailHdr->from = local_port;
-	char* buffer = NULL;
     mailHdr->length = 0;
 
 	PacketHeader packetHdr;
 	packetHdr.to = remote_machine;
 
-	postOffice->Send(packetHdr, *mailHdr, buffer);
+	postOffice->Send(packetHdr, *mailHdr, NULL);
 }
 
-Mail* NachosSocket::PickARequest()
+Mail* NachosSocket::PickAMail()
 {
-	if(status != SOCKET_LISTENING)
-	{
-		return NULL;
-	}
-
 	return ((Mail*)messages->Remove());
 }
 

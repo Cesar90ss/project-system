@@ -28,6 +28,7 @@ int main()
     char buffer[20]; // buffer used for receive
     
 	PutString("Start\n");
+	PutString("Connecting...\n");
 	connected_sid = Connect(0,1); // we connect to the macine 0 on port 1(see step6_test_simple_listen_accept.c)
 	if(connected_sid < 0)
 	{

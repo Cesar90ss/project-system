@@ -279,7 +279,7 @@ void switch_Listen()
 
 	//else create a socket in listenning_mode for this box in the addrSpace list of socket.
 	NachosSocket* socket;
-	int sid = currentThread->space->SocketCreate( &socket, SOCKET_LISTENING, 0, 0,(int) local_port);
+	int sid = currentThread->space->SocketCreate(&socket, SOCKET_LISTENING, 0, 0, (int)local_port);
 	
 	//put the mailbox in listenning mode
 	postOffice->EnableListening(local_port,socket);
@@ -295,12 +295,11 @@ void switch_Listen()
 //----------------------//
 void switch_Accept()
 {	
-	int listener_sid = machine->ReadRegister(4);
-	
-	
 	#ifdef NETWORK
 
-	NachosSocket* listener =(NachosSocket*) currentThread->space->GetSocketPointer(listener_sid);
+	int listener_sid = machine->ReadRegister(4);
+	NachosSocket* listener = (NachosSocket*)currentThread->space->GetSocketPointer(listener_sid);
+
 	if(listener == NULL)
 	{
 		//this socket does not exist
@@ -316,11 +315,11 @@ void switch_Accept()
 	}
 	
 	//wait on the listening list of the mailbox
-	Mail *request = listener->PickARequest();
+	Mail *request = listener->PickAMail();
 	
 	//extract this from the message
 	int machine_from = request->pktHdr.from;
-	int port_from = request->mailHdr.from;
+	int port_from = request->mailHdr.from;	
 	
 	//verify is this socket does not already exist (same machine with same port try to connect in this local port)
 	int error;
@@ -333,7 +332,7 @@ void switch_Accept()
 	}
 	
 	//create a connected socket with information in the received message, take a place in the mailbox list of socket
-	/*int socket_sid =*/(void ) currentThread->space->SocketCreate
+	int socket_sid = currentThread->space->SocketCreate
 		(socket_slot, SOCKET_CONNECTED, machine_from, port_from, listener->LocalPort());
 
 	//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -343,11 +342,10 @@ void switch_Accept()
 		//send a confirmation message
 		(*socket_slot)->SendConfirmation();
 		// And wait for handshake
-
 	 
 	} while ( (*socket_slot)->Receive() == 0 )*/
 
-	
+	machine->WriteRegister(2, socket_sid);
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Accept syscall\n");
 	ASSERT(FALSE);
@@ -375,13 +373,12 @@ void switch_Connect()
 		machine->WriteRegister(2,-1);
 	}
 
-	//send a connection request to the remote_machine/remote_port with the port we define above
-	//TODO...
+	//send a connection request to the remote_machine/remote_port from the local_port just defined
 	int socket_sid = currentThread->space->SocketCreate
 		(socket_slot, SOCKET_CONNECTED, remote_machine, remote_port, local_port);
 
 	//send a request message (retry some times if no response and then close the socket if no response at all)
-	(*socket_slot)->SendRequest(); //envoi et n'attend rien
+	(*socket_slot)->SendRequest();
 
 	(*socket_slot)->Receive(NULL,0);
 	//check if we receive from the good person and check if its a connection confirmation
@@ -398,17 +395,23 @@ void switch_Connect()
 void switch_Send()
 {
 	#ifdef NETWORK
-	int socket = machine->ReadRegister(4);
+	int socket_id = machine->ReadRegister(4);
 	int buffer = machine->ReadRegister(5);
 	int size = machine->ReadRegister(6);
+
     char c[MAX_STRING_SIZE + 1];
     int really_write = copyStringFromMachine(buffer,c,size);
     c[really_write] = '\0';
 	
-	NachosSocket *socket_pointer;
-	socket_pointer = currentThread->space->GetSocketPointer(socket);
+	NachosSocket *socket;
+	socket = currentThread->space->GetSocketPointer(socket_id);
 
-    socket_pointer->Send(c, really_write);
+	if(socket==NULL)
+	{
+		machine->WriteRegister(2,-1);	
+		return;
+	}
+    socket->Send(c, really_write);
 	//NachosSocket *new_connection_place = currentThread->space->GetSocketPointer(socket);
 	
 	//synchconsole->SynchPutString("Unimplemented Send\n");
