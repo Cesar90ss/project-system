@@ -8,17 +8,15 @@ cd $NACHOS_DIR
 ./nachos-step5 -cp remove_file run
 
 # Test case
-OUTPUT=$(./nachos-step5 -x run -rs 4 && ./nachos-step5 -l /| tr "\n" "|" | grep "1f - run|")
-
-if [ -n "$OUTPUT" ]; then
-    RETURN=0
-else
-    echo "$OUTPUT"
-    RETURN=-1
-fi
+OUTPUT=$(./nachos-step5 -x run && ./nachos-step5 -l /| tr "\n" "|" | grep "1f - run|")
 
 #Clean up test
 ./nachos-step5 -f
 
-#return test result
-exit $RETURN
+if [ -n "$OUTPUT" ]; then
+    echo "ooooooookkkkkkk"
+    exit 0
+else
+    echo "nnnnnnnnnnoooooooo"
+    exit -1
+fi
