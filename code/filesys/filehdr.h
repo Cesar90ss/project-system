@@ -17,7 +17,7 @@
 #include "disk.h"
 #include "bitmap.h"
 
-#define NumIndirect SectorSize / sizeof(int)
+#define NumIndirect (SectorSize / sizeof(int))
 
 // Data block hdr structure
 struct DataBlockHdr
@@ -54,6 +54,7 @@ struct DataBlockInfo
 class FileHeader {
 public:
     FileHeader();
+    ~FileHeader();
 
     bool Allocate(BitMap *bitMap, int fileSize);// Initialize a file header,
     //  including allocating space

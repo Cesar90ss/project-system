@@ -29,7 +29,20 @@
 
 FileHeader::FileHeader() : numBytes(0), numSectors(0)
 {
-    memset(dataSectors, 0, sizeof(DataBlockInfo) * NumDirect);
+    memset(dataSectors, 0, sizeof(DataBlockInfo*) * NumDirect);
+}
+
+FileHeader::~FileHeader()
+{
+    int num_data_info_block = divRoundUp(numSectors, NumIndirect);
+
+    // Delete data info block
+    for (int i = 0; i < num_data_info_block; i++)
+    {
+        // Delete indirect block
+        delete dataSectors[i]->data;
+        delete dataSectors[i];
+    }
 }
 
 //----------------------------------------------------------------------
@@ -48,11 +61,16 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
 {
     numBytes = fileSize;
     numSectors  = divRoundUp(fileSize, SectorSize);
-    if (freeMap->NumClear() < numSectors)
+
+    int num_data_info_block = divRoundUp(numSectors, NumIndirect);
+    int num_raw_data_block = numSectors;
+
+    if (freeMap->NumClear() < num_raw_data_block + num_data_info_block)
         return FALSE;		// not enough space
 
     int sector;
 
+    DEBUG('f', "Need %d -- %d sector\n", numSectors, NumIndirect);
     for (int i = 0; i < numSectors; i++)
     {
         // New indirect block
@@ -61,14 +79,19 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
             // Initialize structure for data block
             dataSectors[i / NumIndirect] = new DataBlockInfo;
             dataSectors[i / NumIndirect]->data = new DataBlockHdr;
+            memset(dataSectors[i / NumIndirect]->data, 0, sizeof(DataBlockHdr));
 
             // Find sector for data block
             sector = freeMap->Find();
+            DEBUG('f', "Allocate new data block at sector %d\n", sector);
+
             dataSectors[i / NumIndirect]->sector = sector;
         }
 
         // Write to indirect block
         dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect] = freeMap->Find();
+        DEBUG('f', "Allocate new raw at sector %d\n", dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect]);
+
     }
 
     return TRUE;
@@ -83,18 +106,19 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
 
 void
 FileHeader::Deallocate(BitMap *freeMap)
-{    int sector;
+{
+    int num_data_info_block = divRoundUp(numSectors, NumIndirect);
+
+    // Delete data info block
+    for (int i = 0; i < num_data_info_block; i++)
+    {
+        // Delete indirect block
+        ASSERT(freeMap->Test(dataSectors[i]->sector));
+        freeMap->Clear(dataSectors[i]->sector);
+    }
 
     for (int i = 0; i < numSectors; i++)
     {
-        // Delete indirect block
-        if ((i - 1) % NumIndirect == 0)
-        {
-            // Delete previous data block to disk
-            ASSERT(freeMap->Test(dataSectors[(i - 1) / NumIndirect]->sector));
-            freeMap->Clear(dataSectors[(i - 1) / NumIndirect]->sector);
-        }
-
         // Delete data block
         ASSERT(freeMap->Test(dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect]));
         freeMap->Clear(dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect]);
@@ -111,15 +135,24 @@ FileHeader::Deallocate(BitMap *freeMap)
 void
 FileHeader::FetchFrom(int sector)
 {
-    /*
-      fill this with data inside sector :
-      synchDisk->ReadSector(sector, (char *)this);
-
-      for each data inside dataSectors
-      set new structure with sector = data
-      read dataBlocHdr (synchDisk->ReadSector(sector, (char *)this))
-    */
+    // Fill this with data inside sector
     synchDisk->ReadSector(sector, (char *)this);
+
+    int num_data_info_block = divRoundUp(numSectors, NumIndirect);
+    DEBUG('f', "numSectors = %d, info block = %d\n", numSectors, num_data_info_block);
+
+    for (int i = 0; i < num_data_info_block; i++)
+    {
+        // Retrieve sector
+        DEBUG('f', "Data block at sector %d\n", (int)dataSectors[i]);
+        sector = (int)dataSectors[i];
+        dataSectors[i] = new DataBlockInfo;
+        dataSectors[i]->sector = sector;
+        dataSectors[i]->data = new DataBlockHdr;
+
+        // Fetch DataBlockHdr
+        synchDisk->ReadSector(sector, (char *)(dataSectors[i]->data));
+    }
 }
 
 //----------------------------------------------------------------------
@@ -132,15 +165,30 @@ FileHeader::FetchFrom(int sector)
 void
 FileHeader::WriteBack(int sector)
 {
-    /*
-      for each datablockinfo inside data sector
-      write data->data inside sector data->sector
+    int num_data_info_block = divRoundUp(numSectors, NumIndirect);
+    int data_sector;
 
-      update this->dataSectors with dataSections->sector
+    FileHeader temp;
+    temp.numBytes = numBytes;
+    temp.numSectors = numSectors;
 
-      write this inside sector *sector*
-    */
-    synchDisk->WriteSector(sector, (char *)this);
+    for (int i = 0; i < num_data_info_block; i++)
+    {
+        // Write data->data inside sector data->sector
+        data_sector = dataSectors[i]->sector;
+        DEBUG('f', "Write data at sector %d\n", data_sector);
+        synchDisk->WriteSector(data_sector, (char *)(dataSectors[i]->data));
+
+        // Update this->dataSectors with dataSections->sector
+        temp.dataSectors[i] = (DataBlockInfo *)data_sector;
+    }
+
+    // Write this inside sector *sector*
+    synchDisk->WriteSector(sector, (char *)(&temp));
+
+    // To avoid deallocate sectors
+    temp.numBytes = 0;
+    temp.numSectors = 0;
 }
 
 //----------------------------------------------------------------------
@@ -156,11 +204,18 @@ FileHeader::WriteBack(int sector)
 int
 FileHeader::ByteToSector(int offset)
 {
-    /*
-      compute the data block with (offset / SectorSize) / SectorSize
-      and (offest / SectorSize) % SectorSize
-    */
-    return(dataSectors[offset / SectorSize]);
+    int sector = offset / SectorSize;
+    int data_info_sector = sector / NumIndirect;
+    int data_padding_index = sector % NumIndirect;
+
+    DataBlockInfo *info = dataSectors[data_info_sector];
+    DEBUG('f', "%p\n", info);
+    DEBUG('f', "info->sector = %d, info->data = %p\n", info->sector, info->data);
+
+    DataBlockHdr *hdr = info->data;
+    DEBUG('f', "data_padding_index = %d\n", data_padding_index);
+
+    return hdr->dataSectors[data_padding_index];
 }
 
 //----------------------------------------------------------------------
@@ -188,10 +243,10 @@ FileHeader::Print()
 
     printf("FileHeader contents.  File size: %d.  File blocks:\n", numBytes);
     for (i = 0; i < numSectors; i++)
-        printf("%d ", dataSectors[i]);
+        printf("%d ", dataSectors[i]->sector);
     printf("\nFile contents:\n");
     for (i = k = 0; i < numSectors; i++) {
-        synchDisk->ReadSector(dataSectors[i], data);
+        synchDisk->ReadSector(dataSectors[i]->sector, data);
         for (j = 0; (j < SectorSize) && (k < numBytes); j++, k++) {
             if ('\040' <= data[j] && data[j] <= '\176')   // isprint(data[j])
                 printf("%c", data[j]);
@@ -201,4 +256,5 @@ FileHeader::Print()
         printf("\n");
     }
     delete [] data;
+
 }
