@@ -14,18 +14,15 @@ echo -n "test2" > /tmp/test2
 ./nachos-step5 -cp /tmp/test2 a/test
 
 # Test case
-
 ./nachos-step5 -tk1
 
-if [ $? -eq 0 ]; then
-    RETURN=0
-else
-    echo "Exit code $?"
-    RETURN=-1
-fi
+OUTPUT=$(echo "$?")
 
 #Clean up test
-#./nachos-step5 -f
+./nachos-step5 -f
 
-#return test result
-exit $RETURN
+if [ "$OUTPUT" -eq 0 ]; then
+    exit 0
+else
+    exit -1
+fi
