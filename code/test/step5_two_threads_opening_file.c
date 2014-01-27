@@ -15,7 +15,7 @@ void *fun(void *arg)
     }
 
     int i;
-    for(i=0; i<1000; i++){}
+    for(i=0; i<1000; i++);
 
     Close(c);
     return 0;
@@ -27,7 +27,7 @@ int main()
 
     for(i=0;i<NB_THREADS; i++)
     {
-        UserThreadCreate(&fun,NULL);
+        id[i] = UserThreadCreate(fun,NULL);
     }
     for(i=0;i<NB_THREADS; i++)
     {
