@@ -50,7 +50,7 @@
 #define SC_Seek                 28
 #define SC_GetCurrentDirectory  29
 #define SC_SetCurrentDirectory  30
-#define SC_Unlink               31
+#define SC_Remove               31
 
 
 #ifdef IN_USER_MODE
@@ -138,8 +138,8 @@ int Close(OpenFileId id);
 /* Seek into the file at position pos */
 int Seek(OpenFileId id, int pos);
 
-/* Unlink file */
-int Unlink(const char *name);
+/* Unlink/Remove file */
+int Remove(const char *name);
 
 
 

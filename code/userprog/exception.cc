@@ -333,7 +333,7 @@ void switch_Create()
     machine->WriteRegister(2, ret ? 0 : -1);
 }
 
-void switch_Unlink()
+void switch_Remove()
 {
     // Get file name from user space
     char *filename = new char[MAX_STRING_SIZE + 1];
@@ -550,6 +550,11 @@ ExceptionHandler (ExceptionType which)
                 case SC_SetCurrentDirectory:
                 {
                     switch_SetCurrentDirectory();
+                    break;
+                }
+                case SC_Remove:
+                {
+                    switch_Remove();
                     break;
                 }
                 #endif

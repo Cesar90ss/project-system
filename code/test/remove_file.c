@@ -3,7 +3,7 @@
 int main()
 {
     Create("42");
-    PutInt(Unlink("42"));
+    PutInt(Remove("42"));
 
     return 0;
 }

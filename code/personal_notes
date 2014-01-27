@@ -1,0 +1,21 @@
+name = strtok(dirname, '/');
+std::string ret_string = "/"
+std::list name_list = 
+
+while(name != NULL){
+    else if(name="."){}
+
+    if(name="..")
+    {
+        /
+    }
+
+    {    
+        ret_string = ret_string + name;
+    }
+    else
+    {
+        ret_string = ret_string + name + "/";
+    }
+    name = strtok(NULL, '/');
+}
