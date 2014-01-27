@@ -828,25 +828,40 @@ int AddrSpace::FileOpen(const char* filename)
     if (index == MAX_OPEN_FILES)
         return -2;
 
-    // Try to open file
-    OpenFile *handler = fileSystem->Open(filename);
-
-    if (handler == NULL)
-        return -1;
-
-    // Check if file is not already opened
-    for (int i = 0; i < MAX_OPEN_FILES; i++)
-        if (i != index && filetable[i].inUse && strcmp(filename, filetable[i].absoluteName) == 0)
-            return -3;
-
+    // Mark as inUse in case of context switch
+    filetable[index].inUse = true;
 
     // Fill structure
     char *name = new char[strlen(filename) + 1];
     strcpy(name, filename);
 
+    filetable[index].absoluteName = name;
+
+
+    // Try to open file
+    OpenFile *handler = fileSystem->Open(filename);
+
+    if (handler == NULL)
+    {
+        filetable[index].inUse = false;
+        delete [] name;
+        return -1;
+    }
+
+    // Check if file is not already opened
+    for (int i = 0; i < MAX_OPEN_FILES; i++)
+    {
+        if (i != index && filetable[i].inUse && strcmp(filename, filetable[i].absoluteName) == 0)
+        {
+            filetable[index].inUse = false;
+            delete [] name;
+            return -3;
+        }
+    }
+
+
     filetable[index].handler = handler;
     filetable[index].owner = currentThread;
-    filetable[index].absoluteName = name;
     filetable[index].inUse = true;
 
     return index;
