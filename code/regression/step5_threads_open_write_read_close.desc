@@ -1,0 +1,1 @@
+Try to read/write/close a file which is yet opened in the main thread

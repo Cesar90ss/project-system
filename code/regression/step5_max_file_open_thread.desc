@@ -1,0 +1,1 @@
+Start some threads which try to open files. It should start after opening 10 files.
