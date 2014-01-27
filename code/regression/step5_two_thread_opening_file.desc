@@ -1,0 +1,1 @@
+Create 2 threads which both try to open the same file, it should not be possible for the second one
