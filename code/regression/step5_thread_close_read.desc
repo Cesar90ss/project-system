@@ -1,0 +1,1 @@
+Start threads which open a file and read inside, output shouldnt be mixed up
