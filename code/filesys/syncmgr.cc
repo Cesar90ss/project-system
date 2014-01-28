@@ -49,7 +49,9 @@ FileHdrSync *FileSyncMgr::GetFileSyncForFile(int sector)
     {
         fileSync[sector] = new FileHdrSync;
         fileSync[sector]->reference = 1;
-        fileSync[sector]->lock = new Lock("file sync lock");
+        fileSync[sector]->writer = new Semaphore("file sync writer lock", 1);
+        fileSync[sector]->mutex = new Semaphore("file sync mutex lock", 1);
+        fileSync[sector]->readcount = 0;
     }
 
     return fileSync[sector];
@@ -71,7 +73,8 @@ void FileSyncMgr::DetachFileSyncForFile(int sector)
     // If last, delete structure
     if (itr->second->reference == 0)
     {
-        delete itr->second->lock;
+        delete itr->second->writer;
+        delete itr->second->mutex;
         delete itr->second;
         fileSync.erase(itr);
     }

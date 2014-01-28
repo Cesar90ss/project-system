@@ -136,6 +136,7 @@ void Lock::Release ()
 {
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
 
+    ASSERT(locked);
 	if(isHeldByCurrentThread())
 	{
 		Thread *thread = (Thread *) queue->Remove();
@@ -151,10 +152,11 @@ void Lock::Release ()
 	else
 	{
 		//a thread which do not have the lock try to unlock (can only be done in kernel code -> should never happen)
-		ASSERT(FALSE);
+		//ASSERT(FALSE);
 	}
+
     DEBUG('l', "Release %p\n", this);
-    (void) interrupt->SetLevel (oldLevel);	
+    (void) interrupt->SetLevel (oldLevel);
 }
 
 bool Lock::isHeldByCurrentThread()

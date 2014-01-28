@@ -17,7 +17,10 @@
 
 struct FileHdrSync
 {
-    Lock *lock;
+    Semaphore *writer;
+    Semaphore *mutex;
+    int readcount;
+
     int reference;
 };
 

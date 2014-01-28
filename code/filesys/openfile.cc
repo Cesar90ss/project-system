@@ -54,7 +54,7 @@ OpenFile::OpenFile(int sector, const char* filename)
 
 OpenFile::~OpenFile()
 {
-    sync->lock->Acquire();
+    sync->writer->P();
 
     if (name != NULL)
     {
@@ -63,10 +63,9 @@ OpenFile::~OpenFile()
     }
     delete hdr;
 
-    sync->lock->Release();
+    sync->writer->V();
 
     // Detach sync structure
-
     fileSyncMgr->DetachFileSyncForFile(fileSector);
 }
 
@@ -158,8 +157,17 @@ OpenFile::WriteVirtual(int virtualAddr, int numBytes)
 int
 OpenFile::ReadAt(char *into, int numBytes, int position, bool takeLock)
 {
+    // R/W lock
     if (takeLock)
-        sync->lock->Acquire();
+    {
+        sync->mutex->P();
+        sync->readcount++;
+        if (sync->readcount == 1)
+        {
+            sync->writer->P();
+        }
+        sync->mutex->V();
+    }
 
     int fileLength = hdr->FileLength();
     int i, firstSector, lastSector, numSectors;
@@ -168,7 +176,15 @@ OpenFile::ReadAt(char *into, int numBytes, int position, bool takeLock)
     if ((numBytes <= 0) || (position >= fileLength))
     {
         if (takeLock)
-            sync->lock->Release();
+        {
+            sync->mutex->P();
+            sync->readcount--;
+            if (sync->readcount == 0)
+            {
+                sync->writer->V();
+            }
+            sync->mutex->V();
+        }
         return 0;               // check request
     }
 
@@ -191,8 +207,17 @@ OpenFile::ReadAt(char *into, int numBytes, int position, bool takeLock)
     bcopy(&buf[position - (firstSector * SectorSize)], into, numBytes);
     delete [] buf;
 
+    // Release r/w lock
     if (takeLock)
-        sync->lock->Release();
+    {
+        sync->mutex->P();
+        sync->readcount--;
+        if (sync->readcount == 0)
+        {
+            sync->writer->V();
+        }
+        sync->mutex->V();
+    }
 
     return numBytes;
 }
@@ -200,7 +225,7 @@ OpenFile::ReadAt(char *into, int numBytes, int position, bool takeLock)
 int
 OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space)
 {
-    sync->lock->Acquire();
+    sync->writer->P();
 
     int fileLength = hdr->FileLength();
     int i, firstSector, lastSector, numSectors;
@@ -209,7 +234,7 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
 
     if (numBytes <= 0)
     {
-        sync->lock->Release();
+        sync->writer->V();
         return 0;				// check request
     }
 
@@ -233,7 +258,7 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
         if (!hdr->AskForSectors(freeMap, total_size - hdr->FileLength()))
         {
             freeMap->WriteBack(fileSystem->GetFreeMapFile());
-            sync->lock->Release();
+            sync->writer->V();
             delete freeMap;
             return -1;
         }
@@ -265,7 +290,7 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
         synchDisk->WriteSector(hdr->ByteToSector(i * SectorSize),
                                &buf[(i - firstSector) * SectorSize]);
     delete [] buf;
-    sync->lock->Release();
+    sync->writer->V();
     return numBytes;
 }
 
