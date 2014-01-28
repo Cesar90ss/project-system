@@ -366,15 +366,16 @@ void switch_Connect()
 	//create a socket in a mailbox (search for a local free port somewhere)
 	//we need to dispatch connection on different mailbox (if all connections in one, it coulb be slow)
 	NachosSocket **socket_slot = NULL;
-	while((error = postOffice->ReserveSlot(&socket_slot, local_port, remote_machine, remote_port)) < 0 && local_port<postOffice->NumBoxes())
+	while((error = postOffice->ReserveSlot(&socket_slot, local_port, remote_machine, remote_port)) < 0)
 	{
 		local_port++;
+		if(error == -3)
+		{
+			machine->WriteRegister(2,-1);
+			return;
+		}
 	}
-
-	if(local_port == postOffice->NumBoxes())
-	{
-		machine->WriteRegister(2,-1);
-	}
+	
 
 	//send a connection request to the remote_machine/remote_port from the local_port just defined
 	int socket_sid = currentThread->space->SocketCreate
@@ -398,6 +399,7 @@ void switch_Connect()
 	(*socket_slot)->SetStatus(SOCKET_CONNECTED);
 	
 	machine->WriteRegister(2,socket_sid);
+	
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Connect syscall\n");
 	ASSERT(FALSE);

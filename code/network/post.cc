@@ -480,7 +480,13 @@ int PostOffice::ReserveSlot(NachosSocket ***slot, int mailbox, int remote_machin
 	MailBox *box = &boxes[mailbox];
 	NachosSocket** free_slot = NULL;
 	int i;
-	for(i=0;i<numBoxes;i++)
+	
+	if(mailbox >= numBoxes)
+	{
+			return -3;
+	}
+	
+	for(i=0;i<NB_BOX;i++)
 	{
 		if(box->Sockets[i] != NULL)
 		{		
@@ -689,7 +695,17 @@ int NachosSocket::SendMail(char* buffer,unsigned int size)
 }
 int NachosSocket::WaitTimeoutAck()
 {
-	return 0;	//TODO....
+	long long int startTick = stats->totalTicks;
+
+	while(!ack && stats->totalTicks<startTick+TIMEOUT)
+	{
+		currentThread->Yield();			
+	}
+	if(!ack)
+	{
+		return -1;						//Send Timeout
+	}
+	return 0;
 }
 
 int NachosSocket::Send(PacketHeader packetHdr,MailHeader mailHdr,char* data)
