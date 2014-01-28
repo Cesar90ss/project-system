@@ -268,6 +268,12 @@ PostOffice::~PostOffice()
 	delete NetworkDeamon;
 }
 
+
+int PostOffice::NumBoxes()
+{
+	return numBoxes;
+}
+
 //----------------------------------------------------------------------
 // PostOffice::PostalDelivery
 // 	Wait for incoming messages, and put them in the right mailbox.
@@ -455,7 +461,7 @@ PostOffice::PacketSent()
 // enable listening on a "port"
 int PostOffice::EnableListening(int i_local_port, NachosSocket *socket)
 {
-	if(i_local_port<0 || i_local_port>=NB_BOX)
+	if(i_local_port<0 || i_local_port>=numBoxes)
 	{
 		return -1;
 	}
@@ -474,7 +480,7 @@ int PostOffice::ReserveSlot(NachosSocket ***slot, int mailbox, int remote_machin
 	MailBox *box = &boxes[mailbox];
 	NachosSocket** free_slot = NULL;
 	int i;
-	for(i=0;i<NB_BOX;i++)
+	for(i=0;i<numBoxes;i++)
 	{
 		if(box->Sockets[i] != NULL)
 		{		
@@ -500,7 +506,7 @@ int PostOffice::ReserveSlot(NachosSocket ***slot, int mailbox, int remote_machin
 // assume the port number is OK
 bool PostOffice::IsListening(int i_local_port)
 {
-	ASSERT( (i_local_port >= 0) && (i_local_port < NB_BOX) );
+	ASSERT( (i_local_port >= 0) && (i_local_port < numBoxes) );
 
 	return (boxes[i_local_port].Listener != NULL); // listener != NULL
 }

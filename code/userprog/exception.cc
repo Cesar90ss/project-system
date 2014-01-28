@@ -264,7 +264,7 @@ void switch_Listen()
 	int local_port = machine->ReadRegister(4);
 
 	//check if the port exists
-	if(local_port<0 && local_port>=NB_BOX)
+	if(local_port<0 && local_port>=postOffice->NumBoxes())
 	{
 		machine->WriteRegister(2,-1);
 		return;
@@ -366,12 +366,12 @@ void switch_Connect()
 	//create a socket in a mailbox (search for a local free port somewhere)
 	//we need to dispatch connection on different mailbox (if all connections in one, it coulb be slow)
 	NachosSocket **socket_slot = NULL;
-	while((error = postOffice->ReserveSlot(&socket_slot, local_port, remote_machine, remote_port)) < 0 && local_port<NB_BOX)
+	while((error = postOffice->ReserveSlot(&socket_slot, local_port, remote_machine, remote_port)) < 0 && local_port<postOffice->NumBoxes())
 	{
 		local_port++;
 	}
 
-	if(local_port == NB_BOX)
+	if(local_port == postOffice->NumBoxes())
 	{
 		machine->WriteRegister(2,-1);
 	}

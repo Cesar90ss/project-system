@@ -127,6 +127,8 @@ class PostOffice {
 										//   get dropped by the underlying network
     ~PostOffice();						// De-allocate Post Office data
 
+	int NumBoxes();
+
     void Send(PacketHeader pktHdr, MailHeader mailHdr, const char *data);
 										// Send a message to a mailbox on a remote
 										// machine.  The fromBox in the MailHeader is
