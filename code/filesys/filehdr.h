@@ -35,6 +35,7 @@ struct DataBlockInfo
 // 2 * sizeint = numBytes + numSectors
 #define NumDirect   ((SectorSize - 2 * sizeof(int)) / sizeof(int))
 #define MaxFileSize     (NumDirect * SectorSize)
+#define MAX_FILE_SECTORS (NumDirect * NumIndirect)
 
 // The following class defines the Nachos "file header" (in UNIX terms,
 // the "i-node"), describing where on disk to find all of the data in the file.
@@ -81,6 +82,5 @@ private:
     DataBlockInfo *dataSectors[NumDirect];		// DataBlockHdr for each block
     // block in the file
 };
-
 
 #endif // FILEHDR_H

@@ -387,9 +387,9 @@ FileSystem::Remove(const char *name)
     delete fileHdr;
     delete directory;
     delete freeMap;
-    delete expandname;
-    delete parentDirectory;
-    delete filename;
+    delete [] expandname;
+    delete [] parentDirectory;
+    delete [] filename;
     return TRUE;
 }
 

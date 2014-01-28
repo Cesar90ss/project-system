@@ -21,7 +21,7 @@
 #include "disk.h"
 #include "stats.h"
 
-#define TransferSize    10  // make it small, just to be difficult
+#define TransferSize    100  // make it small, just to be difficult
 
 //----------------------------------------------------------------------
 // Copy
@@ -61,7 +61,17 @@ Copy(const char *from, const char *to)
 // Copy the data in TransferSize chunks
     buffer = new char[TransferSize];
     while ((amountRead = fread(buffer, sizeof(char), TransferSize, fp)) > 0)
-        openFile->Write(buffer, amountRead);
+    {
+        if (openFile->Write(buffer, amountRead) != amountRead)
+        {
+            delete [] buffer;
+            delete openFile;
+            fileSystem->Remove(to);
+            fclose(fp);
+            return;
+        }
+    }
+
     delete [] buffer;
 
 // Close the UNIX and the Nachos files

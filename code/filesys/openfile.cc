@@ -191,8 +191,9 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
 
         if (!hdr->AskForSectors(freeMap, total_size - hdr->FileLength()))
         {
+            freeMap->WriteBack(fileSystem->GetFreeMapFile());
             delete freeMap;
-            return 0;
+            return -1;
         }
 
         hdr->WriteBack(fileSector);

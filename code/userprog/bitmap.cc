@@ -115,8 +115,6 @@ BitMap::FindFirst ()
 				return i;
 			}
 		}
-		printf("BitMap::FinFirst: Bitmap corrupted\n");
-		ASSERT(FALSE);
 	}
 
 	return -1;
@@ -144,8 +142,6 @@ BitMap::FindLast ()
 				return i;
 			}
 		}
-		printf("BitMap::FinLast: Bitmap corrupted\n");
-		ASSERT(FALSE);
 	}
 
 	return -1;
@@ -220,6 +216,12 @@ void
 BitMap::FetchFrom (OpenFile * file)
 {
     file->ReadAt ((char *) map, numWords * sizeof (unsigned), 0);
+
+    // Restore num bits clean
+    numClear = 0;
+    for (int i = 0; i < numBits; i++)
+        if (!Test(i))
+            numClear++;
 }
 
 //----------------------------------------------------------------------

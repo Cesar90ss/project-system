@@ -59,13 +59,17 @@ FileHeader::~FileHeader()
 bool
 FileHeader::AskForSectors(BitMap *freeMap, int addSize)
 {
-    numBytes = numBytes + addSize;
-    int needed_new_sector = divRoundUp(numBytes, SectorSize) - numSectors;
-
-    numSectors = divRoundUp(numBytes, SectorSize);
+    int needed_new_sector = divRoundUp(numBytes + addSize, SectorSize) - numSectors;
 
     if (freeMap->NumClear() < needed_new_sector)
         return FALSE;		// not enough space
+
+    // Max file size
+    if (divRoundUp(numBytes + addSize, SectorSize) > (int)MAX_FILE_SECTORS)
+        return FALSE;
+
+    numBytes = numBytes + addSize;
+    numSectors = divRoundUp(numBytes, SectorSize);
 
     int sector;
 
@@ -108,6 +112,13 @@ FileHeader::Deallocate(BitMap *freeMap)
 {
     int num_data_info_block = divRoundUp(numSectors, NumIndirect);
 
+    for (int i = 0; i < numSectors; i++)
+    {
+        // Delete data block
+        ASSERT(freeMap->Test(dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect]));
+        freeMap->Clear(dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect]);
+    }
+
     // Delete data info block
     for (int i = 0; i < num_data_info_block; i++)
     {
@@ -116,12 +127,6 @@ FileHeader::Deallocate(BitMap *freeMap)
         freeMap->Clear(dataSectors[i]->sector);
     }
 
-    for (int i = 0; i < numSectors; i++)
-    {
-        // Delete data block
-        ASSERT(freeMap->Test(dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect]));
-        freeMap->Clear(dataSectors[i / NumIndirect]->data->dataSectors[i % NumIndirect]);
-    }
 }
 
 //----------------------------------------------------------------------

@@ -5,15 +5,16 @@ cd $NACHOS_DIR
 #format disk
 ./nachos-step5 -f
 
-#create a 30kb file in /tmp
-dd if=/dev/zero of=/tmp/test bs=30K count=1
+#create 200K file in /tmp
+rm /tmp/test
+dd if=/dev/zero of=/tmp/test bs=200K count=1
 
 #create file structure
 ./nachos-step5 -cp /tmp/test test
 
 # Test case
 OUTPUT=$(./nachos-step5 -l / | head -n -10 | tr "\n" "|")
-EXPECTED_OUTPUT="f - test|"
+EXPECTED_OUTPUT=""
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then
     RETURN=0
