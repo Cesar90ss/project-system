@@ -398,8 +398,6 @@ void switch_Connect()
 	(*socket_slot)->SetStatus(SOCKET_CONNECTED);
 	
 	machine->WriteRegister(2,socket_sid);
-		
-	//synchconsole->SynchPutString("Unimplemented Connect\n");
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Connect syscall\n");
 	ASSERT(FALSE);
@@ -410,23 +408,22 @@ void switch_Send()
 {
 	#ifdef NETWORK
 	int socket_id = machine->ReadRegister(4);
-	int buffer = machine->ReadRegister(5);
+	int buffer_in_machine = machine->ReadRegister(5);
 	int size = machine->ReadRegister(6);
 
-    char c[MAX_STRING_SIZE + 1];
-    int really_write = copyStringFromMachine(buffer,c,size);
-    c[really_write] = '\0';
+    char buffer[size];
+    copyMemFromMachine(buffer_in_machine,buffer,size);
 	
 	NachosSocket *socket;
 	socket = currentThread->space->GetSocketPointer(socket_id);
 
 	if(socket==NULL)
 	{
-		machine->WriteRegister(2,-1);	
+		machine->WriteRegister(2,-1);
 		return;
 	}
 
-    machine->WriteRegister(2,socket->SendMail(c,really_write));
+    machine->WriteRegister(2,socket->SendMail(buffer,size));
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Send syscall\n");
 	ASSERT(FALSE);
@@ -436,15 +433,28 @@ void switch_Send()
 void switch_Receive()
 {
 	#ifdef NETWORK
-	int socket = machine->ReadRegister(4);
-	char buffer[MAX_STRING_SIZE];
-	bzero(buffer, MAX_STRING_SIZE);
-	int size = machine->ReadRegister(6);
-	Mail *mail = ( (NachosSocket*) currentThread->space->GetSocketPointer(socket) )->PickAMail();
-	strcpy(buffer, mail->data);
-	delete mail;
-	int string_to_machine = machine->ReadRegister(5);
-	copyStringToMachine(string_to_machine,buffer,size);
+	int sid = machine->ReadRegister(4);
+	int buffer_in_machine = machine->ReadRegister(5);
+	int requested_size = machine->ReadRegister(6);
+
+	NachosSocket* socket = currentThread->space->GetSocketPointer(sid);
+
+	//TODO choose a constant for the maximal size to allocate here
+	//(or create a counter of char in the socket in order to allocate exactly the buffer)
+	ASSERT(requested_size <= 4096);
+
+	char buffer[requested_size];
+	bzero(buffer, requested_size);
+	int received_size = socket->Receive(buffer,requested_size);
+
+	if(received_size < 0)
+	{
+		machine->WriteRegister(2,-1);
+		return;
+	}
+
+	copyMemToMachine(buffer_in_machine,buffer,received_size);
+    machine->WriteRegister(2,received_size);
 	#else
 	synchconsole->SynchPutString("Network disabled, cannot execute Receive syscall\n");
 	ASSERT(FALSE);

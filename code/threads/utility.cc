@@ -65,6 +65,42 @@ int copyStringToMachine(int to, char *from, unsigned int size)
 
 	return i;
 }
+
+int copyMemFromMachine(int from, char *to, unsigned int size)
+{
+	int value;
+	unsigned int i;
+
+	//read bytes one by one
+	for(i=0 ; i<size ; i++)
+	{
+		if(!machine->ReadMem(from+i, 1, &value))
+		{
+			//ReadMem error
+			return -1;
+		}
+		to[i] = (char)value;
+	}
+
+	return 0;
+}
+
+int copyMemToMachine(int to, char *from, unsigned int size)
+{
+	unsigned int i;
+
+	//read bytes one by one
+	for(i=0 ; i < size ; i++)
+	{
+		if(!machine->WriteMem(to+i, 1, from[i]))
+		{
+			//WriteMem error
+			return -1;
+		}
+	}
+
+	return 0;
+}
 #endif
 
 static const char *enableFlags = NULL;	// controls which DEBUG messages are printed

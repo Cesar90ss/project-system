@@ -179,7 +179,7 @@ class NachosSocket {
 		NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int i_remote_port, int i_local_port);
 		~NachosSocket();
 		
-		int Receive(char *buffer, size_t size);			// wait for a message(and catch it)
+		int Receive(char *buffer, unsigned int size);			// wait for a message(and catch it)
 		//int Send(char *buffer, size_t size);		// send a message to the connected socket
 		int SendRequest();
 		int SendAck();
@@ -208,6 +208,9 @@ class NachosSocket {
 		int local_port;									// Local mail box
 		int remote_port;								// remote mail box
 		int remote_machine;								// Remote machine
-		
+
+		char* reception_buffer;							//This buffer is used when we take a part of a mail
+														//the rest is stored here for later
+		unsigned int buffer_length;	
 };
 #endif

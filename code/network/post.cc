@@ -525,11 +525,15 @@ NachosSocket::NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int 
 	confirm = false;
 	ack = false;
 	messages = new SynchList();
+
+	reception_buffer = new char[MaxMailSize];
+	buffer_length = 0;
 }
 
 NachosSocket::~NachosSocket()
 {
 	delete messages;
+	delete reception_buffer;
 }
 
 /**
@@ -539,16 +543,88 @@ NachosSocket::~NachosSocket()
  * Return 0 if there is nothing to read, -1 if the socket is closed
  * -2 if the socket is waiting for connection
  */
-int NachosSocket::Receive(char *buffer, size_t size)
+int NachosSocket::Receive(char *buffer, unsigned int size)
 {	
 	if(status != SOCKET_CONNECTED)
 	{
 		return -1;
 	}
-	
-	//TODO
-	//get size bytes in the buffer or less if we can't and return the number of read bytes
-	return 0;
+
+	unsigned int received_size = 0;
+
+	//firstly pick bytes in the buffer if it is not empty
+	if(buffer_length > 0)
+	{
+		//we take all the buffer
+		if(buffer_length <= size)
+		{
+			bcopy(reception_buffer, buffer, buffer_length);
+			received_size += buffer_length;
+			buffer_length = 0;
+		}
+		//we only take a part of the buffer
+		else
+		{
+			bcopy(reception_buffer, buffer, size);
+			received_size += size;
+			buffer_length -= size;
+			//replace the buffer content to the beggining of the buffer
+			memmove(reception_buffer, reception_buffer + size, MaxMailSize - size);
+		}
+	}
+
+	if(received_size == size)
+	{
+		return received_size;
+	}
+
+	//then if we still need bytes, pick a new mail
+	Mail* mail;
+	/*if(mail_counter != 0)
+	{*/
+		mail = PickAMail();
+	/*}
+	else
+	{
+		return 	
+	}*/
+
+	while(mail != NULL && received_size < size)
+	{
+		//take all the mail
+		if(mail->mailHdr.length <= size-received_size)
+		{
+			//TODO just see if the arithmetic pointer is ok here when testing
+			bcopy(mail->data, (void*)(buffer+received_size), mail->mailHdr.length);
+			received_size += mail->mailHdr.length;
+		}
+		//take a part of the mail and put the rest in the socket buffer
+		else
+		{
+			bcopy(mail->data, (void*)(buffer+received_size), size-received_size);
+			
+			//copy the rest in the buffer (we know it is empty if we are here)
+			bcopy((mail->data)+(size-received_size), reception_buffer, mail->mailHdr.length-(size-received_size));
+			buffer_length = mail->mailHdr.length-(size-received_size);
+			received_size = size;
+		}
+		delete mail;
+
+		//take a new mail if more bytes needed
+		if(received_size < size)
+		{
+			/*if(mail_counter != 0)
+			{*/
+				mail = PickAMail();
+			/*}
+			else
+			{
+				mail = NULL;
+			}*/
+		}
+	}
+
+	return received_size;
 }
 
 int NachosSocket::SendRequest()
@@ -581,7 +657,7 @@ int NachosSocket::SendAck()
 int NachosSocket::SendMail(char* buffer,unsigned int size)
 {
 	 
-	MailHeader mailHdr; //= new MailHeader();
+	MailHeader mailHdr;
 	mailHdr.mailType = MESSAGE;
     mailHdr.to = remote_port;
     mailHdr.from = local_port;
