@@ -29,8 +29,9 @@ extern PostOffice* postOffice;
 extern Thread *currentThread;
 extern Statistics *stats;
 
-#define NB_REEMISSION 10
-#define TIMEOUT 1000000					//1 tick >< 1 micro s
+#define NB_REEMISSION 500
+#define SEND_TIMEOUT 10000
+#define TIMEOUT SEND_TIMEOUT*(NB_REEMISSION+1)
 
 //----------------------------------------------------------------------
 // Mail::Mail
@@ -287,6 +288,7 @@ PostOffice::PostalDelivery()
 {
     PacketHeader pktHdr, conf_pktHdr ;
     MailHeader mailHdr, conf_mailHdr ;
+	NachosSocket* socket;
     char m_buffer[MaxPacketSize];	//we want to avoid memory leak, so alloc on
     char *buffer = m_buffer;		//stack and then point on allocated memory, the function will not exit so
 					// there is no risk of data loss
@@ -308,17 +310,23 @@ PostOffice::PostalDelivery()
 		ASSERT(mailHdr.length <= MaxMailSize);
 
 		// put into mailbox
-
 		switch(mailHdr.mailType)
 		{
 			case CONFIRMATION:
 			{
 				boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)]->confirm = true;
+				boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)]->confirm_id = mailHdr.id;
 				break;
 			}
 			case ACK:
 			{
-				boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)]->ack = true;
+				socket = boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)];
+
+				if(mailHdr.id > socket->received_id)
+				{
+					socket->ack = true;
+					socket->received_id ++;
+				}
 				break;
 			}
 			case REQUEST:
@@ -331,7 +339,13 @@ PostOffice::PostalDelivery()
 			}
 			case MESSAGE:
 			{
-				boxes[mailHdr.to].Put(boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from), pktHdr, mailHdr, buffer + sizeof(MailHeader));
+				socket = boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)];
+				if(mailHdr.id > socket->received_id)
+				{
+					boxes[mailHdr.to].Put(boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from),
+					pktHdr, mailHdr, buffer + sizeof(MailHeader));
+					socket->received_id ++;
+				}
 				break;
 			}
 			default:
@@ -352,6 +366,7 @@ PostOffice::PostalDelivery()
 			conf_mailHdr.from = mailHdr.to;
 			conf_mailHdr.mailType = CONFIRMATION;
 			conf_mailHdr.length = 0;
+			conf_mailHdr.id = mailHdr.id;
 			Send(conf_pktHdr,conf_mailHdr,NULL);
 		}
     }
@@ -370,7 +385,7 @@ PostOffice::PostalDelivery()
 //	"data" -- payload message data
 //----------------------------------------------------------------------
 
-void
+int
 PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
 {
     char* buffer = new char[MaxPacketSize]();	// space to hold concatenated
@@ -394,13 +409,14 @@ PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
 
     sendLock->Acquire();   		// only one message can be sent
 					// to the network at any one time
-    network->Send(pktHdr, buffer);
+    int return_value = network->Send(pktHdr, buffer);
     messageSent->P();			// wait for interrupt to tell us
 					// ok to send the next message
     sendLock->Release();
 
     delete [] buffer;			// we've sent the message, so
 					// we can delete our buffer
+	return return_value;
 }
 
 //----------------------------------------------------------------------
@@ -532,6 +548,9 @@ NachosSocket::NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int 
 	ack = false;
 	messages = new SynchList();
 
+	mail_id_counter = 1;
+	received_id = 0;
+
 	reception_buffer = new char[MaxMailSize];
 	buffer_length = 0;
 }
@@ -632,7 +651,7 @@ int NachosSocket::Receive(char *buffer, unsigned int size)
 
 	return received_size;
 }
-
+//------------------------------------------------------------------------//
 int NachosSocket::SendRequest()
 {
 	MailHeader mailHdr; //= new MailHeader();
@@ -646,7 +665,7 @@ int NachosSocket::SendRequest()
 
 	return Send(packetHdr, mailHdr, NULL);
 }
-
+//------------------------------------------------------------------------//
 int NachosSocket::SendAck()
 {
 	MailHeader mailHdr; //= new MailHeader();
@@ -660,6 +679,7 @@ int NachosSocket::SendAck()
 	
 	return Send(packetHdr, mailHdr, NULL);
 }
+//------------------------------------------------------------------------//
 int NachosSocket::SendMail(char* buffer,unsigned int size)
 {
 	 
@@ -693,6 +713,47 @@ int NachosSocket::SendMail(char* buffer,unsigned int size)
 	}
 	return 0;
 }
+//------------------------------------------------------------------------//
+int NachosSocket::Send(PacketHeader packetHdr,MailHeader mailHdr, char* data)
+{
+	long long int startTick;
+	int i=0;
+
+	//TODO use the id counter in a method with lock
+	if(mailHdr.mailType != REQUEST)
+	{
+		mailHdr.id = mail_id_counter;
+		mail_id_counter++;
+	}
+	else
+	{
+		mailHdr.id = 0;
+	}
+
+	while (!confirm && i<NB_REEMISSION)
+	{
+		startTick = stats->totalTicks;
+		if(postOffice->Send(packetHdr, mailHdr, data) < 0)
+		{
+			//socket closed
+			return -2;
+		}
+		while((!confirm || confirm_id!=mailHdr.id) && stats->totalTicks < startTick+SEND_TIMEOUT)
+		{
+			currentThread->Yield();			
+		}
+		i++;
+	}
+	if(!confirm || confirm_id!=mailHdr.id)
+	{
+		//timeout reached
+		return -1;
+	}
+	confirm = false;
+	return 0;							// Success Sending Mail
+	
+}
+//------------------------------------------------------------------------//
 int NachosSocket::WaitTimeoutAck()
 {
 	long long int startTick = stats->totalTicks;
@@ -707,35 +768,12 @@ int NachosSocket::WaitTimeoutAck()
 	}
 	return 0;
 }
-
-int NachosSocket::Send(PacketHeader packetHdr,MailHeader mailHdr,char* data)
-{
-	long long int startTick = stats->totalTicks;
-	int i=0;
-
-	while (!confirm && i<NB_REEMISSION)
-	{
-		postOffice->Send(packetHdr, mailHdr, data);
-		while(!confirm && stats->totalTicks<startTick+TIMEOUT)
-		{
-			currentThread->Yield();			
-		}
-		i++;
-	}
-	if(!confirm)
-	{
-		return -1;						//Send Timeout
-	}
-	confirm = false;
-	return 0;							// Success Sending Mail
-	
-}
-
+//------------------------------------------------------------------------//
 Mail* NachosSocket::PickAMail()
 {
 	return ((Mail*)messages->Remove());
 }
-
+//------------------------------------------------------------------------//
 /**
  * Disconnect the socket(update its status).
  * Return -1 if socket is already disconnected, 0 if no error.
@@ -751,28 +789,29 @@ int NachosSocket::Disconnect()
 	status = SOCKET_CLOSED;
 	return 0;
 }
-
+//------------------------------------------------------------------------//
 void NachosSocket::SetStatus(SocketStatusEnum new_status)
 {
 	status = new_status;
 }
-
+//------------------------------------------------------------------------//
 int NachosSocket::LocalPort()
 {
 	return local_port;
 }
-
+//------------------------------------------------------------------------//
 bool NachosSocket::IsListening()
 {
 	return (status == SOCKET_LISTENING);
 }
-
+//------------------------------------------------------------------------//
 int NachosSocket::RemotePort()
 {
 	return remote_port;
 }
+//------------------------------------------------------------------------//
 int NachosSocket::RemoteMachine()
 {
 	return remote_machine;
 }
-
+//------------------------------------------------------------------------//

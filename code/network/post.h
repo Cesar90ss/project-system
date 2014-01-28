@@ -54,6 +54,7 @@ enum MailType {
 
 class MailHeader {
   public:
+	unsigned int id;
 	MailType mailType;
     MailBoxAddress to;					// Destination mail box
     MailBoxAddress from;				// Mail box to reply to
@@ -129,7 +130,7 @@ class PostOffice {
 
 	int NumBoxes();
 
-    void Send(PacketHeader pktHdr, MailHeader mailHdr, const char *data);
+    int Send(PacketHeader pktHdr, MailHeader mailHdr, const char *data);
 										// Send a message to a mailbox on a remote
 										// machine.  The fromBox in the MailHeader is
 										// the return box for ack's.
@@ -196,6 +197,8 @@ class NachosSocket {
 		int RemotePort();
 		int RemoteMachine();
 		bool confirm;									// state of the confirmation
+		unsigned int confirm_id;						// the id of the message confirmed
+		unsigned int received_id;
 		bool ack;										// state of acknowledgement
 		void SetStatus(SocketStatusEnum new_status);
 
@@ -211,6 +214,7 @@ class NachosSocket {
 
 		char* reception_buffer;							//This buffer is used when we take a part of a mail
 														//the rest is stored here for later
-		unsigned int buffer_length;	
+		unsigned int buffer_length;
+		unsigned int mail_id_counter;
 };
 #endif

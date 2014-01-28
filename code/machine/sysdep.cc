@@ -379,7 +379,7 @@ ReadFromSocket(int sockID, char *buffer, int packetSize)
 // 	Transmit a fixed size packet to another Nachos' IPC port.
 //	Abort on error.
 //----------------------------------------------------------------------
-void
+int
 SendToSocket(int sockID, const char *buffer, int packetSize, const char *toName)
 {
     struct sockaddr_un uName;
@@ -388,7 +388,14 @@ SendToSocket(int sockID, const char *buffer, int packetSize, const char *toName)
     InitSocketName(&uName, toName);
     retVal = sendto(sockID, buffer, packetSize, 0,
 			  (sockaddr *) &uName, sizeof(uName));
-    ASSERT(retVal == packetSize);
+    if(retVal != packetSize)
+	{
+		return -1;	
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 

@@ -99,7 +99,7 @@ Network::SendDone()
 //
 // Note we always pad out a packet to MaxWireSize before putting it into
 // the socket, because it's simpler at the receive end.
-void
+int
 Network::Send(PacketHeader hdr, char* data)
 {
     char toName[32];
@@ -114,7 +114,7 @@ Network::Send(PacketHeader hdr, char* data)
 
     if (Random() % 100 >= chanceToWork * 100) { // emulate a lost packet
 	DEBUG('n', "oops, lost it!\n");
-	return;
+	return 0;
     }
 
     // concatenate hdr and data into a single buffer, and send it out
@@ -122,7 +122,7 @@ Network::Send(PacketHeader hdr, char* data)
     //bzero(buffer,MaxWireSize);
     *(PacketHeader *)buffer = hdr;
     bcopy(data, buffer + sizeof(PacketHeader), hdr.length);
-    SendToSocket(sock, buffer, MaxWireSize, toName);
+	return SendToSocket(sock, buffer, MaxWireSize, toName);
     delete []buffer;
 }
 
