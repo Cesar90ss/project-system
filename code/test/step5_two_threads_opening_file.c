@@ -7,7 +7,7 @@ void *fun(void *arg)
     int file = Open("test");
     if(file >= 0)
     {
-        PutString("a");
+        PutString("ok");
     }
 
     int i;
@@ -16,17 +16,6 @@ void *fun(void *arg)
     return 0;
 }
 
-void *fun2(void *arg)
-{
-    int *file_id = (int*) arg;
-    char c = 'a';
-
-    if(Write(*file_id, &c, 1) <= 0)
-    {
-        PutString("b");
-    }
-    return 0;
-}
 int main()
 {
     int i;
@@ -35,20 +24,13 @@ int main()
 
     for(i=0;i<NB_THREADS; i++)
     {
-        if(i==4 || i==7)
-        {
-            id[i] = UserThreadCreate(fun2, &file);
-        }
-        else
-        {
-            id[i] = UserThreadCreate(fun, &file);
-        }
+        id[i] = UserThreadCreate(fun, &file);
     }
 
     for(i=0;i<NB_THREADS; i++)
     {
         UserThreadJoin(id[i],NULL);
     }
-    PutString("OK\n");
+    PutString("END\n");
     return 0;
 }
