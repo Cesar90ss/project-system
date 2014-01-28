@@ -11,7 +11,8 @@ echo -n "1" > /tmp/test1
 ./nachos-step5 -cp step5_two_threads_opening_file run
 
 # Test case
-OUTPUT=$(./nachos-step5 -x -rs 4 run | grep -E "(ok){10]END")
+./nachos-step5 -x run -rs 4
+OUTPUT=$(./nachos-step5 -x run -rs 4 | grep -E "(ok){9}END")
 
 #Clean up test
 ./nachos-step5 -f

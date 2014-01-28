@@ -11,8 +11,8 @@ cd $NACHOS_DIR
 ./nachos-step5 -cp step5_two_process_open_file_sub run2
 
 # Test case
-./nachos-step5 -x run -rs 4
-OUTPUT=$(./nachos-step5 -x run -rs 4 | grep -E "(okbad|badok)")
+
+OUTPUT=$(./nachos-step5 -x run -rs 4 | grep -E "okok")
 
 if [ -n "$OUTPUT" ]; then
     RETURN=0

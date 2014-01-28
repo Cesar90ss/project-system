@@ -35,7 +35,7 @@ public:
 
 private:
     // Keep track of opened file (for removal)
-    std::set<std::string> fileNames;
+    std::map<std::string, int> fileNames;
 
     // Keep track of opened file (for sync)
     // First arg is sector

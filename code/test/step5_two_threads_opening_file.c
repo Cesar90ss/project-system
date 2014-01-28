@@ -1,5 +1,5 @@
 #include "syscall.h"
-#define NB_THREADS 10
+#define NB_THREADS 9
 #define NULL 0
 
 void *fun(void *arg)

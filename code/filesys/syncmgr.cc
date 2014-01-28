@@ -13,7 +13,10 @@ bool FileSyncMgr::IsOpenedFile(const char *name)
  **/
 void FileSyncMgr::NewOpenedFile(const char *name)
 {
-    fileNames.insert(std::string(name));
+    if (IsOpenedFile(name))
+        fileNames[std::string(name)]++;
+    else
+        fileNames[std::string(name)] = 1;
 }
 
 /**
@@ -23,7 +26,10 @@ void FileSyncMgr::DeleteOpenedFile(const char *name)
 {
     ASSERT(IsOpenedFile(name));
 
-    fileNames.erase(std::string(name));
+    fileNames[std::string(name)]--;
+
+    if (fileNames[std::string(name)] == 0)
+        fileNames.erase(std::string(name));
 }
 
 /**

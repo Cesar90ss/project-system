@@ -212,8 +212,9 @@ void CurrentDirectoryTest()
         return;
     }
 
-    buffer = new char[TransferSize];
+    buffer = new char[TransferSize + 1];
     amountRead = openFile->Read(buffer, TransferSize);
+    delete openFile;
 
     buffer[amountRead] = '\0';
     if (strncmp("test1", buffer, TransferSize) != 0)
@@ -223,7 +224,6 @@ void CurrentDirectoryTest()
     }
 
     delete [] buffer;
-    delete openFile;		// close the Nachos file
 
 
     // Change directory to /a
@@ -234,10 +234,10 @@ void CurrentDirectoryTest()
         return;
     }
 
-    buffer = new char[TransferSize];
+    buffer = new char[TransferSize + 1];
     amountRead = openFile->Read(buffer, TransferSize);
     delete openFile;
-    
+
     buffer[amountRead] = '\0';
     if (strncmp("test2", buffer, TransferSize) != 0)
     {
@@ -260,7 +260,7 @@ static void fn(int arg)
         return;
     }
 
-    buffer = new char[TransferSize];
+    buffer = new char[TransferSize + 1];
     int amountRead = openFile->Read(buffer, TransferSize);
     buffer[amountRead] = '\0';
 
@@ -301,7 +301,7 @@ void CurrentDirectoryTest2()
         return;
     }
 
-    buffer = new char[TransferSize];
+    buffer = new char[TransferSize + 1];
     int amountRead = openFile->Read(buffer, TransferSize);
     buffer[amountRead] = '\0';
 

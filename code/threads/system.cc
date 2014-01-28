@@ -201,7 +201,6 @@ Cleanup ()
 
 #ifdef USER_PROGRAM
     delete machine;
-    delete synchconsole;
     delete frameProvider;
     delete processMgr;
 #endif
@@ -209,6 +208,10 @@ Cleanup ()
 #ifdef FILESYS_NEEDED
     delete fileSystem;
     delete fileSyncMgr;
+#endif
+
+#ifdef USER_PROGRAM
+    delete synchconsole;
 #endif
 
 #ifdef FILESYS
