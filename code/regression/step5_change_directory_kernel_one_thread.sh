@@ -16,7 +16,7 @@ echo -n "test2" > /tmp/test2
 # Test case
 ./nachos-step5 -tk1
 
-OUTPUT=$(echo "$?")
+OUTPUT=$(echo $?)
 
 #Clean up test
 ./nachos-step5 -f
