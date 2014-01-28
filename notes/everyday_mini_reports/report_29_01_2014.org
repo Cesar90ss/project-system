@@ -1,0 +1,5 @@
+- Merge both branch (network/filesys)
+- Check/Finish user-doc
+- Start report --> todo list
+- Create a mini shell able to handle mkdir, cp... To be able to show our filesystem
+- Add a command send and receive

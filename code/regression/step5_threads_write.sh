@@ -5,9 +5,13 @@ cd $NACHOS_DIR
 #format disk
 ./nachos-step5 -f
 
+echo -n "" > /tmp/test
+./nachos-step5 -cp /tmp/test test
 ./nachos-step5 -cp step5_threads_write run
 
-OUTPUT=$(./nachos-step5 -x run -rs 4 | sed 's/./&\n/300' | sort | tr -d "\n")
+./nachos-step5 -x run -rs 4
+
+OUTPUT=$(./nachos-step5 -p test | sed 's/./&\n/300' | sort | tr -d "\n")
 
 for i in {1..300}; do
     echo -n "a" >> /tmp/test
@@ -34,8 +38,6 @@ EXPECTED_OUTPUT=$(cat /tmp/test)
 
 #Clean up test
 ./nachos-step5 -f
-echo "$OUTPUT"
-echo "$EXPECTED_OUTPUT"
 
 if [ "$OUTPUT"="$EXPECTED_OUTPUT" ]; then
     exit 0
