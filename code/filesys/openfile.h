@@ -32,11 +32,11 @@ public:
     OpenFile(int f, const char *name) { file = f; currentOffset = 0; }	// open the file
     ~OpenFile() { Close(file); }			// close the file
 
-    int ReadAt(char *into, int numBytes, int position) {
+    int ReadAt(char *into, int numBytes, int position, bool unused = false) {
         Lseek(file, position, 0);
         return ReadPartial(file, into, numBytes);
     }
-    int WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space = false) {
+    int WriteAt(const char *from, int numBytes, int position, bool unused = false, bool unused2 = false) {
         Lseek(file, position, 0);
         WriteFile(file, from, numBytes);
         return numBytes;
@@ -55,13 +55,14 @@ public:
     void Seek(int position) { Lseek(file, position, 0); }
     int Length() { Lseek(file, 0, 2); return Tell(file); }
     // Read handling virtual memory
-    int ReadAtVirtual(int virtualAddr, int numBytes, int position);
-    int WriteAtVirtual(int virtualAddr, int numBytes, int position);
+    int ReadAtVirtual(int virtualAddr, int numBytes, int position, bool unused = false);
+    int WriteAtVirtual(int virtualAddr, int numBytes, int position, bool unused = false);
     int ReadVirtual(int virtualAddr, int numBytes) { return 0; };
     int WriteVirtual(int virtualAddr, int numBytes) { return 0; };
 private:
     int file;
     int currentOffset;
+    FileHdrSync *sync;
 };
 
 #else // FILESYS
@@ -86,7 +87,7 @@ public:
     int ReadAt(char *into, int numBytes, int position, bool takeLock = true);
     // Read/write bytes from the file,
     // bypassing the implicit position.
-    int WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space = false);
+    int WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space = false, bool takeLock = true);
 
     int Length();           // Return the number of bytes in the
     // file (this interface is simpler
@@ -94,8 +95,8 @@ public:
     // end of file, tell, lseek back
 
     // Read handling virtual memory
-    int ReadAtVirtual(int virtualAddr, int numBytes, int position);
-    int WriteAtVirtual(int virtualAddr, int numBytes, int position);
+    int ReadAtVirtual(int virtualAddr, int numBytes, int position, bool takelock = true);
+    int WriteAtVirtual(int virtualAddr, int numBytes, int position, bool takeLock = true);
     int ReadVirtual(int virtualAddr, int numBytes);
     int WriteVirtual(int virtualAddr, int numBytes);
 

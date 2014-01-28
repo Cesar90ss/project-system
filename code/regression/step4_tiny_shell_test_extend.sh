@@ -3,7 +3,7 @@ NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
 
-OUTPUT=$(echo $'step4_tiny_shell_test_program1\nstep4_tiny_shell_test_program2 &\nfg 0\n' | ./nachos-step4 -x step4_tiny_shell -rs 2)
+OUTPUT=$(printf "step4_tiny_shell_test_program1\nstep4_tiny_shell_test_program2 &\nfg 0\n" | ./nachos-step4 -x step4_tiny_shell -rs 2)
 SORTED_STRING=$(echo "$OUTPUT" | sort | uniq -c)
 echo "$SORTED_STRING"
 

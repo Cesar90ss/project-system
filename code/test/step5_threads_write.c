@@ -2,20 +2,20 @@
 #define NB_THREADS 9
 #define NULL 0
 
+int file;
 void *fun(void *arg)
 {
     int letter = (int) arg;
-    int file = Open("test");
 
-    char buffer[5];
+    char buffer[300];
     int i, j;
 
     for(j=0; j<300; j++)
     {
-       buffer[j]='a' + letter; 
+        buffer[j]='a' + letter;
     }
 
-    Write(file, buffer, 5);
+    Write(file, buffer, 300);
 
     for(i=0; i<1000; i++);
 
@@ -24,7 +24,7 @@ void *fun(void *arg)
 
 int main()
 {
-    Open("test");
+    file = Open("test");
     char id[NB_THREADS];
 
     int i;
@@ -38,5 +38,6 @@ int main()
         UserThreadJoin(id[i],NULL);
     }
     PutString("END\n");
+    Close(file);
     return 0;
 }

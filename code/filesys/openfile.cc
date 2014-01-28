@@ -19,6 +19,28 @@
 
 #include <strings.h> /* for bzero */
 
+static inline void TakeReaderLock(FileHdrSync* sync)
+{
+    sync->mutex->P();
+    sync->readcount++;
+    if (sync->readcount == 1)
+    {
+        sync->writer->P();
+    }
+    sync->mutex->V();
+}
+
+static inline void GiveReaderLock(FileHdrSync* sync)
+{
+    sync->mutex->P();
+    sync->readcount--;
+    if (sync->readcount == 0)
+    {
+        sync->writer->V();
+    }
+    sync->mutex->V();
+}
+
 #ifndef FILESYS_STUB
 //----------------------------------------------------------------------
 // OpenFile::OpenFile
@@ -97,36 +119,47 @@ OpenFile::Seek(int position)
 //	"from" -- the buffer containing the data to be written to disk
 //	"numBytes" -- the number of bytes to transfer
 //----------------------------------------------------------------------
-
 int
 OpenFile::Read(char *into, int numBytes)
 {
-    int result = ReadAt(into, numBytes, seekPosition);
+    // R/W lock
+    TakeReaderLock(sync);
+
+    int result = ReadAt(into, numBytes, seekPosition, false);
     seekPosition += result;
+
+    GiveReaderLock(sync);
+
     return result;
 }
 
 int
 OpenFile::Write(const char *into, int numBytes)
 {
-    int result = WriteAt(into, numBytes, seekPosition, true);
+    sync->writer->P();
+    int result = WriteAt(into, numBytes, seekPosition, true, false);
     seekPosition += result;
+    sync->writer->V();
     return result;
 }
 
 int
 OpenFile::ReadVirtual(int virtualAddr, int numBytes)
 {
-    int result = ReadAtVirtual(virtualAddr, numBytes, seekPosition);
+    TakeReaderLock(sync);
+    int result = ReadAtVirtual(virtualAddr, numBytes, seekPosition, false);
     seekPosition += result;
+    GiveReaderLock(sync);
     return result;
 }
 
 int
 OpenFile::WriteVirtual(int virtualAddr, int numBytes)
 {
-    int result = WriteAtVirtual(virtualAddr, numBytes, seekPosition);
+    sync->writer->P();
+    int result = WriteAtVirtual(virtualAddr, numBytes, seekPosition, false);
     seekPosition += result;
+    sync->writer->V();
     return result;
 }
 
@@ -161,15 +194,7 @@ OpenFile::ReadAt(char *into, int numBytes, int position, bool takeLock)
 {
     // R/W lock
     if (takeLock)
-    {
-        sync->mutex->P();
-        sync->readcount++;
-        if (sync->readcount == 1)
-        {
-            sync->writer->P();
-        }
-        sync->mutex->V();
-    }
+        TakeReaderLock(sync);
 
     int fileLength = hdr->FileLength();
     int i, firstSector, lastSector, numSectors;
@@ -178,15 +203,8 @@ OpenFile::ReadAt(char *into, int numBytes, int position, bool takeLock)
     if ((numBytes <= 0) || (position >= fileLength))
     {
         if (takeLock)
-        {
-            sync->mutex->P();
-            sync->readcount--;
-            if (sync->readcount == 0)
-            {
-                sync->writer->V();
-            }
-            sync->mutex->V();
-        }
+            GiveReaderLock(sync);
+
         return 0;               // check request
     }
 
@@ -211,23 +229,16 @@ OpenFile::ReadAt(char *into, int numBytes, int position, bool takeLock)
 
     // Release r/w lock
     if (takeLock)
-    {
-        sync->mutex->P();
-        sync->readcount--;
-        if (sync->readcount == 0)
-        {
-            sync->writer->V();
-        }
-        sync->mutex->V();
-    }
+        GiveReaderLock(sync);
 
     return numBytes;
 }
 
 int
-OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space)
+OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space, bool takeLock)
 {
-    sync->writer->P();
+    if (takeLock)
+        sync->writer->P();
 
     int fileLength = hdr->FileLength();
     int i, firstSector, lastSector, numSectors;
@@ -236,7 +247,8 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
 
     if (numBytes <= 0)
     {
-        sync->writer->V();
+        if (takeLock)
+            sync->writer->V();
         return 0;				// check request
     }
 
@@ -260,7 +272,8 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
         if (!hdr->AskForSectors(freeMap, total_size - hdr->FileLength()))
         {
             freeMap->WriteBack(fileSystem->GetFreeMapFile());
-            sync->writer->V();
+            if (takeLock)
+                sync->writer->V();
             delete freeMap;
             return -1;
         }
@@ -292,7 +305,8 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
         synchDisk->WriteSector(hdr->ByteToSector(i * SectorSize),
                                &buf[(i - firstSector) * SectorSize]);
     delete [] buf;
-    sync->writer->V();
+    if (takeLock)
+        sync->writer->V();
     return numBytes;
 }
 
@@ -309,18 +323,23 @@ OpenFile::Length()
 #endif
 
 
-int OpenFile::ReadAtVirtual(int virtualAddr, int numBytes, int position)
+int OpenFile::ReadAtVirtual(int virtualAddr, int numBytes, int position, bool takeLock)
 {
+    if (takeLock)
+        TakeReaderLock(sync);
+
     char *buffer = new char[numBytes];
     int ret = 0;
     int i = 0;
 
-    ret = ReadAt(buffer, numBytes, position);
+    ret = ReadAt(buffer, numBytes, position, false);
 
     // Error case, handle
     if (ret < 0)
     {
         DEBUG('a', "Error %d with readAt\n", ret);
+        if (takeLock)
+            GiveReaderLock(sync);
         delete [] buffer;
         return ret;
     }
@@ -332,6 +351,8 @@ int OpenFile::ReadAtVirtual(int virtualAddr, int numBytes, int position)
         if (!machine->WriteMem(virtualAddr + i, sizeof(char), buffer[i]))
         {
             DEBUG('a', "Error %d with WriteMem\n", ret);
+            if (takeLock)
+                GiveReaderLock(sync);
             delete [] buffer;
             return -1;
         }
@@ -341,17 +362,25 @@ int OpenFile::ReadAtVirtual(int virtualAddr, int numBytes, int position)
 
     delete [] buffer;
 
+    if (takeLock)
+        GiveReaderLock(sync);
     return ret;
 }
 
-int OpenFile::WriteAtVirtual(int virtualAddr, int numBytes, int position)
+int OpenFile::WriteAtVirtual(int virtualAddr, int numBytes, int position, bool takeLock)
 {
+    if (takeLock)
+        sync->writer->P();
+
     char *c = new char[numBytes + 1];
     int really_write = copyStringFromMachine(virtualAddr, c, numBytes);
     c[really_write] = '\0';
 
-    int res = WriteAt(c, numBytes, position, true);
+    int res = WriteAt(c, numBytes, position, true, false);
     delete c;
+
+    if (takeLock)
+        sync->writer->P();
 
     return res;
 }
