@@ -10,7 +10,7 @@ echo -n "0123456789" > /tmp/test1
 
 ./nachos-step5 -cp /tmp/test1 test
 ./nachos-step5 -cp step5_thread_close_read run
-
+./nachos-step5 -x run -rs 4
 OUTPUT=$(./nachos-step5 -x run -rs 4 | grep "END")
 
 #Clean up test

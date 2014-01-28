@@ -54,7 +54,8 @@ OpenFile::OpenFile(int sector, const char* filename)
 
 OpenFile::~OpenFile()
 {
-    sync->writer->P();
+    if (currentThread != NULL)
+        sync->writer->P();
 
     if (name != NULL)
     {
@@ -63,7 +64,8 @@ OpenFile::~OpenFile()
     }
     delete hdr;
 
-    sync->writer->V();
+    if (currentThread != NULL)
+        sync->writer->V();
 
     // Detach sync structure
     fileSyncMgr->DetachFileSyncForFile(fileSector);

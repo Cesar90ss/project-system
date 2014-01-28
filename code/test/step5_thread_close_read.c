@@ -13,15 +13,16 @@ void *fun(void *arg)
     char buffer[5];
     int i, j;
 
-    for(i=0; i<10; i++)
+    for(i=0; i<2; i++)
     {
         Read(file, buffer, 5);
         for(j=0; j<5; j++)
         {
             //PutChar(buffer[j]);
-            if(buffer[j] != '0'+i)
+            if(buffer[j] != '0'+(j + i*5))
             {
-              Exit(0);
+                PutString(buffer);
+                Exit(0);
             }
         }
     }
