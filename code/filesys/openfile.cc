@@ -28,12 +28,23 @@
 //	"sector" -- the location on disk of the file header for this file
 //----------------------------------------------------------------------
 
-OpenFile::OpenFile(int sector)
+OpenFile::OpenFile(int sector, const char* filename)
 {
     hdr = new FileHeader;
     hdr->FetchFrom(sector);
     seekPosition = 0;
     fileSector = sector;
+    if (filename == NULL)
+    {
+        name = NULL;
+    }
+    else
+    {
+        name = new char[strlen(filename) + 1];
+        strcpy(name, filename);
+    }
+
+    sync = fileSyncMgr->GetFileSyncForFile(sector);
 }
 
 //----------------------------------------------------------------------
@@ -43,7 +54,20 @@ OpenFile::OpenFile(int sector)
 
 OpenFile::~OpenFile()
 {
+    sync->lock->Acquire();
+
+    if (name != NULL)
+    {
+        fileSyncMgr->DeleteOpenedFile(name);
+        delete [] name;
+    }
     delete hdr;
+
+    sync->lock->Release();
+
+    // Detach sync structure
+
+    fileSyncMgr->DetachFileSyncForFile(fileSector);
 }
 
 //----------------------------------------------------------------------
@@ -132,14 +156,22 @@ OpenFile::WriteVirtual(int virtualAddr, int numBytes)
 //----------------------------------------------------------------------
 
 int
-OpenFile::ReadAt(char *into, int numBytes, int position)
+OpenFile::ReadAt(char *into, int numBytes, int position, bool takeLock)
 {
+    if (takeLock)
+        sync->lock->Acquire();
+
     int fileLength = hdr->FileLength();
     int i, firstSector, lastSector, numSectors;
     char *buf;
 
     if ((numBytes <= 0) || (position >= fileLength))
+    {
+        if (takeLock)
+            sync->lock->Release();
         return 0;               // check request
+    }
+
     if ((position + numBytes) > fileLength)
         numBytes = fileLength - position;
     DEBUG('f', "Reading %d bytes at %d, from file of length %d.\n",
@@ -158,19 +190,28 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
     // copy the part we want
     bcopy(&buf[position - (firstSector * SectorSize)], into, numBytes);
     delete [] buf;
+
+    if (takeLock)
+        sync->lock->Release();
+
     return numBytes;
 }
 
 int
 OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space)
 {
+    sync->lock->Acquire();
+
     int fileLength = hdr->FileLength();
     int i, firstSector, lastSector, numSectors;
     bool firstAligned, lastAligned;
     char *buf;
 
     if (numBytes <= 0)
+    {
+        sync->lock->Release();
         return 0;				// check request
+    }
 
     DEBUG('f', "Writing %d bytes at %d, from file of length %d.\n",
           numBytes, position, fileLength);
@@ -192,6 +233,7 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
         if (!hdr->AskForSectors(freeMap, total_size - hdr->FileLength()))
         {
             freeMap->WriteBack(fileSystem->GetFreeMapFile());
+            sync->lock->Release();
             delete freeMap;
             return -1;
         }
@@ -210,10 +252,10 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
 
 // read in first and last sector, if they are to be partially modified
     if (!firstAligned)
-        ReadAt(buf, SectorSize, firstSector * SectorSize);
+        ReadAt(buf, SectorSize, firstSector * SectorSize, false);
     if (!lastAligned && ((firstSector != lastSector) || firstAligned))
         ReadAt(&buf[(lastSector - firstSector) * SectorSize],
-               SectorSize, lastSector * SectorSize);
+               SectorSize, lastSector * SectorSize, false);
 
 // copy in the bytes we want to change
     bcopy(from, &buf[position - (firstSector * SectorSize)], numBytes);
@@ -223,6 +265,7 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
         synchDisk->WriteSector(hdr->ByteToSector(i * SectorSize),
                                &buf[(i - firstSector) * SectorSize]);
     delete [] buf;
+    sync->lock->Release();
     return numBytes;
 }
 

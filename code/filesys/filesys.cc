@@ -103,8 +103,8 @@ FileSystem::FileSystem(bool format)
         // The file system operations assume these two files are left open
         // while Nachos is running.
 
-        freeMapFile = new OpenFile(FreeMapSector);
-        directoryFile = new OpenFile(DirectorySector);
+        freeMapFile = new OpenFile(FreeMapSector, NULL);
+        directoryFile = new OpenFile(DirectorySector, NULL);
 
         // Once we have the files "open", we can write the initial version
         // of each file back to disk.  The directory at this point is completely
@@ -128,8 +128,8 @@ FileSystem::FileSystem(bool format)
     } else {
         // if we are not formatting the disk, just open the files representing
         // the bitmap and directory; these are left open while Nachos is running
-        freeMapFile = new OpenFile(FreeMapSector);
-        directoryFile = new OpenFile(DirectorySector);
+        freeMapFile = new OpenFile(FreeMapSector, NULL);
+        directoryFile = new OpenFile(DirectorySector, NULL);
     }
 }
 
@@ -224,29 +224,21 @@ FileSystem::Create(const char *name, int initialSize)
         else
         {
             hdr = new FileHeader;
-/*            // No space on disk for data
-            if (!hdr->AskFor(freeMap, initialSize))
-            {
-                success = FALSE;
-            }
-            else
-            {*/
-                success = TRUE;
+            success = TRUE;
 
-                // everthing worked, flush all changes back to disk
-                OpenFile *f = new OpenFile(parent_sector);
+            // everthing worked, flush all changes back to disk
+            OpenFile *f = new OpenFile(parent_sector, NULL);
 
-                // Write File header on disk
-                hdr->WriteBack(sector);
+            // Write File header on disk
+            hdr->WriteBack(sector);
 
-                // Write directory structure on disk
-                directory->WriteBack(f);
+            // Write directory structure on disk
+            directory->WriteBack(f);
 
-                // Write free sectors on disk
-                freeMap->WriteBack(freeMapFile);
+            // Write free sectors on disk
+            freeMap->WriteBack(freeMapFile);
 
-                delete f;
-                /* } */
+            delete f;
             delete hdr;
         }
         delete freeMap;
@@ -276,11 +268,16 @@ FileSystem::Open(const char *name)
     OpenFile *openFile = NULL;
     int sector;
 
+    fileSyncMgr->NewOpenedFile(name);
+
     DEBUG('f', "Opening file %s\n", name);
     // Expand file name
     char *expandname = ExpandFileName(name);
     char *parentDirectory = DirectoryName(expandname);
     char *filename = FileName(expandname);
+
+    fileSyncMgr->DeleteOpenedFile(name);
+    fileSyncMgr->NewOpenedFile(expandname);
 
     // Get the parent directory
     int parent_sector;
@@ -290,6 +287,7 @@ FileSystem::Open(const char *name)
     if (directory == NULL)
     {
         openFile = NULL;
+        delete [] expandname;
     }
     else
     {
@@ -298,7 +296,10 @@ FileSystem::Open(const char *name)
 
         // Filename was found in directory
         if (sector >= 0)
-            openFile = new OpenFile(sector);
+            openFile = new OpenFile(sector, expandname);
+
+        if (openFile == NULL)
+            fileSyncMgr->DeleteOpenedFile(expandname);
 
         delete directory;
     }
@@ -306,6 +307,7 @@ FileSystem::Open(const char *name)
     delete [] parentDirectory;
     delete [] expandname;
     delete [] filename;
+
 
     return openFile;				// return NULL if not found
 }
@@ -324,7 +326,7 @@ FileSystem::Open(const char *name)
 //	"name" -- the text name of the file to be removed
 //----------------------------------------------------------------------
 
-bool
+int
 FileSystem::Remove(const char *name)
 {
     BitMap *freeMap;
@@ -342,23 +344,32 @@ FileSystem::Remove(const char *name)
     // Try to open parent directory
     Directory *directory = GetDirectoryByName(parentDirectory, &parent_sector);
 
+    // Check if file is not already opened
+    if (fileSyncMgr->IsOpenedFile(expandname))
+    {
+        delete [] expandname;
+        delete [] parentDirectory;
+        delete [] filename;
+        return -1;
+    }
+
     // If not found
     if (directory == NULL)
     {
-        delete expandname;
-        delete parentDirectory;
-        delete filename;
-        return FALSE;
+        delete [] expandname;
+        delete [] parentDirectory;
+        delete [] filename;
+        return -2;
     }
 
     // Search for filename
     sector = directory->Find(filename);
     if (sector == -1) {
-        delete expandname;
-        delete parentDirectory;
-        delete filename;
+        delete [] expandname;
+        delete [] parentDirectory;
+        delete [] filename;
         delete directory;
-        return FALSE;
+        return -2;
     }
 
     // Read file from disk
@@ -380,7 +391,7 @@ FileSystem::Remove(const char *name)
     freeMap->WriteBack(freeMapFile);
 
     // Write directory modifications to disk
-    OpenFile *f = new OpenFile(parent_sector);
+    OpenFile *f = new OpenFile(parent_sector, NULL);
     directory->WriteBack(f);
     delete f;
 
@@ -390,7 +401,7 @@ FileSystem::Remove(const char *name)
     delete [] expandname;
     delete [] parentDirectory;
     delete [] filename;
-    return TRUE;
+    return 0;
 }
 
 //----------------------------------------------------------------------
@@ -519,7 +530,7 @@ int FileSystem::CreateDirectory(const char* dirname)
             dirHdr->WriteBack(sector);
 
             // Write directory metadata
-            OpenFile *f = new OpenFile(sector);
+            OpenFile *f = new OpenFile(sector, NULL);
             child->WriteBack(f);
 
             // Update free map
@@ -535,7 +546,7 @@ int FileSystem::CreateDirectory(const char* dirname)
     // Write back to disk
     if (error == 0)
     {
-        OpenFile *f = new OpenFile(parent_sector);
+        OpenFile *f = new OpenFile(parent_sector, NULL);
         parent->WriteBack(f);
         delete f;
     }
@@ -832,7 +843,7 @@ bool FileSystem::RemoveDirectory(const char *name)
     freeMap->WriteBack(freeMapFile);
 
     // Write directory modifications to disk
-    OpenFile *f = new OpenFile(parent_sector);
+    OpenFile *f = new OpenFile(parent_sector, NULL);
     directory->WriteBack(f);
     delete f;
 

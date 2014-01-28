@@ -828,10 +828,6 @@ int AddrSpace::FileOpen(const char* filename)
     if (index == MAX_OPEN_FILES)
         return -2;
 
-    // Check if file is not already opened by another process
-    if (processMgr->IsOpenedFile(filename))
-        return -3;
-
     // Mark as inUse in case of context switch
     filetable[index].inUse = true;
 
@@ -840,15 +836,12 @@ int AddrSpace::FileOpen(const char* filename)
     strcpy(name, filename);
 
     filetable[index].absoluteName = name;
-    processMgr->NewOpenedFile(filename);
 
     // Try to open file
     OpenFile *handler = fileSystem->Open(filename);
-
     if (handler == NULL)
     {
         filetable[index].inUse = false;
-        processMgr->DeleteOpenedFile(filename);
         delete [] name;
         return -1;
     }
@@ -868,12 +861,7 @@ int AddrSpace::FileOpen(const char* filename)
  **/
 int AddrSpace::FileRemove(const char* filename)
 {
-    // Check if file is not already opened
-    for (int i = 0; i < MAX_OPEN_FILES; i++)
-        if (filetable[i].inUse && strcmp(filename, filetable[i].absoluteName) == 0)
-            return -1;
-
-    return fileSystem->Remove(filename) ? 1 : 0;
+    return fileSystem->Remove(filename);
 }
 
 /**
@@ -892,14 +880,10 @@ int AddrSpace::FileClose(int id)
     if (!filetable[id].inUse)
         return -1;
 
-    // Only owner can close the file
-    if (filetable[id].owner != currentThread)
-        return -2;
-
     // Clean structure
     delete filetable[id].handler;
     filetable[id].handler = NULL;
-    processMgr->DeleteOpenedFile(filetable[id].absoluteName);
+
     delete [] filetable[id].absoluteName;
     filetable[id].absoluteName = NULL;
     filetable[id].owner = NULL;
@@ -926,10 +910,6 @@ int AddrSpace::FileWrite(int id, int into, int numBytes)
     if (!filetable[id].inUse)
         return -1;
 
-    // Only the owner can write to the file
-    if (filetable[id].owner != currentThread)
-        return -2;
-
     // Pass request to handler
     return filetable[id].handler->WriteVirtual(into, numBytes);
 }
@@ -952,10 +932,6 @@ int AddrSpace::FileRead(int id, int buffer, int numBytes)
     if (!filetable[id].inUse)
         return -1;
 
-    // Only owner can read from the file
-    if (filetable[id].owner != currentThread)
-        return -2;
-
     // Pass request to handler
     return filetable[id].handler->ReadVirtual(buffer, numBytes);
 }
@@ -975,10 +951,6 @@ int AddrSpace::FileSeek(int id, int position)
     // File open
     if (!filetable[id].inUse)
         return -1;
-
-    // Only owner can seek into the file
-    if (filetable[id].owner != currentThread)
-        return -2;
 
     // Pass request to handler
     filetable[id].handler->Seek(position);

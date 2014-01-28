@@ -12,7 +12,6 @@ echo -n "1" > /tmp/test1
 
 ./nachos-step5 -cp step5_remove_opened_file run
 
-
 # Test case
 OUTPUT=$(./nachos-step5 -x run | grep "Didnt removed the file")
 

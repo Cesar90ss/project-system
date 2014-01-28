@@ -50,18 +50,10 @@ public:
 
     //number of processes currently running
     unsigned int nbProcess;
-
-    // Keep track of opened file (for removal)
-    bool IsOpenedFile(const char* name);
-    void NewOpenedFile(const char* name);
-    void DeleteOpenedFile(const char* name);
 private:
     //keep tracks of the processes
     std::map<unsigned int, ProcessInfo> Processes;
     //max pid that was given
     unsigned int max_pid;
-    // Keep track of opened file (for removal)
-    std::set<std::string> fileNames;
-
 };
 #endif

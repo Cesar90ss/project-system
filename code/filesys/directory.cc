@@ -286,7 +286,7 @@ Directory* Directory::ReadAtSector(int sector)
 {
     // Try to open directory
     Directory *sub = new Directory(NumDirEntries);
-    OpenFile *curDir = new OpenFile(sector);
+    OpenFile *curDir = new OpenFile(sector, NULL);
 
     sub->FetchFrom(curDir);
 

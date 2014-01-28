@@ -120,7 +120,7 @@ Lock::~Lock ()
 void Lock::Acquire ()
 {
     IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
-
+    DEBUG('l', "Acquire %p\n", this);
     if(locked)
 	{
 		queue->Append ((void *) currentThread);
@@ -151,9 +151,9 @@ void Lock::Release ()
 	else
 	{
 		//a thread which do not have the lock try to unlock (can only be done in kernel code -> should never happen)
-		//ASSERT(FALSE);
+		ASSERT(FALSE);
 	}
-
+    DEBUG('l', "Release %p\n", this);
     (void) interrupt->SetLevel (oldLevel);	
 }
 

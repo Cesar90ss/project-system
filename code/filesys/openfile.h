@@ -22,13 +22,14 @@
 
 #include "copyright.h"
 #include "utility.h"
+#include "syncmgr.h"
 
 #ifdef FILESYS_STUB			// Temporarily implement calls to
 // Nachos file system as calls to UNIX!
 // See definitions listed under #else
 class OpenFile {
 public:
-    OpenFile(int f) { file = f; currentOffset = 0; }	// open the file
+    OpenFile(int f, const char *name) { file = f; currentOffset = 0; }	// open the file
     ~OpenFile() { Close(file); }			// close the file
 
     int ReadAt(char *into, int numBytes, int position) {
@@ -68,7 +69,7 @@ class FileHeader;
 
 class OpenFile {
 public:
-    OpenFile(int sector);		// Open a file whose header is located
+    OpenFile(int sector, const char* name);		// Open a file whose header is located
     // at "sector" on the disk
     ~OpenFile();			// Close the file
 
@@ -82,7 +83,7 @@ public:
     // and increment position in file.
     int Write(const char *from, int numBytes);
 
-    int ReadAt(char *into, int numBytes, int position);
+    int ReadAt(char *into, int numBytes, int position, bool takeLock = true);
     // Read/write bytes from the file,
     // bypassing the implicit position.
     int WriteAt(const char *from, int numBytes, int position, bool allow_dynamic_space = false);
@@ -102,6 +103,8 @@ private:
     FileHeader *hdr;			// Header for this file
     int seekPosition;			// Current position within the file
     int fileSector;                 // Keep sector for file resize
+    FileHdrSync *sync;              // Sync structure for access
+    char *name;
 };
 
 #endif // FILESYS

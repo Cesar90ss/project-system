@@ -7,17 +7,17 @@ void *fun(void *arg)
     int *file_id = (int*) arg;
     char c = 'a';
 
-    if(Write(*file_id, &c, 1) >= 0)
+    if(Write(*file_id, &c, 1) != 1)
     {
         PutString("Write exiting\n");
         Exit(0);
     }
-    else if(Read(*file_id, &c, 1) >= 0)
+    else if(Read(*file_id, &c, 1) != 0)
     {
         PutString("Read exiting\n");
         Exit(0);
     }
-    else if(Close(*file_id) >= 0)
+    else if(Close(*file_id) != 0)
     {
         PutString("Close exiting\n");
         Exit(0);

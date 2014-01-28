@@ -36,6 +36,7 @@
 #define FS_H
 
 #include "copyright.h"
+#include "syncmgr.h"
 #include "openfile.h"
 
 class Directory;
@@ -60,7 +61,7 @@ public:
         int fileDescriptor = OpenForReadWrite(name, FALSE);
 
         if (fileDescriptor == -1) return NULL;
-        return new OpenFile(fileDescriptor);
+        return new OpenFile(fileDescriptor, NULL);
     }
 
     bool Remove(const char *name) { return Unlink(name) == 0; }
@@ -84,7 +85,7 @@ public:
 
     OpenFile* Open(const char *name);   // Open a file (UNIX open)
 
-    bool Remove(const char *name);  // Delete a file (UNIX unlink)
+    int Remove(const char *name);  // Delete a file (UNIX unlink)
 
     void List(const char* name);			// List all the files in the file system
 

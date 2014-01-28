@@ -44,7 +44,9 @@ extern ProcessMgr *processMgr;
 
 #ifdef FILESYS_NEEDED		// FILESYS or FILESYS_STUB
 #include "filesys.h"
+#include "syncmgr.h"
 extern FileSystem *fileSystem;
+extern FileSyncMgr *fileSyncMgr;
 #endif
 
 #ifdef FILESYS

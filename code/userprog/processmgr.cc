@@ -164,29 +164,3 @@ void ProcessMgr::SetReturn(unsigned int pid, int code)
 
     Processes[pid].returnCode = code;
 }
-
-/**
- * Check if a filename (absolute) is already opened
- **/
-bool ProcessMgr::IsOpenedFile(const char *name)
-{
-    return fileNames.find(std::string(name)) != fileNames.end();
-}
-
-/**
- * Mark a filename as opened
- **/
-void ProcessMgr::NewOpenedFile(const char *name)
-{
-    fileNames.insert(std::string(name));
-}
-
-/**
- * Mark a filename as closed
- **/
-void ProcessMgr::DeleteOpenedFile(const char *name)
-{
-    ASSERT(IsOpenedFile(name));
-
-    fileNames.erase(std::string(name));
-}
