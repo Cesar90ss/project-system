@@ -204,7 +204,7 @@
 **** RETURN :
     - -1 if file can not be opened
     - -2 if MAX_OPEN_FILES (default 10) are already opened
-    - -3 if the file is already opened by another thread
+    - -3 if the file is already opened by another thread/process
     - id (\in [0; MAX_OPEN_FILES[ a uniq identifier used for future syscall
 
 

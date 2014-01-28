@@ -28,13 +28,20 @@ int main()
         f[i] = Open(c);
     }
 
+    int ret = 1;
     for (i = 0; i < TRY_TO_OPEN; i++)
     {
         if (i < MAX_OPEN_FILES && f[i] < 0)
-            Exit(0);
+            ret = 0;
         else if (i >= MAX_OPEN_FILES && f[i] >= 0)
-            Exit(0);
+            ret = 0;
     }
+
+    for (i = 0; i < MAX_OPEN_FILES; i++)
+        Close(f[i]);
+
+    if (ret == 0)
+        Exit(0);
 
     PutString("ok");
 

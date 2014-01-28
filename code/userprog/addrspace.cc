@@ -828,6 +828,10 @@ int AddrSpace::FileOpen(const char* filename)
     if (index == MAX_OPEN_FILES)
         return -2;
 
+    // Check if file is not already opened by another process
+    if (processMgr->IsOpenedFile(filename))
+        return -3;
+
     // Mark as inUse in case of context switch
     filetable[index].inUse = true;
 
@@ -836,7 +840,7 @@ int AddrSpace::FileOpen(const char* filename)
     strcpy(name, filename);
 
     filetable[index].absoluteName = name;
-
+    processMgr->NewOpenedFile(filename);
 
     // Try to open file
     OpenFile *handler = fileSystem->Open(filename);
@@ -844,26 +848,14 @@ int AddrSpace::FileOpen(const char* filename)
     if (handler == NULL)
     {
         filetable[index].inUse = false;
+        processMgr->DeleteOpenedFile(filename);
         delete [] name;
         return -1;
     }
 
-    // Check if file is not already opened
-    for (int i = 0; i < MAX_OPEN_FILES; i++)
-    {
-        if (i != index && filetable[i].inUse && strcmp(filename, filetable[i].absoluteName) == 0)
-        {
-            filetable[index].inUse = false;
-            delete [] name;
-            return -3;
-        }
-    }
-
-
     filetable[index].handler = handler;
     filetable[index].owner = currentThread;
     filetable[index].inUse = true;
-
     return index;
 }
 
@@ -907,10 +899,12 @@ int AddrSpace::FileClose(int id)
     // Clean structure
     delete filetable[id].handler;
     filetable[id].handler = NULL;
+    processMgr->DeleteOpenedFile(filetable[id].absoluteName);
     delete [] filetable[id].absoluteName;
     filetable[id].absoluteName = NULL;
     filetable[id].owner = NULL;
     filetable[id].inUse = false;
+
 
     return 0;
 }
