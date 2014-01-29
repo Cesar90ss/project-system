@@ -1,0 +1,228 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%					Example of Report in LaTeX format                    					   %
+%																			   %
+%	File: organization.tex	 															   %
+%	Author: ???																   %
+%																			   %
+%																			   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{titling}
+\usepackage{listings}
+\lstset{%
+  basicstyle=\scriptsize\sffamily,%
+  commentstyle=\footnotesize\ttfamily,%
+  frameround=trBL,
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=10pt,
+  keywordstyle=\bf
+}
+\newcommand{\subtitle}[1]{%
+  \posttitle{%
+    \par\end{center}
+    \begin{center}\large#1\end{center}
+    \vskip0.5em}%
+}
+
+
+
+\title{Nachos Project : Report}
+\subtitle{Part 5 : Organisation}
+
+\begin{document}
+
+
+\maketitle
+
+\section{User Test}
+
+Test is an important phase in our whole development system which ensure all of implementation is work well and 
+not contain any bug. We have devided our test in every step and we make sure finished our implementation with 
+complete and compiled test and make sure no more bug on previous implementation. For all the test we provide
+both manual test in ./test folder and written in c and automatic test in ./regression folder and written in bash 
+this test will automatically compiled return "ok" if success and return "error" if the test failed.Furthermore 
+automatic test (regression test) we provided due to monitor our particular function of system we developed.
+The regression test we made consist of test file and description about the detail test we made. Moreover
+every manual test we made will be basic test to generate relating automatic test. And what 
+the most benefit of creating regression test is for check if during develop and modified the file that has 
+dependencies to another test, the regression test will give us rapid result that monitor every function work well
+and the new function we have create did not broke our past test and implementation. We decide to make test case 
+on the normal case and the error case to catch every possible condition of the system compilation. We only provide
+test for user level code that give good information as feedback to the user. 
+
+
+\subsection{Part 1 to 2}
+
+In the 1st step there is no particular test we need just make sure that NachOS work well in our machine. We run 
+basic test input and output how to track the code, how to handling error and understanding basic command and all 
+tools are needed to develop these system. 
+
+For the 2nd step we implement basic Input/Output for the system. There is 6 basic Input/Output have to implement.
+There are 6 basic systemcall relating to basic Input/Output : GetChar(), PutChar(), GetString(), PutString(), 
+GetInt() and PutInt(). In this step we provided complete test for each syscalls basic called on the syscalls. And 
+particular detail test will describe in following part :
+
+\begin{itemize}
+	\item GetChar() and PutChar()
+		\begin{itemize}
+		\item Basic Input Output character test
+		\item {\bf Test for character EOF}
+		\item {\bf Test for ASCII 255}
+		\end{itemize}
+	\item GetString() and PutString()
+		\begin{itemize}
+		\item Basic Input Output string test
+		\item {\bf Test for empty string}
+		\item {\bf Test for string EOF}
+		\item {\bf Test Maximum String}
+		\end{itemize}
+	\item GetInt() and PutInt()
+		\begin{itemize}
+		\item Basic Input Output Integer
+		\item {\bf Test Int EOF}
+		\item {\bf Test Int Everflow}
+		\end{itemize}
+\end{itemize} 
+
+\subsection{Part 3}
+
+3rd part implement threads and we provided such test the interesting one will mark as bold: 
+
+\begin{itemize}
+\item {\bf step3_multiple_join}
+\item {\bf step3_synchconsole_synch_put}
+\item {\bf step3_synchconsole_synch_rw}
+\item step3_synchconsole_synch
+\item {\bf step3_test_exit_delete_chilren}
+\item {\bf step3_test_recursive_threads_kill}
+\item {\bf step3_test_recursive_threads_simple}
+\item step3_threadArg
+\item step3_threadcreate
+\item step3_thread_exit_code_wait_too_late
+\item step3_thread_exit_delete_children
+\item step3_thread_exit
+\item {\bf step3_thread_join_after_join}
+\item step3_threadjoinerror
+\item {\bf step3_threadJoinMax}
+\item {\bf step3_threadJoinMultiple}
+\item step3_threadjoin
+\item step3_threadJoinSimple
+\item step3_thread_main_userthreadexit
+\item {\bf step3_thread_max_limit}
+\item {\bf step3_thread_Multiple_Kill_Create}
+\item {\bf step3_threadProdCons}
+\item step3_thread_return_code
+\item step3_threadSemaphore
+\item step3_thread_userthreadexit_function
+\item {\bf step3_use_destroyed_semaphore}
+\end{itemize} 
+
+\subsection{Part 4}
+
+This parts implement Memory Management and Process. We provided such test the interesting one will mark as bold :
+\begin{itemize}
+\item step4_fork_unknow_program
+\item {\bf step4_heap_alloc_free_behavior}
+\item {\bf step4_malloc_bad_free}
+\item step4_malloc_concurrent
+\item step4_malloc_free_multiple
+\item {\bf step4_malloc_just_fit}
+\item {\bf step4_malloc_multiple_process}
+\item step4_malloc_reuse_memory
+\item step4_malloc_simple 
+\item step4_malloc_will_fail
+\item {\bf step4_multiple_ForkExec}
+\item {\bf step4_Multiple_ForkExec_Waitpid} 
+\item step4_process_preempt
+\item step4_stress_process_thread
+\item step4_thread_Join_0
+\item {\bf step4_tiny_shell_test_extend}
+\item step4_tiny_shell_test
+\item {\bf step4_trigger_page_fault_multiple_process}
+\item step4_trigger_page_fault
+\item step4_userpages0
+\item step4_waitpid_return
+\end{itemize} 
+
+\subsection{Part 5}
+
+This parts implement FileSystem We provided such test the interesting one will mark as bold :
+\begin{itemize}
+\item step5_absolute_path
+\item {\bf step5_change_directory_kernel_one_thread}
+\item {\bf step5_change_directory_kernel_two_thread}
+\item step5_change_directory_simple
+\item step5_change_directory_thread
+\item {\bf step5_cp_verified}
+\item step5_create_directory_dot_dot_name
+\item step5_create_dot_name_file
+\item step5_create_dot_name
+\item step5_create_file_as_directory
+\item {\bf step5_create_file_bad_name}
+\item step5_create_file_dot_dot_name
+\item step5_create_file
+\item step5_create
+\item step5_directory_limit
+\item step5_directory_limit_third
+\item {\bf step5_directory_limit_with_files}
+\item {\bf step5_file_create_bad_name_directory}
+\item step5_file_create_directory_relative
+\item step5_file_create_directory
+\item step5_file_create_existing_directory
+\item {\bf step5_file_create_file_exist_directory}
+\item step5_file_create_file_relative
+\item step5_file_listing
+\item step5_fill_disk
+\item step5_listing_directory_one_level_second
+\item step5_listing_directory_one_level
+\item step5_listing_directory_relative
+\item step5_listing_directory_simple
+\item {\bf step5_max_file_open_fork}
+\item step5_max_file_open_simple
+\item step5_max_file_open_thread
+\item step5_multiple_file_open
+\item {step5_open_file_table_rw}
+\item step5_open_same_file_process
+\item step5_recursive_listing
+\item {\bf step5_remove_existing_empty_directory_first}
+\item {\bf step5_remove_existing_empty_directory_last}
+\item {\bf step5_remove_existing_empty_directory_middle}
+\item step5_remove_file
+\item step5_remove_non_existing_directory
+\item step5_remove_opened_file
+\item {\bf step5_remove_recreate_directory}
+\item step5_remove_relative_path
+\item step5_remove_root
+\item {\bf step5_rw_concurrent_read}
+\item step5_seek
+\item step5_thread_close_read
+\item step5_threads_open_write_read_close
+\item step5_threads_write
+\item {\bf step5_too_big_file}
+\item {\bf step5_too_large_file}
+\item {\bf step5_two_thread_opening_file}
+\end{itemize} 
+
+\subsection{Part 6}
+
+This parts implement Network. We provided such test the interesting one will mark as bold :
+\begin{itemize}
+\item {\bf step6_multiple_listen_same_port}
+\item step6_receive_message_waiting
+\item step6_send_message_not_connected
+\item step6_simple_listen_connect_accept
+\item step6_test_accept_failed
+\item step6_test_incomplete_acknowledgement
+\item {\bf step6_test_big_message}
+\item {\bf step6_test_multithread}
+\end{itemize} 
+
+\end{document}
