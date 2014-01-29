@@ -1,0 +1,426 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%												   %
+%                                   			   %
+%   Antoine Faravelon, Lucas Felix, 
+%   Miratul Khusna Mufida, Hugo Guiroux,  Simon Moura}
+%												   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[a4paper,10pt]{article}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{fullpage}
+\lstset{%
+    basicstyle=\scriptsize\sffamily,%
+    commentstyle=\footnotesize\ttfamily,%
+    frameround=trBL,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=10pt,
+    keywordstyle=\bf
+}
+\newcommand{\subtitle}[1]{%
+    \posttitle{%
+        \par\end{center}
+    \begin{center}\large#1\end{center}
+\vskip0.5em}%
+}
+
+\newcommand{\CCscript}[2]{
+    \begin{itemize}
+        \item[]\lstinputlisting[caption=#2,label=#1,language=CC]{src/#1.cc}
+    \end{itemize}
+}
+\lstdefinelanguage{codeoutput} { %this is the name that you are going to use when you want to use the formatting
+    basicstyle=\ttfamily\scriptsize, %font family & size
+}
+\newcommand{\Oscript}[2]{
+    \begin{itemize}
+        \item[]\lstinputlisting[caption=#2,label=#1,language=codeoutput]{src/#1}
+    \end{itemize}
+}
+\newcommand{\Cscript}[2]{
+    \begin{itemize}
+        \item[]\lstinputlisting[caption=#2,label=#1,language=CC]{src/#1.c}
+    \end{itemize}
+}
+
+\setlength{\abovecaptionskip}{1pt plus 1pt minus 1pt} % Chosen fairly arbitrarily
+
+\title{Nachos}
+\subtitle{Project [MOSIG - M1]}
+\author{Antoine Faravelon \and Lucas Felix \and Miratul Khusna Mufida \and Hugo Guiroux \and Simon Moura}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+%table of contents
+\newpage
+\tableofcontents
+\newpage
+
+\begin{abstract}
+\end{abstract}
+
+\section{Interresting/main features of your kernel}
+\section{Syscalls : User documentation}
+
+\begin{description}
+    \item [NAME] : halt
+        \begin{itemize}
+            \item SYNOPSIS : void Halt()
+            \item DESCRIPTION :
+                Halt is a system call which power off the system.
+        \end{itemize}
+
+
+    \item [NAME] : Exit
+        \begin{itemize}
+            \item SYSNOPSIS : void Exit(int status)
+            \item DESCRIPTION :
+                The exit syscall is used to quit the process. It will not shut down the
+                machine unless there is no other process running.
+        \end{itemize}
+
+    \item [NAME] : PutChar
+        \begin{itemize}
+            \item SYSNOPSIS : void PutChar(char c)
+            \item DESCRIPTION :
+                PurtChar is a function which will write the character c to the console.
+        \end{itemize}
+
+    \item [NAME] : GetChar
+        \begin{itemize}
+            \item SYSNOPSIS : int GetChar()
+            \item DESCRIPTION :
+                GetChar is a function that read a character from the input buffer.
+            \item RETURN :
+                \begin{itemize}
+                    \item The character itself or EOF if there is none in the buffer.
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : PutInt
+        \begin{itemize}
+            \item SYSNOPSIS : void PutInt(int i)
+            \item DESCRIPTION :
+                PutInt is a function which is used to write the integer i to the console.
+        \end{itemize}
+
+    \item [NAME] : GetInt
+        \begin{itemize}
+            \item SYSNOPSIS : int GetInt(int* p)
+            \item DESCRIPTION :
+                GetInt read an integer from the input buffer pointed out by p.
+            \item RETURN :
+                \begin{itemize}
+                    \item 0 if there is no error
+                    \item -1 when the input cannot be read as an int
+                    \item -2 when the address p cannot be written by the caller
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : PutString
+        \begin{itemize}
+            \item SYSNOPSIS : void PutString(const char s[])
+            \item DESCRIPTION :
+                It writes the string to the console. If the string given is longer than
+                MAX\_STRING\_SIZE then the remaining part is not printed in the console.
+        \end{itemize}
+
+    \item [NAME] : GetString
+        \begin{itemize}
+            \item SYSNOPSIS : char *GetString(char *s, int n)
+            \item DESCRIPTION :
+                It reads at most n-1 characters in the console.
+            \item RETURN :
+                \begin{itemize}
+                    \item "s" if there is no error
+                    \item otherwise return NULL (in case of error or EOF)
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : UserThreadCreate
+        \begin{itemize}
+            \item SYSNOPSIS : int UserThreadCreate(void f(void *arg), void *arg)
+            \item DESCRIPTION :
+                This function create a new thread which will execute the function f with the
+                argument arg.
+            \item RETURN :
+                \begin{itemize}
+                    \item 0 on success
+                    \item -1 if no space left for stack
+                    \item -2 if MAX\_TOTAL\_THREADS (20 per default) has been reach
+                \end{itemize}
+        \end{itemize}
+
+
+    \item [NAME] : UserThreadExit
+        \begin{itemize}
+            \item SYSNOPSIS : void UserThreadExit(void *ret)
+            \item DESCRIPTION :
+                This function is used to destroy the thread and puts the return value in
+                ret.
+                When the main thread call UserThreadExit, other threads continue to
+                run. The last thread to end will call Exit.
+                When a thread function reach a return statement, it will be converted
+                to this syscall with return value as argument.
+        \end{itemize}
+
+    \item [NAME] : UserThreadJoin
+        \begin{itemize}
+            \item SYSNOPSIS : int UserThreadJoin(int tid, void **retval)
+            \item DESCRIPTION :
+                This function is used to join another thread (eg : wait for the tread
+                of tid "tid" to terminate). If multiple threads tries to join on the same
+                thread, only the first one will be able to join on it. The function
+                will an error for the others.
+                If retval is not null, it contains the return value of exit thread,
+                either by calling UserThreadExit or by reaching the end of thread function.
+            \item RETURN :
+                \begin{itemize}
+                    \item 0 on success
+                    \item -1 if bad tid
+                    \item -2 if another thread is already joining on the same thread tid
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : UserSemaphoreCreate
+        \begin{itemize}
+            \item SYSNOPSIS : int UserSemaphoreCreate(char* name, int value)
+            \item DESCRIPTION :
+                Initialize and return a semaphore id named "name" with an initial value "value".
+                It do not create a semaphore with the id of a previously destroyed semaphore.
+            \item RETURN :
+                \begin{itemize}
+                    \item Return the id of the semaphore freshly created
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : UserSemaphoreP
+        \begin{itemize}
+            \item SYSNOPSIS : int UserSemaphoreP(int id)
+            \item DESCRIPTION :
+                Takes the lock on the semaphore pointed by id.
+            \item RETURN :
+                \begin{itemize}
+                    \item 0 on success
+                    \item -1 if error (semaphore does not exist)
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : UserSemaphoreV
+        \begin{itemize}
+            \item SYSNOPSIS : int UserSemaphoreV(int id)
+            \item DESCRIPTION :
+                Release the lock (unlock) the semaphore pointed by id.
+            \item RETURN :
+                \begin{itemize}
+                    \item 0 on success
+                    \item -1 if error (semaphore does not exist)
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : UserSemaphoreDestroy
+        \begin{itemize}
+            \item SYSNOPSIS : int UserSemaphoreDestroy(int id)
+            \item DESCRIPTION :
+                Destroy the semaphore pointed by id.
+            \item RETURN :
+                \begin{itemize}
+                    \item 0 on success
+                    \item -1 if error (semaphore does not exist)
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : AllocPageHeap
+        \begin{itemize}
+            \item SYSNOPSIS : int AllocPageHeap()
+            \item DESCRIPTION :
+                AllocPageHeap asks for a new page on heap.
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if no more page for heap
+                    \item new page addr otherwise
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : FreePageHeap
+        \begin{itemize}
+            \item SYSNOPSIS : int FreePageHeap()
+            \item DESCRIPTION :
+                FreePageHeap gives back a new page for heap.
+            \item RETURN :
+                \begin{itemize}
+                    \item The new heap top addr.
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : ForkExec
+        \begin{itemize}
+            \item SYSNOPSIS : unsigned int ForkExec(char *s)
+            \item DESCRIPTION :
+                ForkExec creates a new process that execute the program stated in the argument s.
+            \item RETURN :
+                \begin{itemize}
+                    \item pid of this process in case of creation success
+                    \item -1 if more than MAX\_PROCESS processes have been created (by default 30)
+                    \item -2 case of an invalid executable
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : Waitpid
+        \begin{itemize}
+            \item SYSNOPSIS : int Waitpid(unsigned int pid, int *retval)
+            \item DESCRIPTION :
+                Waitpid wait on the process which pid is given as argument.
+                If retval not NULL, the exit code of the process is put at address retval
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if process does not exist
+                    \item -2 if process is dead
+                    \item -3 if waiting for itself
+                    \item 0 otherwise
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : Open
+        \begin{itemize}
+            \item SYSNOPSIS : int Open(const char* filename)
+            \item DESCRIPTION :
+                Open try to open file *filename* taking into account current directory,
+                returning a uniq identifier
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if file can not be opened
+                    \item -2 if MAX\_OPEN\_FILES (default 10) are already opened
+                    \item -3 if the file is already opened by another thread/process
+                    \item id (in (0; MAX\_OPEN\_FILES( a uniq identifier used for future syscall %todo
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : Close
+        \begin{itemize}
+            \item SYSNOPSIS : int Close(int id)
+            \item DESCRIPTION :
+                Close try to close file with identifier *id*.
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if file *id* does not exists
+                    \item -2 if the calling thread try to close a file that he does not own
+                    \item 0 otherwise
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : Create
+        \begin{itemize}
+            \item SYSNOPSIS : int Create(const char *filename)
+            \item DESCRIPTION :
+                Create file *filename* taking into account current directory.
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if creation failed
+                    \item 0 otherwise
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : Read
+        \begin{itemize}
+            \item SYSNOPSIS : int Read(int id, char *buffer, int numBytes)
+            \item DESCRIPTION :
+                Try to read *numBytes* inside file *id* and store result inside *buffer*.
+                *buffer* should be large enough to fit *numBytes*
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if file does not exists
+                    \item -2 if the thread trying to read is not the owner of the file
+                    \item other *numReadBytes* the real number of bytes read
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : Write
+        \begin{itemize}
+            \item SYSNOPSIS : int Write(int id, const char* from, int numBytes)
+            \item DESCRIPTION :
+                Try to write inside file *id* at most *numBytes* bytes stored inside *from*
+                memory.
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if the file does not exists
+                    \item -2 if the thread trying to write is not the owner of the file
+                    \item otherwise *numWriteBytes* the real number of bytes
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : Seek
+        \begin{itemize}
+            \item SYSNOPSIS : int Seek(int id, int position)
+            \item DESCRIPTION :
+                Move at position *position* inside file *id* relative to the beginning of
+                the file.
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if the file does not exists
+                    \item -2 if the thread trying to seek is not the owner of the file
+                    \item 0 otherwise
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : Remove
+        \begin{itemize}
+            \item SYSNOPSIS : int Remove(const char* name)
+            \item DESCRIPTION :
+                Delete file named *name*.
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if the file does not exists
+                    \item -2 if the file is opened by another process
+                    \item 0 otherwise
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : GetCurrentDirectory
+        \begin{itemize}
+            \item SYSNOPSIS : char *GetCurrentDirectory(char *result)
+            \item DESCRIPTION :
+                Write the current process directory (absolute path) inside buffer *result*
+            \item RETURN :
+                \begin{itemize}
+                    \item address of *result* (never fail, can be ignored)
+                \end{itemize}
+        \end{itemize}
+
+    \item [NAME] : SetCurrentDirectory
+        \begin{itemize}
+            \item SYSNOPSIS : int SetCurrentDirectory(const char* dirname)
+            \item DESCRIPTION :
+                Set the current directory to *dirname* of current process.
+                *dirname* can be relative path to current directory.
+            \item RETURN :
+                \begin{itemize}
+                    \item -1 if dirname does not exists
+                    \item 0 otherwise
+                \end{itemize}
+        \end{itemize}
+
+    \end{description}
+
+
+\section{User test + description of what they are doing}
+\section{Implementation choices + justification}
+\section{How we did organize + planning blablabla}
+
+\end{document}
