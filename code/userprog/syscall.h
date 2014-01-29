@@ -225,13 +225,62 @@ int Waitpid(unsigned int pid, int *exitcode);
  */
 int CheckEnd(unsigned int pid);
 
-//network syscalls
+//-------------------------------------------------------------//
+//NETWORK SYSCALLS
+
+/**
+ * Listen create a listening socket on the port passed in argument.
+ * return the sid of the created socket
+ * return -1 if the port does not exists
+ * return -2 if the port is already listening in another socket
+ */
 int Listen(int local_port);
+
+/**
+ * Accept take a listening socket. It block until a client use connect to this listening socket, 
+ * then a connection is established and accept return the socket created.
+ * Note: the listening socket is still listening after a call to accept.
+ * return the sid of the created socket
+ * return -1 if listening_socket is not a listening socket
+ * return -2 if there is no more available socket slot in the port (limited to NB_CONNECTION_PER_PORT)
+ * return -3 if the same socket already exists
+ * return -4 if the connection is timed out
+*/ 
 int Accept(int listening_socket);
+
+/**
+ * Connect try to establish a connection to the machine and port passed in argument.
+ * The aimed port should be listening.
+ * return the sid of the created socket
+ * return -1 there is not any place to create the new socket
+ * return -2 the connection is timed out
+*/
 int Connect(int remote_machine, int remote_port);
+
+/**
+ * Send send size bytes from the buffer in socket
+ * return 0 if the data are well send
+ * return -1 if the socket is not connected
+ * return -2 if the sending is timed out
+ * return -3 if the socket has been closed in the other side
+ * Note: if the socket is closed in the other side, we can still read the buffered data in the socket.
+*/
 int Send(int socket, char* buffer, unsigned int size);
-int Receive(int socket, char* buffer, unsigned int size);
-int Disconnect(int socket);
+
+/**
+ * Receive read at most size bytes from the socket to the buffer.
+ * If blocking is true, receive wait for size bytes (there is a timeout).
+ * If blocking is false, receive read directly as many bytes as it can.
+ * return the number of read bytes
+ * return -1 if timed out
+*/
+int Receive(int socket, char* buffer, unsigned int size, char blocking);
+
+/**
+* Disconnect close the socket
+*/
+void Disconnect(int socket);
+//-------------------------------------------------------------//
 
 #endif // IN_USER_MODE
 

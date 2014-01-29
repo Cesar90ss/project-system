@@ -31,8 +31,8 @@
 #include "network.h"
 #include "synchlist.h"
 
-#define NB_BOX 10
-#define NB_CONNECTION_PER_PORT 10
+#define NB_BOXES 16
+#define NB_CONNECTION_PER_PORT 16
 
 class NachosSocket;
 
@@ -43,8 +43,6 @@ typedef int MailBoxAddress;
 // The following class defines part of the message header.
 // This is prepended to the message by the PostOffice, before the message
 // is sent to the Network.
-
-
 enum MailType {
 	REQUEST,
 	ACK,
@@ -64,16 +62,13 @@ class MailHeader {
 
 // Maximum "payload" -- real data -- that can included in a single message
 // Excluding the MailHeader and the PacketHeader
-
 #define MaxMailSize 	(MaxPacketSize - sizeof(MailHeader))
-
 
 // The following class defines the format of an incoming/outgoing
 // "Mail" message.  The message format is layered:
 //	network header (PacketHeader)
 //	post office header (MailHeader)
 //	data
-
 class Mail {
   public:
      Mail(PacketHeader pktH, MailHeader mailH, char *msgData);
@@ -89,7 +84,6 @@ class Mail {
 // for messages.   Incoming messages are put by the PostOffice into the
 // appropriate mailbox, and these messages can then be retrieved by
 // threads on this machine.
-
 class MailBox {
   public:
     MailBox();							// Allocate and initialize mail box
@@ -119,7 +113,6 @@ class MailBox {
 //
 // Incoming messages are put by the PostOffice into the
 // appropriate mailbox, waking up any threads waiting on Receive.
-
 class PostOffice {
   public:
     PostOffice(NetworkAddress addr, double reliability);
@@ -135,6 +128,7 @@ class PostOffice {
 										// machine.  The fromBox in the MailHeader is
 										// the return box for ack's.
 
+	//TODO only used by nettest, remove nettest, remove the option -o, remove this function
     void Receive(int box, PacketHeader *pktHdr,
 		MailHeader *mailHdr, char *data);
 										// Retrieve a message from "box".  Wait if
@@ -153,8 +147,13 @@ class PostOffice {
 	
 	bool IsListening(int i_local_port); //if the mailbox's listener is NULL, return false else true.			
 	int EnableListening(int i_local_port, NachosSocket *socket);		// enable listening on a "port"
-	int ReserveSlot(NachosSocket ***slot, int mailbox, int remote_machine, int remote_port); // reserve a socket slot in the mailbox
-	
+	int ReserveSlot(NachosSocket ***slot, int mailbox, int remote_machine, int remote_port); 	//reserve a socket slot in the mailbox
+																								//return 0 if OK
+																								//return -1 if there is no free slot
+																								//return -2 if the same socket already exist
+																								//return -3 if mailbox does not exist
+	void RemoveSocket(NachosSocket *socket);
+
   private:
     Thread *NetworkDeamon;
     Network *network;					// Physical network connection
@@ -168,7 +167,6 @@ class PostOffice {
 
 enum SocketStatusEnum
 {
-    SOCKET_CREATED,						// when declared 
 	SOCKET_CONNECTED,					// Once connected
 	SOCKET_CONNECTING,					// Connecting
 	SOCKET_LISTENING,
@@ -180,27 +178,28 @@ class NachosSocket {
 		NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int i_remote_port, int i_local_port);
 		~NachosSocket();
 		
-		int Receive(char *buffer, unsigned int size);			// wait for a message(and catch it)
-		//int Send(char *buffer, size_t size);		// send a message to the connected socket
+		int Receive(char *buffer, unsigned int size, bool blocking);
 		int SendRequest();
 		int SendAck();
 		int SendMail(char* buffer,unsigned int size);
+
 		int WaitTimeoutAck();
 		
 		Mail* PickAMail();
 		
 		bool IsListening();
-		
-		int Disconnect();								// Disconnect from remote socket(break the link)
+		bool IsConnected();
 		
 		int LocalPort();
 		int RemotePort();
 		int RemoteMachine();
+
+		void SetStatus(SocketStatusEnum new_status);
+
 		bool confirm;									// state of the confirmation
 		unsigned int confirm_id;						// the id of the message confirmed
 		unsigned int received_id;
 		bool ack;										// state of acknowledgement
-		void SetStatus(SocketStatusEnum new_status);
 
 		SynchList *messages;							//message list for this socket
 	private:

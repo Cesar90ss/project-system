@@ -96,3 +96,16 @@ SynchList::Mapcar (VoidFunctionPtr func)
     list->Mapcar (func);
     lock->Release ();
 }
+
+//----------------------------------------------------------------------
+// SynchList::IsEmpy
+//      Return true if the list is empty, else false.
+//----------------------------------------------------------------------
+bool
+SynchList::IsEmpty()
+{
+    lock->Acquire ();
+	bool retval = list->IsEmpty();
+    lock->Release ();
+	return retval;
+}
