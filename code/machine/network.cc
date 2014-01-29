@@ -121,9 +121,12 @@ Network::Send(PacketHeader hdr, char* data)
     char *buffer = new char[MaxWireSize]();
     //bzero(buffer,MaxWireSize);
     *(PacketHeader *)buffer = hdr;
-    bcopy(data, buffer + sizeof(PacketHeader), hdr.length);
-	return SendToSocket(sock, buffer, MaxWireSize, toName);
-    delete []buffer;
+    memcpy(buffer + sizeof(PacketHeader), data, hdr.length);
+
+	int ret = SendToSocket(sock, buffer, MaxWireSize, toName);
+    delete [] buffer;
+
+    return ret;
 }
 
 // read a packet, if one is buffered

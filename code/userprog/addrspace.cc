@@ -76,6 +76,10 @@ AddrSpace::AddrSpace() : max_tid(0), num_threads(0)
     currentDirectory[0] = '/';
     currentDirectory[1] = '\0';
 
+    // Init socket
+    socket_list = NULL;
+    socket_counter = 0;
+
     // Init open file table as unused
     int i;
     for (i = 0; i < MAX_OPEN_FILES; i++)
@@ -168,6 +172,9 @@ AddrSpace::~AddrSpace ()
 
     // Clean open files
     CleanOpenFiles();
+
+    // Clean sockets
+    CleanSockets();
 }
 
 //----------------------------------------------------------------------

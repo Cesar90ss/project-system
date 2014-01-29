@@ -409,9 +409,10 @@ PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
     int return_value = network->Send(pktHdr, buffer);
     messageSent->P();			// wait for interrupt to tell us
 					// ok to send the next message
+    delete [] buffer;			// we've sent the message, so
+
     sendLock->Release();
 
-    delete [] buffer;			// we've sent the message, so
 					// we can delete our buffer
 	return return_value;
 }
@@ -562,8 +563,11 @@ NachosSocket::NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int 
 //---------------------------------------------------------------//
 NachosSocket::~NachosSocket()
 {
+    while (!messages->IsEmpty())
+        delete PickAMail();
+    
 	delete messages;
-	delete reception_buffer;
+	delete [] reception_buffer;
 }
 //---------------------------------------------------------------//
 /**
