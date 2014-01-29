@@ -12,6 +12,13 @@
 *.la
 *.a
 
+# Tex
+*.aux
+*.log
+*.toc
+*.dvi
+assignments/defence/*/*.pdf
+
 # Nachos code
 code/build/*
 code/build-origin/*

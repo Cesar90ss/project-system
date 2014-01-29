@@ -157,9 +157,8 @@ void Lock::Release()
 {
     IntStatus oldLevel = interrupt->SetLevel(IntOff); //disable interrupts
 
-    ASSERT(locker != NULL);
-	if(isHeldByCurrentThread())
-	{
+//	if(isHeldByCurrentThread())
+//	{
 		Thread *thread = (Thread*)queue->Remove(); //take a thread in the
 													// queue if there is one
 		if(thread != NULL)
@@ -170,7 +169,7 @@ void Lock::Release()
 		{
 			locker = NULL; //else release the lock
 		}
-	}
+//	}
 
     (void)interrupt->SetLevel(oldLevel); //enable interrupts
 }
