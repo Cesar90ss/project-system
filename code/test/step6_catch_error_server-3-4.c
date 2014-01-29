@@ -20,20 +20,19 @@ int main()
 {
 	int listen_sid;
 	int socket_id;   
-	
+
 	PutString("Start\n");
     listen_sid = Listen(1); // Just arbitrary port
-	
+
 	PutString("Listening...\n"); 
 	int i=0,j=11;
 	for(i=0;i<j;i++)
 	{
 		socket_id = Accept(listen_sid);
-	}
-	if(socket_id < 0)
-	{
-		switch(socket_id)
-		{
+        if(socket_id < 0)
+        {
+            switch(socket_id)
+            {
 			case -1:
 				PutString("Socket Does Not Exist\n");
 				break;
@@ -52,8 +51,9 @@ int main()
 			case -6:
 				PutString("The Connection Timeout\n");
 				break;
-		}
-		return socket_id;
-	}
-	return socket_id;
+            }
+        }
+    }
+
+    return 0;
 }

@@ -10,7 +10,7 @@ int main()
     listen_sid = Listen(1); // Just arbitrary port
 	
 	PutString("Listening...\n"); 
-	int i=0,j=1000000;
+	int i=0,j=10000;
 	for(i=0;i<j;i++);
 
 	return listen_sid;
