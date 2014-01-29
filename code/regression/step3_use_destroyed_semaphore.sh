@@ -5,7 +5,8 @@ cd $NACHOS_DIR
 
 RESULT_STRING="ok"
 
-OUTPUT=$(./nachos-step4 -rs 4 -x step3_use_destroyed_semaphore | head -n -10 | grep "$RESULT_STRING" )
+./nachos-final -cp step3_use_destroyed_semaphore run
+OUTPUT=$(./nachos-final -rs 4 -x run | head -n -10 | grep "$RESULT_STRING" )
 
 if [ -n "$OUTPUT" ]; then
 	exit 0

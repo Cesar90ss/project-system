@@ -1,7 +1,8 @@
 NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
-OUTPUT=$(./nachos-step4 -x test_exit | grep -E "AAA[^BBB]")
+./nachos-final -cp test_exit run
+OUTPUT=$(./nachos-final -x run | grep -E "AAA[^BBB]")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

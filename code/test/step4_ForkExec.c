@@ -2,7 +2,7 @@
 
 int main()
 {
-    ForkExec("../build/userpages1");
-    ForkExec("../build/userpages2");
+    ForkExec("run1");
+    ForkExec("run2");
     return 0;
 }

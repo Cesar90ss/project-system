@@ -5,7 +5,8 @@ cd $NACHOS_DIR
 RESULT_STRING="ok"
 
 
-OUTPUT=$(./nachos-step4 -rs 5 -x malloc_will_fail | grep "$RESULT_STRING")
+./nachos-final -cp malloc_will_fail run
+OUTPUT=$(./nachos-final -rs 5 -x run | grep "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

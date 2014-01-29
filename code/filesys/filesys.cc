@@ -287,7 +287,6 @@ FileSystem::Open(const char *name)
     if (directory == NULL)
     {
         openFile = NULL;
-        delete [] expandname;
     }
     else
     {

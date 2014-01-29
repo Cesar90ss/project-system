@@ -91,15 +91,14 @@ main ()
             if (c == -1)
             {
                 // Wait for PutString to end
-                for (c = 0; c < 10000; c++);
+                for (c = 0; c < 100000; c++);
 
-                Exit(0);
+                Exit(-1);
             }
 
             buffer[i] = (char)c;
         }
         while (buffer[i++] != '\n');
-
         buffer[--i] = '\0';
 
         if (i > 0)

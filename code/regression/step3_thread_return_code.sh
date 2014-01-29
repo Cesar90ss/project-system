@@ -4,7 +4,8 @@ cd $NACHOS_DIR
 
 RESULT_STRING="Exit code of child is 42"
 
-OUTPUT=$(./nachos-step4 -rs 2  -x thread_return_code | grep "$RESULT_STRING")
+./nachos-final -cp thread_return_code run
+OUTPUT=$(./nachos-final -rs 2  -x run | grep "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

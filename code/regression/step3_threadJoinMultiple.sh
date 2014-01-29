@@ -4,7 +4,8 @@ cd $NACHOS_DIR
 
 RESULT_STRING="([01][^01]*){6}"
 
-OUTPUT=$(./nachos-step4 -rs 2 -x threadJoinMultipleOk | grep -P "$RESULT_STRING" | grep "Parent finish")
+./nachos-final -cp threadJoinMultipleOk run
+OUTPUT=$(./nachos-final -rs 2 -x run | grep -P "$RESULT_STRING" | grep "Parent finish")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

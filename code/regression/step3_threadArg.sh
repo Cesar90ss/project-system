@@ -6,7 +6,8 @@ cd $NACHOS_DIR
 RESULT_STRING="42"
 
 
-OUTPUT=$( ./nachos-step4 -rs 2 -d m -x threadArg | grep -P $RESULT_STRING)
+./nachos-final -cp threadArg run
+OUTPUT=$( ./nachos-final -rs 2 -d m -x run | grep -P $RESULT_STRING)
 
 if [ -n "$OUTPUT" ]; then
     exit 0

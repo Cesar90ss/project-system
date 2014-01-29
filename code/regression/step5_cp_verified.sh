@@ -3,18 +3,18 @@ NACHOS_DIR=../build/
 cd $NACHOS_DIR
 
 #format disk
-./nachos-step5 -f 
+./nachos-final -f 
 
 #copy a file
-./nachos-step5 -cp ../Makefile Makefile
+./nachos-final -cp ../Makefile Makefile
 
 #save the print output in a temporary file
-./nachos-step5 -p Makefile | head -n 10 | head -n +4 > temp1
+./nachos-final -p Makefile | head -n 10 | head -n +4 > temp1
 
 cat ../Makefile | head -n +4 > temp2
 
 #Clean up test
-./nachos-step5 -f
+./nachos-final -f
 
 #delete temporary file
 

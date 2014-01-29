@@ -5,7 +5,7 @@ int main()
     int i;
 
     for (i = 0; i < 10; i++)
-        ForkExec("../build/malloc_simple_test_multiple");
+        ForkExec("run2");
 
     return 0;
 }

@@ -5,7 +5,8 @@ NACHOS_DIR=../build/
 cd $NACHOS_DIR
 TEST_STRING="0123456789"
 
-OUTPUT=$(echo $TEST_STRING | ./nachos-step4 -x getchar | grep $TEST_STRING)
+./nachos-final -cp getchar run
+OUTPUT=$(echo $TEST_STRING | ./nachos-final -x run | grep $TEST_STRING)
 
 if [ -n "$OUTPUT" ]; then
     exit 0

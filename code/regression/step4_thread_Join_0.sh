@@ -4,8 +4,8 @@ cd $NACHOS_DIR
 
 RESULT_STRING="I can not wait for myself"
 
-OUTPUT=$(./nachos-step4 -rs 0 -x step4_thread_Join_0)
-
+./nachos-final -cp step4_thread_Join_0 run
+OUTPUT=$(./nachos-final -rs 0 -x run)
 OUTPUT1=$(echo $OUTPUT | grep "$RESULT_STRING")
 
 

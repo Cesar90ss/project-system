@@ -4,7 +4,8 @@ cd $NACHOS_DIR
 
 RESULT_STRING="Read Only exception 3 0"
 
-OUTPUT=$(./nachos-step4 -rs 2 -x trigger_page_fault | grep -E "$RESULT_STRING")
+./nachos-final -cp trigger_page_fault run
+OUTPUT=$(./nachos-final -rs 2 -x run | grep -E "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

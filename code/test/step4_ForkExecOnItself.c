@@ -1,15 +1,19 @@
 #include "syscall.h"
 
-int main(){
+int main()
+{
+    int ret = ForkExec("run");
 
- if(ForkExec("step4_ForkExecOnItself") < 0)
- {
-    PutString("Error\n");
-    return -1;
- }
- else
- {
-   PutString("Hello Myself\n");
- }
- return 0;
+    if(ret < 0)
+    {
+        PutString("Error\n");
+        return -1;
+    }
+    else
+    {
+        PutString("Hello Myself\n");
+    }
+
+    Waitpid(ret, 0);
+    return 0;
 }

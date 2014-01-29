@@ -8,7 +8,8 @@ RESULT_STRING1="Error"			# Determine maximum thread created in the same time
 RESULT_STRING2="Hello Myself"		# There is something thats execute
 RESULT_STRING3="Machine halting!"	# No Segmentation fault
 
-OUTPUT=$(./nachos-step4 -x step4_ForkExecOnItself -rs 3)
+./nachos-final -cp step4_ForkExecOnItself run
+OUTPUT=$(./nachos-final -x run -rs 3)
 
 OUTPUT1=$(echo $OUTPUT | grep "$RESULT_STRING1")
 

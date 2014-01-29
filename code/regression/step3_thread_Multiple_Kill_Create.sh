@@ -4,7 +4,8 @@ cd $NACHOS_DIR
 
 RESULT_STRING="Parent finish"
 
-OUTPUT=$(./nachos-step4 -rs 2 -x thread_Multiple_Kill_Create | grep -P "$RESULT_STRING")
+./nachos-final -cp thread_Multiple_Kill_Create run
+OUTPUT=$(./nachos-final -rs 2 -x run | grep -P "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

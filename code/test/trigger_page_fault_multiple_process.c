@@ -2,7 +2,7 @@
 
 int main()
 {
-    ForkExec("../build/trigger_page_fault");
+    ForkExec("run2");
 
     int i;
     for (i = 0; i < 100000; i++);

@@ -3,19 +3,19 @@ NACHOS_DIR=../build/
 cd $NACHOS_DIR
 
 #format disk
-./nachos-step5 -f
+./nachos-final -f
 
 #create file structure
 echo -n "1" > /tmp/test1
-./nachos-step5 -cp /tmp/test1 test
-./nachos-step5 -cp step5_two_threads_opening_file run
+./nachos-final -cp /tmp/test1 test
+./nachos-final -cp step5_two_threads_opening_file run
 
 # Test case
-./nachos-step5 -x run -rs 4
-OUTPUT=$(./nachos-step5 -x run -rs 4 | grep -E "(ok){9}END")
+./nachos-final -x run -rs 4
+OUTPUT=$(./nachos-final -x run -rs 4 | grep -E "(ok){9}END")
 
 #Clean up test
-./nachos-step5 -f
+./nachos-final -f
 
 if [ -n "$OUTPUT" ]; then
     exit 0

@@ -2,7 +2,8 @@
 NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
-OUTPUT=`./nachos-step4 -rs 4 -x threadSemaphore | head -n -10`
+./nachos-final -cp threadSemaphore run
+OUTPUT=`./nachos-final -rs 4 -x run | head -n -10`
 STRING=$( echo "$OUTPUT" | uniq )
 
 if [ $STRING = "ABCDE" ]; then

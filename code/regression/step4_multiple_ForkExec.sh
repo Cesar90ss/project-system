@@ -2,7 +2,9 @@
 NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
-OUTPUT=`./nachos-step4 -rs 1 -x step4_multiple_ForkExec | head -n -10`
+./nachos-final -cp step4_multiple_ForkExec run
+./nachos-final -cp step4_multiple_Thread_Process run2
+OUTPUT=`./nachos-final -rs 1 -x run | head -n -10`
 SORTED_STRING=$(echo "$OUTPUT" | sort | uniq -c)
 echo "$SORTED_STRING"
 

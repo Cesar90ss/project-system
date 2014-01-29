@@ -3,17 +3,17 @@ NACHOS_DIR=../build/
 cd $NACHOS_DIR
 
 #format disk
-./nachos-step5 -f
+./nachos-final -f
 
 #copy c file in nachos
-./nachos-step5 -cp step5_create run
+./nachos-final -cp step5_create run
 
-./nachos-step5 -x run
+./nachos-final -x run
 # Test case
-OUTPUT=$(./nachos-step5 -ls | grep "test")
+OUTPUT=$(./nachos-final -ls | grep "test")
 
 #Clean up test
-./nachos-step5 -f
+./nachos-final -f
 
 if [ -n "$OUTPUT" ]; then
     exit 0

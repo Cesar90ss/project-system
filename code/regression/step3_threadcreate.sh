@@ -7,12 +7,13 @@ RESULT_STRING="Job done"
 ERROR_STRING="Error"
 
 
-OUTPUT=$( ./nachos-step4 -rs 2 -x threadcreate |grep -P "$ERROR_STRING")
+./nachos-final -cp threadcreate run
+OUTPUT=$( ./nachos-final -rs 2 -x run |grep -P "$ERROR_STRING")
 if [ -n "$OUTPUT" ]; then
     exit -1
 fi
 
-OUTPUT=$( ./nachos-step4 -rs 2 -x threadcreate |grep -P "$RESULT_STRING")
+OUTPUT=$( ./nachos-final -rs 2 -x run |grep -P "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

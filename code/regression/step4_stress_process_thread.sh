@@ -3,10 +3,13 @@ NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
 
+
+./nachos-final -cp step4_stress_process_thread_parent run
+./nachos-final -cp step4_stress_process_thread_child run2
 for i in {200..200}
 do
 	echo $i
-	OUTPUT=`./nachos-step4 -rs $i -x step4_stress_process_thread_parent | head -n -10`
+	OUTPUT=`./nachos-final -rs $i -x run | head -n -10`
 	SORTED_STRING=$(echo "$OUTPUT" | sort | uniq -c )
 	echo "$SORTED_STRING"
 	CREATED_CHILD=$(echo "$SORTED_STRING" | grep -i "Process creation successfull" | awk '{ print $1 }')

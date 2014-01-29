@@ -180,6 +180,13 @@ Initialize (int argc, char **argv)
 #ifdef FILESYS_NEEDED
     fileSyncMgr = new FileSyncMgr();
     fileSystem = new FileSystem (format);
+
+    if (format)
+    {
+        currentThread = NULL;
+        delete mainThread;
+        interrupt->Halt();
+    }
 #endif
 
 #ifdef NETWORK

@@ -7,7 +7,7 @@ int main()
   int i,j;
   for(i=0;i<NB_LOOP;i++)
   {
-    store[i]=ForkExec("step4_LoopForWaitpid");
+    store[i]=ForkExec("run2");
   }
   for(j=0;j<NB_LOOP;j++)
   {

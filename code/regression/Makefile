@@ -28,6 +28,9 @@ $(ALL_TESTS):
 	@echo -n "[Test] Running $* : "
 
 	@TMPNAME=`mktemp`; \
+	cd ../build >/dev/null; \
+	./nachos-final -f >/dev/null; \
+	cd - >/dev/null; \
 	$(BASH) ./$@ >$$TMPNAME 2>&1; \
 	EXIT_CODE=$$?; \
 	if [ $$EXIT_CODE -ne 0 ]; then \

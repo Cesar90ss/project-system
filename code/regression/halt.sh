@@ -3,7 +3,8 @@
 NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
-OUTPUT=$(./nachos-step4 -x halt | grep "Machine halting!")
+./nachos-final -cp halt run
+OUTPUT=$(./nachos-final -x run | grep "Machine halting!")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

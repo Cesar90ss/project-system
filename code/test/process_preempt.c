@@ -2,7 +2,7 @@
 
 int main()
 {
-    ForkExec("../build/process_long_loop");
+    ForkExec("run2");
 
     int i;
     for (i = 0; i < 1000; i++)

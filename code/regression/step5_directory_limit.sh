@@ -3,28 +3,28 @@ NACHOS_DIR=../build/
 cd $NACHOS_DIR
 
 #format disk
-./nachos-step5 -f
+./nachos-final -f
 
 #create file structure
-./nachos-step5 -cp ../Makefile a
+./nachos-final -cp ../Makefile a
 
 # Test case
 
 # Make directory
-./nachos-step5 -md dir1
-./nachos-step5 -md dir2
-./nachos-step5 -md dir3
-./nachos-step5 -md dir4
-./nachos-step5 -md dir5
-./nachos-step5 -md dir6
-./nachos-step5 -md dir7
-./nachos-step5 -md dir8
-./nachos-step5 -md dir9
-./nachos-step5 -md dir10
-./nachos-step5 -md dir11
-./nachos-step5 -md dir12
+./nachos-final -md dir1
+./nachos-final -md dir2
+./nachos-final -md dir3
+./nachos-final -md dir4
+./nachos-final -md dir5
+./nachos-final -md dir6
+./nachos-final -md dir7
+./nachos-final -md dir8
+./nachos-final -md dir9
+./nachos-final -md dir10
+./nachos-final -md dir11
+./nachos-final -md dir12
 
-OUTPUT=$(./nachos-step5 -l / | head -n -10 | tr "\n" "|")
+OUTPUT=$(./nachos-final -l / | head -n -10 | tr "\n" "|")
 EXPECTED_OUTPUT="f - a|d - dir1|d - dir2|d - dir3|d - dir4|d - dir5|d - dir6|d - dir7|d - dir8|d - dir9|"
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then
@@ -35,7 +35,7 @@ else
 fi
 
 #Clean up test
-./nachos-step5 -f
+./nachos-final -f
 
 #return test result
 exit $RETURN

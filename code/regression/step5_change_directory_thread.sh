@@ -3,21 +3,21 @@ NACHOS_DIR=../build/
 cd $NACHOS_DIR
 
 #format disk
-./nachos-step5 -f
+./nachos-final -f
 
 #create file structure
 echo -n "1" > /tmp/test1
 echo -n "2" > /tmp/test2
 
-./nachos-step5 -cp /tmp/test1 test
-./nachos-step5 -md a
-./nachos-step5 -cp /tmp/test2 a/test
+./nachos-final -cp /tmp/test1 test
+./nachos-final -md a
+./nachos-final -cp /tmp/test2 a/test
 
-./nachos-step5 -cp change_directory_thread run
+./nachos-final -cp change_directory_thread run
 
 # Test case
-./nachos-step5 -x run -rs 4
-OUTPUT=$(./nachos-step5 -x run -rs 4 | grep "//a/22")
+./nachos-final -x run -rs 4
+OUTPUT=$(./nachos-final -x run -rs 4 | grep "//a/22")
 
 if [ -n "$OUTPUT" ]; then
     RETURN=0
@@ -27,7 +27,7 @@ else
 fi
 
 #Clean up test
-./nachos-step5 -f
+./nachos-final -f
 
 #return test result
 exit $RETURN

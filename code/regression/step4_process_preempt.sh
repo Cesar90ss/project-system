@@ -4,7 +4,9 @@ cd $NACHOS_DIR
 
 RESULT_STRING="ok done ok"
 
-OUTPUT=$(./nachos-step4 -rs 2 -x process_preempt | tr "\n" " " | grep "$RESULT_STRING")
+./nachos-final -cp process_preempt run
+./nachos-final -cp process_long_loop run2
+OUTPUT=$(./nachos-final -rs 2 -x run | tr "\n" " " | grep "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

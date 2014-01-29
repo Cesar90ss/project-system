@@ -4,7 +4,8 @@ cd $NACHOS_DIR
 
 RESULT_STRING="Error !"
 
-OUTPUT=$(./nachos-step4 -rs 2  -x threadjoinerror | grep -P "$RESULT_STRING")
+./nachos-final -cp threadjoinerror run
+OUTPUT=$(./nachos-final -rs 2  -x run | grep -P "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

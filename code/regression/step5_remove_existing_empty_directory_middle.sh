@@ -3,17 +3,17 @@ NACHOS_DIR=../build/
 cd $NACHOS_DIR
 
 #format disk
-./nachos-step5 -f 
+./nachos-final -f 
 
 #create file structure
-./nachos-step5 -md a
-./nachos-step5 -md b
-./nachos-step5 -md c
+./nachos-final -md a
+./nachos-final -md b
+./nachos-final -md c
 
-./nachos-step5 -rd b
+./nachos-final -rd b
 
 # Test case
-OUTPUT=$(./nachos-step5 -l / | head -n -10 | tr "\n" "|")
+OUTPUT=$(./nachos-final -l / | head -n -10 | tr "\n" "|")
 EXPECTED_OUTPUT="d - a|d - c|"
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then
@@ -23,7 +23,7 @@ else
 fi
 
 #Clean up test
-./nachos-step5 -f
+./nachos-final -f
 
 #return test result
 exit $RETURN

@@ -5,7 +5,7 @@ int main()
     unsigned int pid;
     int val;
 
-    pid = ForkExec("waitpid_return");
+    pid = ForkExec("run2");
     if (pid < 0)
     {
         PutString("Error while Fork\n");

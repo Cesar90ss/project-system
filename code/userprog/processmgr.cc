@@ -95,10 +95,12 @@ void ProcessMgr::EndProcess(AddrSpace *proc)
 int ProcessMgr::ProcessWaitP(unsigned int pid)
 {
     struct ProcessInfo pi;
-    pi = Processes[pid];
 
     if (Processes.find(pid) == Processes.end())
         return -1;
+
+    pi = Processes[pid];
+
     if (pi.status == PROCESS_ENDED)
         return -2;
     if (pid == currentThread->space->GetPid())	//if the process wait for itself == deadlock

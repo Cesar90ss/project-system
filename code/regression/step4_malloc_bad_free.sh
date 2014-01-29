@@ -3,7 +3,8 @@ NACHOS_DIR=../build/
 cd $NACHOS_DIR
 RESULT_STRING="ERROR : Ask for an invalid free address at 12"
 
-OUTPUT=$(./nachos-step4 -rs 5 -x malloc_bad_free | grep "$RESULT_STRING")
+./nachos-final -cp malloc_bad_free run
+OUTPUT=$(./nachos-final -rs 5 -x run | grep "$RESULT_STRING")
 if [ -n "$OUTPUT" ]; then
     exit 0
 else

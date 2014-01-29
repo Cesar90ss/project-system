@@ -2,7 +2,8 @@
 NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
-OUTPUT=`./nachos-step4 -rs 2 -x thread_max_limit | head -n -10`
+./nachos-final -cp thread_max_limit run
+OUTPUT=`./nachos-final -rs 2 -x run | head -n -10`
 SORTED_STRING=$(echo "$OUTPUT" | sort | uniq -c )
 echo "$SORTED_STRING"
 

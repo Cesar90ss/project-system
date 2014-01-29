@@ -4,7 +4,11 @@ cd $NACHOS_DIR
 
 RESULT_STRING="No need to wait Dead Process "
 
-OUTPUT=$(./nachos-step4 -rs 0 -x step4_ForkExec_Waitpid_DeadProcess)
+./nachos-final -cp step4_ForkExec_Waitpid_DeadProcess run
+./nachos-final -cp step4_LoopForWaitpid run2
+OUTPUT=$(./nachos-final -rs 0 -x run)
+
+
 
 OUTPUT1=$(echo $OUTPUT | grep "$RESULT_STRING")
 

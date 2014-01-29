@@ -6,7 +6,8 @@ cd $NACHOS_DIR
 
 TEST_STRING=""
 
-OUTPUT=$(echo -n "$TEST_STRING" | ./nachos-step4 -x getint | grep "EOF")
+./nachos-final -cp getint run
+OUTPUT=$(echo -n "$TEST_STRING" | ./nachos-final -x run | grep "EOF")
 
 if [ -n "$OUTPUT" ]; then
     exit 0

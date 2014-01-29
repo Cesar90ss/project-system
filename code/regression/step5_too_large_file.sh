@@ -3,16 +3,16 @@ NACHOS_DIR=../build/
 cd $NACHOS_DIR
 
 #format disk
-./nachos-step5 -f
+./nachos-final -f
 
 #create a 30kb file in /tmp
 dd if=/dev/zero of=/tmp/test bs=30K count=1
 
 #create file structure
-./nachos-step5 -cp /tmp/test test
+./nachos-final -cp /tmp/test test
 
 # Test case
-OUTPUT=$(./nachos-step5 -l / | head -n -10 | tr "\n" "|")
+OUTPUT=$(./nachos-final -l / | head -n -10 | tr "\n" "|")
 EXPECTED_OUTPUT="f - test|"
 
 if [ "$OUTPUT" = "$EXPECTED_OUTPUT" ]; then
@@ -22,7 +22,7 @@ else
 fi
 
 #Clean up test
-./nachos-step5 -f
+./nachos-final -f
 rm /tmp/test
 
 #return test result

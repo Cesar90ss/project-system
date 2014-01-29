@@ -4,7 +4,8 @@ cd $NACHOS_DIR
 
 RESULT_STRING="La Fin !"
 
-OUTPUT=$(./nachos-step4 -x thread_main_userthreadexit -rs 2 | grep "$RESULT_STRING")
+./nachos-final -cp thread_main_userthreadexit run
+OUTPUT=$(./nachos-final -x run -rs 2 | grep "$RESULT_STRING")
 
 if [ -n "$OUTPUT" ]; then
     exit 0
