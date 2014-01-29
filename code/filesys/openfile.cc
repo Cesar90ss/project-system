@@ -377,7 +377,7 @@ int OpenFile::WriteAtVirtual(int virtualAddr, int numBytes, int position, bool t
     c[really_write] = '\0';
 
     int res = WriteAt(c, numBytes, position, true, false);
-    delete c;
+    delete [] c;
 
     if (takeLock)
         sync->writer->P();
