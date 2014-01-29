@@ -1,0 +1,106 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%					Example of Report in LaTeX format                    					   %
+%																			   %
+%	File: organization.tex	 															   %
+%	Author: Antoine Faravelon																   %
+%																			   %
+%																			   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[a4paper,10pt]{article}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage{listings}
+\lstset{%
+  basicstyle=\scriptsize\sffamily,%
+  commentstyle=\footnotesize\ttfamily,%
+  frameround=trBL,
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=10pt,
+  keywordstyle=\bf
+}
+\newcommand{\subtitle}[1]{%
+  \posttitle{%
+    \par\end{center}
+    \begin{center}\large#1\end{center}
+    \vskip0.5em}%
+}
+
+
+
+\title{Nachos Project : Report}
+\subtitle{Part 5 : Organisation}
+
+\begin{document}
+
+
+%\maketitle
+
+\section{Organisation}
+
+\subsection{Implementation}
+
+First we decided to work everyday at the university so as to make communication between members of the group easier.
+Allowing us to solve bug faster, avoid derivation from the specification and cut the wok dynamically(reevaluate 
+planning in real time when need be).\\
+For each step, before begining anything, we would all read and understand the subject. Then discuss with each other,
+establish a todo list and then we would distribute the work. \\ 
+Then, during the implementation, we would often make summary of our work to explain the implementation of every part 
+of the code to the rest of the group.\\
+To make the group work easier we used a git repository. This allowed us to share our work more efficiently as code
+this tool can manage code merges automatically or at least make them easier. And allow us to work even when not
+at the university and still be able to share the code immediately if need be.\\
+
+\subsection{Validation}
+Following the principle of the test driven development a large set of automated regression tests were developped. 
+It was used to validate the code or point out one or multiple bug / regressions in it in a comfortable, fast
+way and easily understandable way. \\
+A failure on a test will indicate what the test was about, thus allowing us to point out the error easily.And by 
+doing the test before or during the implementation this automated tests can allow to esily monitor the state and the
+advancement of the part currently being implementated.\\ Indeed During the begining of the  implementation, one of 
+the members would implement the tests while the other began coding wich allows to have tests ready as soon as the 
+program compiles. \\
+Valgrind has also been extensively used to remove memory leaks and unsafe memory access. Thus suppressing a 
+signicative number of possible bugs in the program. The program should now be free of any illegal memory access
+and memory leak.
+
+\subsection{Part 1 to 4}
+
+For the parts 1 to 4, we followed the subject and all worked on the same part. We usually split into two teams.
+Splitting the works of the whole step into two main parts. In this teams, we practiced extrem programing so as to
+compensate for the fact that all the work could not easily be split between each member. . Thus making the debugging phase faster. During the complicated phases,
+having two persons working on the same problem often allowed us to solve it faster and to avoid many bugs in the code
+that a single person would not notice while coding.\\
+Also, when working in pair (or triple) the tests were not done by the person who was currenty coding, thus they 
+were not made with the weakness of the program in mind and tested uniformly the program without sparing some part 
+or another.
+
+\subsection{Part 5 and 6}
+
+The parts 5 and 6 were done in parallel. The group was separated in two teams, each team working on one step.
+For the rest, the same philosophy as for the first parts was applied. That is, each team worked following the
+extreme programing principle.\\
+The git repository was split in two working branches to make the work easier for both team as the two part were
+independant but required to work in the same files thus causing unescessary conflicts and possibly bugs that would
+disturb the team not causing them. We used tags to separate these two branches.
+
+\subsection{Last two days}
+
+On the last days, one person took care of the merging of the two branches. The other made a Todo List for the report 
+and presentation, then everyone took one part of it to prepare. 
+
+\section{Extensions}
+
+Thanks to the regression test, it is possible to say that, a priori, every implemented part should be working. Though
+the set of test can not be complete and as such it is still possible that there still exists bugs that were not 
+tested.\\
+But there still exists some unimplemented functions in our kernel due to lack of time.\\
+For the network, the migration of process and thread safe sockets have yet to be implemented. The process migration
+is still to be defined but the sockets just miss the actual implementation of the nescessary locks.\\
+For the filystem, the optimisation of input/output and robustness were not implemented.\\
+\end{document}
