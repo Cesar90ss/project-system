@@ -1,0 +1,89 @@
+
+\documentclass[a4paper,10pt]{article}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{fullpage}
+\lstset{%
+    basicstyle=\scriptsize\sffamily,%
+    commentstyle=\footnotesize\ttfamily,%
+    frameround=trBL,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=10pt,
+    keywordstyle=\bf
+}
+\newcommand{\subtitle}[1]{%
+    \posttitle{%
+        \par\end{center}
+    \begin{center}\large#1\end{center}
+\vskip0.5em}%
+}
+
+\newcommand{\CCscript}[2]{
+    \begin{itemize}
+        \item[]\lstinputlisting[caption=#2,label=#1,language=CC]{src/#1.cc}
+    \end{itemize}
+}
+\lstdefinelanguage{codeoutput} { %this is the name that you are going to use when you want to use the formatting
+    basicstyle=\ttfamily\scriptsize, %font family & size
+}
+\newcommand{\Oscript}[2]{
+    \begin{itemize}
+        \item[]\lstinputlisting[caption=#2,label=#1,language=codeoutput]{src/#1}
+    \end{itemize}
+}
+\newcommand{\Cscript}[2]{
+    \begin{itemize}
+        \item[]\lstinputlisting[caption=#2,label=#1,language=CC]{src/#1.c}
+    \end{itemize}
+}
+
+\setlength{\abovecaptionskip}{1pt plus 1pt minus 1pt} % Chosen fairly arbitrarily
+
+\title{Nachos}
+\subtitle{Project [MOSIG - M1]}
+\author{Antoine Faravelon, Lucas Felix, Miratul Khusna Mufida, Hugo Guiroux, Simon Moura}
+\date{\today}
+
+\begin{document}
+
+\section{Main Features Of The Program}
+
+
+The nachos kernel offers most of the basic functionalities awaited from a kernel :\\
+\begin{itemize}
+\item synchronized Input/Output
+\item User Multi Threading
+\item Virtual memory and multiple processes running concurently
+\item A file system
+\item TCP/IP protocol
+\end{itemize}
+
+\subsection{A few interesting features}
+
+First, all the the network functionalities have also been ported to the userspace. A user program can use sockets and 
+transfer content other the network using the faclities offered by our nachos kernel. \\
+We have also implemented the auto exit of the userthread so that, at the end of their execution, they do not return
+into main code. And we can also catch their return values.\\
+For this same threads, the kernel also give access to facilities to synchronize them (semaphore).\\
+Processes have also been implemented with some managing functions. Indeed, though the kernel does not offer any 
+processes hierarchy, a process can wait for the end of another one and then catch its exit value.\\
+Also, in the userspace, we provide a minimal shell for use with our kernel. It provides a prompt and the ability
+to launch program. Job management is also provided.\\
+Finally, dynamic memory allocation has been implemented for the userspace. User can allocate \\dynamically on the heap 
+instead of the stack.\\
+After that, the user has access to a whole range of system calls that will be detailed in the following section.
+
+\end{document}
