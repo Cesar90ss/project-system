@@ -10,7 +10,7 @@ int main()
 	int socket_id = Accept(listening_id);
 	
 	int i;
-	Receive(socket_id,buffer,MAX_SIZE);
+	Receive(socket_id,buffer,MAX_SIZE,1);
 	for(i=0;i<MAX_SIZE;i++)
 	{
 		if(buffer[i] != i)
