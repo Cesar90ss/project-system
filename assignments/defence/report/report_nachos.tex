@@ -79,7 +79,7 @@
 \section{Interesting/main features of our kernel}
 \section{Syscalls : User documentation}
 \begin{description}
-    \item [NAME] : halt
+    \item [NAME] : \textbf{halt}
         \begin{itemize}
             \item SYNOPSIS : void Halt()
             \item DESCRIPTION :
@@ -87,7 +87,7 @@
         \end{itemize}
 
 
-    \item [NAME] : Exit
+    \item [NAME] : \textbf{Exit}
         \begin{itemize}
             \item SYSNOPSIS : void Exit(int status)
             \item DESCRIPTION :
@@ -95,14 +95,14 @@
                 machine unless there is no other process running.
         \end{itemize}
 
-    \item [NAME] : PutChar
+    \item [NAME] : \textbf{PutChar}
         \begin{itemize}
             \item SYSNOPSIS : void PutChar(char c)
             \item DESCRIPTION :
                 PurtChar is a function which will write the character c to the console.
         \end{itemize}
 
-    \item [NAME] : GetChar
+    \item [NAME] : \textbf{GetChar}
         \begin{itemize}
             \item SYSNOPSIS : int GetChar()
             \item DESCRIPTION :
@@ -113,14 +113,14 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : PutInt
+    \item [NAME] : \textbf{PutInt}
         \begin{itemize}
             \item SYSNOPSIS : void PutInt(int i)
             \item DESCRIPTION :
                 PutInt is a function which is used to write the integer i to the console.
         \end{itemize}
 
-    \item [NAME] : GetInt
+    \item [NAME] : \textbf{GetInt}
         \begin{itemize}
             \item SYSNOPSIS : int GetInt(int* p)
             \item DESCRIPTION :
@@ -133,7 +133,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : PutString
+    \item [NAME] : \textbf{PutString}
         \begin{itemize}
             \item SYSNOPSIS : void PutString(const char s[])
             \item DESCRIPTION :
@@ -141,7 +141,7 @@
                 MAX\_STRING\_SIZE then the remaining part is not printed in the console.
         \end{itemize}
 
-    \item [NAME] : GetString
+    \item [NAME] : \textbf{GetString}
         \begin{itemize}
             \item SYSNOPSIS : char *GetString(char *s, int n)
             \item DESCRIPTION :
@@ -153,7 +153,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : UserThreadCreate
+    \item [NAME] : \textbf{UserThreadCreate}
         \begin{itemize}
             \item SYSNOPSIS : int UserThreadCreate(void f(void *arg), void *arg)
             \item DESCRIPTION :
@@ -168,7 +168,7 @@
         \end{itemize}
 
 
-    \item [NAME] : UserThreadExit
+    \item [NAME] : \textbf{UserThreadExit}
         \begin{itemize}
             \item SYSNOPSIS : void UserThreadExit(void *ret)
             \item DESCRIPTION :
@@ -180,7 +180,7 @@
                 to this syscall with return value as argument.
         \end{itemize}
 
-    \item [NAME] : UserThreadJoin
+    \item [NAME] : \textbf{UserThreadJoin}
         \begin{itemize}
             \item SYSNOPSIS : int UserThreadJoin(int tid, void **retval)
             \item DESCRIPTION :
@@ -198,7 +198,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : UserSemaphoreCreate
+    \item [NAME] : \textbf{UserSemaphoreCreate}
         \begin{itemize}
             \item SYSNOPSIS : int UserSemaphoreCreate(char* name, int value)
             \item DESCRIPTION :
@@ -210,7 +210,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : UserSemaphoreP
+    \item [NAME] : \textbf{UserSemaphoreP}
         \begin{itemize}
             \item SYSNOPSIS : int UserSemaphoreP(int id)
             \item DESCRIPTION :
@@ -222,7 +222,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : UserSemaphoreV
+    \item [NAME] : \textbf{UserSemaphoreV}
         \begin{itemize}
             \item SYSNOPSIS : int UserSemaphoreV(int id)
             \item DESCRIPTION :
@@ -234,7 +234,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : UserSemaphoreDestroy
+    \item [NAME] : \textbf{UserSemaphoreDestroy}
         \begin{itemize}
             \item SYSNOPSIS : int UserSemaphoreDestroy(int id)
             \item DESCRIPTION :
@@ -246,7 +246,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : AllocPageHeap
+    \item [NAME] : \textbf{AllocPageHeap}
         \begin{itemize}
             \item SYSNOPSIS : int AllocPageHeap()
             \item DESCRIPTION :
@@ -258,7 +258,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : FreePageHeap
+    \item [NAME] : \textbf{FreePageHeap}
         \begin{itemize}
             \item SYSNOPSIS : int FreePageHeap()
             \item DESCRIPTION :
@@ -269,7 +269,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : ForkExec
+    \item [NAME] : \textbf{ForkExec}
         \begin{itemize}
             \item SYSNOPSIS : unsigned int ForkExec(char *s)
             \item DESCRIPTION :
@@ -282,7 +282,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : Waitpid
+    \item [NAME] : \textbf{Waitpid}
         \begin{itemize}
             \item SYSNOPSIS : int Waitpid(unsigned int pid, int *retval)
             \item DESCRIPTION :
@@ -297,7 +297,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : Open
+    \item [NAME] : \textbf{Open}
         \begin{itemize}
             \item SYSNOPSIS : int Open(const char* filename)
             \item DESCRIPTION :
@@ -312,7 +312,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : Close
+    \item [NAME] : \textbf{Close}
         \begin{itemize}
             \item SYSNOPSIS : int Close(int id)
             \item DESCRIPTION :
@@ -324,7 +324,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : Create
+    \item [NAME] : \textbf{Create}
         \begin{itemize}
             \item SYSNOPSIS : int Create(const char *filename)
             \item DESCRIPTION :
@@ -336,7 +336,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : Read
+    \item [NAME] : \textbf{Read}
         \begin{itemize}
             \item SYSNOPSIS : int Read(int id, char *buffer, int numBytes)
             \item DESCRIPTION :
@@ -349,7 +349,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : Write
+    \item [NAME] : \textbf{Write}
         \begin{itemize}
             \item SYSNOPSIS : int Write(int id, const char* from, int numBytes)
             \item DESCRIPTION :
@@ -362,7 +362,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : Seek
+    \item [NAME] : \textbf{Seek}
         \begin{itemize}
             \item SYSNOPSIS : int Seek(int id, int position)
             \item DESCRIPTION :
@@ -375,7 +375,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : Remove
+    \item [NAME] : \textbf{Remove}
         \begin{itemize}
             \item SYSNOPSIS : int Remove(const char* name)
             \item DESCRIPTION :
@@ -388,7 +388,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : GetCurrentDirectory
+    \item [NAME] : \textbf{GetCurrentDirectory}
         \begin{itemize}
             \item SYSNOPSIS : char *GetCurrentDirectory(char *result)
             \item DESCRIPTION :
@@ -399,7 +399,7 @@
                 \end{itemize}
         \end{itemize}
 
-    \item [NAME] : SetCurrentDirectory
+    \item [NAME] : \textbf{SetCurrentDirectory}
         \begin{itemize}
             \item SYSNOPSIS : int SetCurrentDirectory(const char* dirname)
             \item DESCRIPTION :
