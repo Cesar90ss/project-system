@@ -191,20 +191,19 @@ The protocol we constructed on the robust transmission level is connected (like
 TCP). The connection establishing is not symmetric (there is a server and a
 client) and use a three-way handshake.  We use the mailboxes of the initial
 Nachos code as ports, but now each mailbox contains an array of socket because
-many sockets can be connected within a same port (for instance the port 80 of
-HTTP servers).  The number of connections a port can handle is limited to 16,
-because an array was simpler to implement and 16 is sufficient (but it can be
+many sockets can be connected within a same port (for instance the port $80$ of
+HTTP servers).  The number of connections a port can handle is limited to $16$,
+because an array was simpler to implement and $16$ is sufficient (but it can be
 replaced easily by a list).
 
 The postal worker dispatch the mails he receive. He know in which mailbox
 thanks to the mail header and then find the good socket by comparing the origin
 of the mail to the ones contained into sockets.
 
---------------------------IMAGE--------------------------
-%\begin{figure}[H]
-%	\centering
-%		\includegraphics[scale=0.55]{networkschema}
-%\end{figure}
+\begin{figure}[H]
+	\centering
+		\includegraphics[scale=0.55]{networkschema}
+\end{figure}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "report_nachos"
