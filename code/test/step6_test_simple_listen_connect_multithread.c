@@ -25,7 +25,7 @@ void * Read_writer(void *arg)
 	int socket_sid = (*(int*) arg);
 	int error_code;
 	char buffer[20]; // buffer used for receive
-	if ( ( error_code = Receive(socket_sid,buffer,DATA_SIZE) ) == -2 )
+	if ( ( error_code = Receive(socket_sid,buffer,DATA_SIZE,1) ) == -2 )
 		{
 			PutString("Could not receive : socket is waiting\n");
 			return (void*)-2;

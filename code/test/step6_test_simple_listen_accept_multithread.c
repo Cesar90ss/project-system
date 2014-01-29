@@ -56,7 +56,7 @@ int main()
 		
 		// Data is sent
 		
-		if ( ( error_code = Receive(connected_sid,buffer,ACK_SIZE) ) == -2 )
+		if ( ( error_code = Receive(connected_sid,buffer,ACK_SIZE,1) ) == -2 )
 		{
 			PutString("Could not receive : socket is waiting(listening socket)\n");
 			return -2;

@@ -40,7 +40,7 @@ int main()
 	int i;
 	for( i=0; i< NB_LOOP; i++ )
 	{
-		if ( ( error_code = Receive(connected_sid,buffer,DATA_SIZE) ) == -2 )
+		if ( ( error_code = Receive(connected_sid,buffer,DATA_SIZE,1) ) == -2 )
 		{
 			PutString("Could not receive : socket is waiting\n");
 			return -2;

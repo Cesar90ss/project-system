@@ -16,7 +16,7 @@ int main()
 	
 	char buf[6];
 	
-	Receive(socket_accept, buf, 6);
+	Receive(socket_accept, buf, 6, 1);
 	
 	PutString(" Machine 0 has the : ");
 	PutString(buf); // should be totem
