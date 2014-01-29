@@ -22,7 +22,6 @@ class SynchConsole {
     int __GetChar();
     Semaphore *monitorRead;
     Semaphore *monitorWrite;
-  private:
     Console *console;
 };
 

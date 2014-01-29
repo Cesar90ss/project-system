@@ -13,7 +13,7 @@ static void SynchConsole_ReadAvail(int arg) { SynchConsole_readAvail->V(); }
 static void SynchConsole_WriteDone(int arg) { SynchConsole_writeDone->V(); }
 
 //init semaphore and bind SynchConsole_ReadAvail and SynchConsole_WriteDone to console object
-SynchConsole::SynchConsole(char *readFile, char *writeFile)
+SynchConsole::SynchConsole(char *readFile, char *writeFile) : monitorRead(NULL), monitorWrite(NULL), console(NULL)
 {
     SynchConsole_readAvail = new Semaphore("SynchConsole_read avail", 0);
     SynchConsole_writeDone = new Semaphore("SynchConsole_write done", 0);
@@ -101,9 +101,10 @@ char *SynchConsole::SynchGetString(char *s, int n)
 
 void SynchConsole::SynchPutInt(int i)
 {
-    char ToBeWritten[MAX_INT_NUM + 1];
+    char *ToBeWritten = new char[MAX_INT_NUM + 1];
     sprintf(ToBeWritten, "%i", i);
     SynchPutString(ToBeWritten);
+    delete [] ToBeWritten;
 }
 
 int SynchConsole::SynchGetInt(int* p)
@@ -113,6 +114,7 @@ int SynchConsole::SynchGetInt(int* p)
     int res = __GetChar();
     char c;
     char buf[MAX_STRING_SIZE + 1];
+    memset(buf, 0, MAX_STRING_SIZE + 1);
     int count = 0;
 
     if(res == EOF)

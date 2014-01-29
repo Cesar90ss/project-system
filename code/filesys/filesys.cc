@@ -638,12 +638,16 @@ char *FileSystem::DirectoryName(const char* filename)
     if (st[st.size() - 1] == '/')
         st += "no";
 
-
-    char *cpy = new char[strlen(st.c_str()) + 1];
-    strcpy(cpy, st.c_str());
+    // For padding, dirname may use bcopy internaly & can cause bad memory
+    // access patterns. See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=691109
+    char *cpy = new char[strlen(st.c_str()) + 8];
+    bzero(cpy, strlen(st.c_str()) + 8);
+    strncpy(cpy, st.c_str(), strlen(st.c_str()) + 1);
 
     char *result = dirname(cpy);
+
     char *cpy2 = new char[strlen(result) + 1];
+    bzero(cpy2, strlen(result) + 1);
     strcpy(cpy2, result);
 
     delete [] cpy;
@@ -668,11 +672,15 @@ char *FileSystem::FileName(const char* filename)
         return cpy;
     }
 
-    char *cpy = new char[strlen(st.c_str()) + 1];
-    strcpy(cpy, st.c_str());
+    // For padding, basename may use bcopy internaly & can cause bad memory
+    // access patterns. See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=691109
+    char *cpy = new char[strlen(st.c_str()) + 8];
+    bzero(cpy, strlen(st.c_str()) + 8);
+    strncpy(cpy, st.c_str(), strlen(st.c_str()) + 1);
 
     char *result = basename(cpy);
     char *cpy2 = new char[strlen(result) + 1];
+    bzero(cpy2, strlen(result) + 1);
     strcpy(cpy2, result);
 
     delete [] cpy;

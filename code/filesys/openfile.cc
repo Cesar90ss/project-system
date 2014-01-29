@@ -224,7 +224,7 @@ OpenFile::ReadAt(char *into, int numBytes, int position, bool takeLock)
                               &buf[(i - firstSector) * SectorSize]);
 
     // copy the part we want
-    bcopy(&buf[position - (firstSector * SectorSize)], into, numBytes);
+    memcpy(into, &buf[position - (firstSector * SectorSize)], numBytes);
     delete [] buf;
 
     // Release r/w lock
@@ -298,7 +298,7 @@ OpenFile::WriteAt(const char *from, int numBytes, int position, bool allow_dynam
                SectorSize, lastSector * SectorSize, false);
 
 // copy in the bytes we want to change
-    bcopy(from, &buf[position - (firstSector * SectorSize)], numBytes);
+    memcpy(&buf[position - (firstSector * SectorSize)], from, numBytes);
 
 // write modified sectors back
     for (i = firstSector; i <= lastSector; i++)
