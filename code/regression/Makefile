@@ -23,6 +23,10 @@ regression: clean $(ALL_TESTS)
 step5: $(wildcard step5*.sh)
 
 
+# Launch only tests for step6
+step6: $(wildcard step6*.sh)
+
+
 # Check for a test
 $(ALL_TESTS):
 	@echo -n "[Test] Running $* : "

@@ -1,7 +1,8 @@
 NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
-OUTPUT=`./nachos-step6 -m 1 -x step6_test_accept_failed`
+./nachos-final -cp step6_test_accept_failed run
+OUTPUT=`./nachos-final -m 1 -x run `
 
 
 if [ -n "$(echo "$OUTPUT" | grep "No listening socket, can not accept anything")" ]; then	

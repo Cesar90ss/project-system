@@ -741,7 +741,11 @@ void AddrSpace::AllocatePages(unsigned int addr, unsigned int num)
     for (i = 0; i < num; i++)
     {
         // Ask frame provider for page
-        ASSERT(frameProvider->GetEmptyFrame(&pageAddr) == 0);
+        if (frameProvider->GetEmptyFrame(&pageAddr) != 0)
+        {
+            printf("No more physical memory !\n");
+            ASSERT(FALSE);
+        }
 
         // Compute index of page
         index = pageAddr / PageSize;
