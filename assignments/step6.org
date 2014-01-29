@@ -1,0 +1,7 @@
+Answer to questions and notes :
+
+  Action 1.1/
+  Observing the excution of nettest shows that the system works by sending a message and then wait for
+  an acknowledgement from the target machine. Every function used are the ones from the NetworkDeamon
+  object(PostOffice). When the system use the receive function it blocks until the other machine send
+  a message. 

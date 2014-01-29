@@ -14,7 +14,7 @@
 
 #include "copyright.h"
 #include "synchlist.h"
-
+extern Thread *currentThread;
 //----------------------------------------------------------------------
 // SynchList::SynchList
 //      Allocate and initialize the data structures needed for a
@@ -95,4 +95,17 @@ SynchList::Mapcar (VoidFunctionPtr func)
     lock->Acquire ();
     list->Mapcar (func);
     lock->Release ();
+}
+
+//----------------------------------------------------------------------
+// SynchList::IsEmpy
+//      Return true if the list is empty, else false.
+//----------------------------------------------------------------------
+bool
+SynchList::IsEmpty()
+{
+    lock->Acquire ();
+	bool retval = list->IsEmpty();
+    lock->Release ();
+	return retval;
 }

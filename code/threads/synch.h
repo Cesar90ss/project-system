@@ -38,21 +38,28 @@ class Thread;
 
 class Semaphore
 {
-  public:
-    Semaphore (const char *debugName, int initialValue);// set initial value
-     ~Semaphore ();		// de-allocate semaphore
-    const char *getName ()
-    {
-	return name;
-    }				// debugging assist
+	public:
+		//set initial value
+		Semaphore(const char *debugName, int initialValue);
 
-    void P ();			// these are the only operations on a semaphore
-    void V ();			// they are both *atomic*
+		//de-allocate semaphore
+		~Semaphore();
 
-  private:
-    const char *name;		// useful for debugging
-    int value;			// semaphore value, always >= 0
-    List *queue;		// threads waiting in P() for the value to be > 0
+		//debugging assist
+		const char *getName()
+		{
+			return name;
+		}				
+
+		//these are the only operations on a semaphore
+		//they are both *atomic*
+		void P();
+		void V();
+
+	private:
+		const char *name;	// useful for debugging
+		int value;			// semaphore value, always >= 0
+		List *queue;		// threads waiting in P() for the value to be > 0
 };
 
 // The following class defines a "lock".  A lock can be BUSY or FREE.
@@ -69,28 +76,31 @@ class Semaphore
 
 class Lock
 {
-  public:
-    Lock (const char *debugName);	// initialize lock to be FREE
-     ~Lock ();			// deallocate lock
-    const char *getName ()
-    {
-	return name;
-    }				// debugging assist
+	public:
+		// initialize lock to be FREE
+		Lock(const char *debugName);
 
-    void Acquire ();		// these are the only operations on a lock
-    void Release ();		// they are both *atomic*
+		//deallocate lock
+		~Lock();
 
-    bool isHeldByCurrentThread ();	// true if the current thread
-    // holds this lock.  Useful for
-    // checking in Release, and in
-    // Condition variable ops below.
+		//debugging assist
+		const char *getName()
+		{
+		return name;
+		}
 
-  private:
-    const char *name;		// for debugging
-	bool locked;
-	Thread* locker;
-	List *queue;
-    // plus some other stuff you'll need to define
+		//these are the only operations on a lock
+		//they are both *atomic*
+		void Acquire();
+		void Release();
+
+		//true if the current thread holds this lock.
+		bool isHeldByCurrentThread();
+
+	private:
+		const char *name;	//for debugging
+		Thread* locker; 	//NULL if unlock, address of the locker thread if locked
+		List *queue;
 };
 
 // The following class defines a "condition variable".  A condition
@@ -128,21 +138,21 @@ class Lock
 class Condition
 {
 	public:
-		Condition (const char *debugName);	// initialize condition to
+		Condition(const char *debugName);	// initialize condition to
 		// "no one waiting"
 		~Condition ();		// deallocate the condition
-		const char *getName ()
+		const char *getName()
 		{
 			return (name);
 		}
 
-		void Wait (Lock * conditionLock);	// these are the 3 operations on
-		// condition variables; releasing the
-		// lock and going to sleep are
-		// *atomic* in Wait()
-		void Signal (Lock * conditionLock);	// conditionLock must be held by
-		void Broadcast (Lock * conditionLock);	// the currentThread for all of
-		// these operations
+		// these are the 3 operations on condition variables.
+		//releasing the lock and going to sleep are *atomic* in Wait().
+		// conditionLock must be held by the currentThread for all of
+		// these operations.
+		void Wait(Lock * conditionLock);
+		void Signal(Lock * conditionLock);
+		void Broadcast(Lock * conditionLock);
 
 	private:
 		const char *name;

@@ -7,7 +7,7 @@ RESULT_STRING2="String1String2"
 
 for i in {1..10}
 do
-OUTPUT=$(./nachos-step4 -rs 5 -x step4_ForkExec)
+OUTPUT=$(./nachos-step4 -rs 3 -x step4_ForkExec)
 
 OUTPUT1=$(echo $OUTPUT | grep "$RESULT_STRING1")
 

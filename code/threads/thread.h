@@ -102,6 +102,11 @@ class Thread
     // basic thread operations
 
     void Fork (VoidFunctionPtr func, int arg);	// Make thread run (*func)(arg)
+    
+    #ifdef NETWORK
+    void Fork_No_User_Space (VoidFunctionPtr func, int arg); // Fork without creating address space for mips program
+    #endif
+    
     void Yield ();		// Relinquish the CPU if any
     // other thread is runnable
     void Sleep ();		// Put the thread to sleep and

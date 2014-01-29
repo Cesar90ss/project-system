@@ -217,6 +217,7 @@ UserThreadJoin:
     syscall
     j	$31
     .end UserThreadJoin
+/* ----------------------*/
      .globl UserSemaphoreCreate
     .ent	UserSemaphoreCreate
 UserSemaphoreCreate:
@@ -240,6 +241,7 @@ UserSemaphoreV:
     syscall
     j	$31
     .end UserSemaphoreV
+/* ----------------------*/
      .globl UserSemaphoreDestroy
     .ent	UserSemaphoreDestroy
 UserSemaphoreDestroy:
@@ -287,6 +289,55 @@ CheckEnd:
     syscall
     j	$31
     .end CheckEnd
+/* ----------------------*/
+    .globl Listen
+    .ent	Listen
+Listen:
+    addiu $2,$0,SC_Listen
+    syscall
+    j	$31
+    .end Listen
+/* ----------------------*/
+    .globl Accept
+    .ent	Accept
+Accept:
+    addiu $2,$0,SC_Accept
+    syscall
+    j	$31
+    .end Accept
+/* ----------------------*/
+    .globl Connect
+    .ent	Connect
+Connect:
+    addiu $2,$0,SC_Connect
+    syscall
+    j	$31
+    .end Connect
+/* ----------------------*/
+    .globl Send
+    .ent	Send
+Send:
+    addiu $2,$0,SC_Send
+    syscall
+    j	$31
+    .end Send
+/* ----------------------*/
+    .globl Receive
+    .ent	Receive
+Receive:
+    addiu $2,$0,SC_Receive
+    syscall
+    j	$31
+    .end Receive
+/* ----------------------*/
+    .globl Disconnect
+    .ent	Disconnect
+Disconnect:
+    addiu $2,$0,SC_Disconnect
+    syscall
+    j	$31
+    .end Disconnect
+/* ----------------------*/
 
 /* ----------------------*/
     .globl GetCurrentDirectory

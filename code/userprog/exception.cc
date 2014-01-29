@@ -28,7 +28,9 @@
 #ifdef USER_PROGRAM
 #include "userthread.h"
 #endif
-
+#ifdef NETWORK
+#include "post.h"
+#endif
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -173,7 +175,7 @@ void switch_UserSemaphoreCreate()
     name[name_size] = '\0';
 
     DEBUG('t', "Creation of semaphore %s\n", name);
-    int semaphore_id = currentThread->space->CreateSemaphore(name,value);
+    int semaphore_id = currentThread->space->SemaphoreCreate(name,value);
 
     machine->WriteRegister(2,semaphore_id);
     delete [] name;
@@ -373,6 +375,240 @@ void switch_SetCurrentDirectory()
     delete [] buffer;
 }
 
+//----------------------//
+void switch_Listen()
+{
+	#ifdef NETWORK
+	int local_port = machine->ReadRegister(4);
+
+	//check if the port exists
+	if(local_port<0 && local_port>=postOffice->NumBoxes())
+	{
+		machine->WriteRegister(2,-1);
+		return;
+	}
+	
+	//if the corresponding mailbox is already listenning
+	if(postOffice->IsListening(local_port))
+	{
+		machine->WriteRegister(2,-2);
+		return;
+	}
+
+	//else create a socket in listenning_mode for this box in the addrSpace list of socket.
+	NachosSocket* socket;
+	int sid = currentThread->space->SocketCreate(&socket, SOCKET_LISTENING, 0, 0, (int)local_port);
+	
+	//put the mailbox in listenning mode
+	postOffice->EnableListening(local_port,socket);
+	
+	//the listenning socket can only be use for accept or close. (else error)
+	//return the listening socket id
+	machine->WriteRegister(2, sid);
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Listen syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
+}
+//----------------------//
+void switch_Accept()
+{	
+	#ifdef NETWORK
+	int listener_sid = machine->ReadRegister(4);
+	NachosSocket* listener = (NachosSocket*)currentThread->space->GetSocketPointer(listener_sid);
+
+	if(listener == NULL)
+	{
+		machine->WriteRegister(2,-1); //bad sid: not exist
+		return;
+	}
+	
+	if(!listener->IsListening())
+	{
+		machine->WriteRegister(2,-1); //bad sid: not listening
+		return;
+	}
+	
+	//wait on the listening list of the mailbox
+	Mail *request = listener->PickAMail();
+
+	//extract this from the message
+	int machine_from = request->pktHdr.from;
+	int port_from = request->mailHdr.from;
+	delete request;
+
+	//verify is this socket does not already exist (same machine with same port try to connect in this local port)
+	int error;
+	NachosSocket **socket_slot = NULL;
+	if((error = postOffice->ReserveSlot(&socket_slot, listener->LocalPort(), machine_from, port_from)) < 0)
+	{
+		//error is -1 if no free slot and -2 if this connection already exist
+		machine->WriteRegister(2,error-1);
+		return;
+	}
+	
+	//create a connecting socket with information in the received message, take a place in the mailbox list of socket
+	int socket_sid = currentThread->space->SocketCreate(socket_slot, SOCKET_CONNECTING, machine_from, port_from, listener->LocalPort());
+
+	//Send the ack to prevent the client we are processing his request
+	if((*socket_slot)->SendAck() < 0)
+	{
+		machine->WriteRegister(2,-4); //connection timed out
+		return;
+	}
+
+	//Wait for the client to tell us he is still here (he may had close his connection request)
+	if((*socket_slot)->WaitTimeoutAck() < 0)
+	{
+		machine->WriteRegister(2,-4); //connection timed out
+		return;
+	}
+	
+	//connection established
+	(*socket_slot)->SetStatus(SOCKET_CONNECTED);
+	machine->WriteRegister(2, socket_sid);
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Accept syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
+}
+//----------------------//
+void switch_Connect()
+{
+	#ifdef NETWORK
+	int remote_machine = machine->ReadRegister(4);
+	int remote_port = machine->ReadRegister(5);
+	int error;
+	int local_port = 0;
+
+	//create a socket in a mailbox (search for a local free port somewhere)
+	//we need to dispatch connection on different mailbox (if all connections in one, it coulb be slow)
+	NachosSocket **socket_slot = NULL;
+	while((error = postOffice->ReserveSlot(&socket_slot, local_port, remote_machine, remote_port)) < 0)
+	{
+		if(error == -3)
+		{
+			machine->WriteRegister(2,-1);
+			return;
+		}
+		local_port++;
+	}
+	
+	//Create a socket in the found slot
+	int socket_sid = currentThread->space->SocketCreate(socket_slot, SOCKET_CONNECTING, remote_machine, remote_port, local_port);
+
+	//send a request message
+	if((*socket_slot)->SendRequest() < 0)
+	{
+		machine->WriteRegister(2,-2); //connection timed out
+		return;
+	}
+
+	if((*socket_slot)->WaitTimeoutAck() < 0)
+	{		
+		machine->WriteRegister(2,-2); //connection timed out
+		return;
+	}
+
+	if((*socket_slot)->SendAck() < 0)
+	{
+		machine->WriteRegister(2,-2); //connection timed out
+		return;
+	}
+	
+	//connection established
+	(*socket_slot)->SetStatus(SOCKET_CONNECTED);
+	machine->WriteRegister(2,socket_sid);
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Connect syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
+}
+//----------------------//
+void switch_Send()
+{
+	#ifdef NETWORK
+	int socket_id = machine->ReadRegister(4);
+	int buffer_in_machine = machine->ReadRegister(5);
+	int size = machine->ReadRegister(6);
+
+	//get the socket and check if it is connected
+	NachosSocket *socket = currentThread->space->GetSocketPointer(socket_id);
+	if(socket==NULL || !socket->IsConnected())
+	{
+		machine->WriteRegister(2,-1); //not a connected socket
+		return;
+	}
+
+	//get the message from the machine in UNIX buffer
+    char buffer[size];
+    copyMemFromMachine(buffer_in_machine,buffer,size);
+
+	//send the message
+	int error_code;
+	if((error_code = socket->SendMail(buffer,size)) < 0)
+	{
+		//return -2 for timeout and -3 if the receiver has closed his socket
+		machine->WriteRegister(2,error_code-1);
+		return;
+	}
+
+	machine->WriteRegister(2,0);
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Send syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
+}
+//----------------------//
+void switch_Receive()
+{
+	#ifdef NETWORK
+	int sid = machine->ReadRegister(4);
+	int buffer_in_machine = machine->ReadRegister(5);
+	int requested_size = machine->ReadRegister(6);
+	bool blocking = (bool)machine->ReadRegister(7);
+
+	NachosSocket* socket = currentThread->space->GetSocketPointer(sid);
+
+	//TODO choose a constant for the maximal size to allocate here
+	//(or create a counter of char in the socket in order to allocate exactly the buffer)
+	ASSERT(requested_size <= 4096);
+
+	char buffer[requested_size];
+	bzero(buffer, requested_size);
+	int received_size = socket->Receive(buffer,requested_size, blocking);
+
+	if(received_size < 0)
+	{
+		machine->WriteRegister(2,-1);
+		return;
+	}
+
+	copyMemToMachine(buffer_in_machine,buffer,received_size);
+    machine->WriteRegister(2,received_size);
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Receive syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
+}
+//----------------------//
+void switch_Disconnect()
+{
+	#ifdef NETWORK
+	//synchconsole->SynchPutString("Unimplemented Disconnect\n");
+	int sid = machine->ReadRegister(4);
+	NachosSocket* socket = currentThread->space->GetSocketPointer(sid);
+
+	//remove from mailbox
+	postOffice->RemoveSocket(socket);
+
+	//remove from addrSpace and delete
+	currentThread->space->SocketDestroy(sid);
+	#else
+	synchconsole->SynchPutString("Network disabled, cannot execute Disconnect syscall\n");
+	ASSERT(FALSE);
+	#endif //NETWORK
+}
 #endif //USER_PROGRAM
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -507,7 +743,7 @@ ExceptionHandler (ExceptionType which)
                     switch_Waitpid();
                     break;
                 }
-                case SC_CheckEnd:
+                 case SC_CheckEnd:
                 {
                     switch_CheckEnd();
                     break;
@@ -555,6 +791,36 @@ ExceptionHandler (ExceptionType which)
                 case SC_Remove:
                 {
                     switch_Remove();
+                    break;
+                }
+				case SC_Listen:
+                {
+                    switch_Listen();
+                    break;
+                }
+                case SC_Accept:
+                {
+                    switch_Accept();
+                    break;
+                }
+                 case SC_Connect:
+                {
+                    switch_Connect();
+                    break;
+                }
+                 case SC_Send:
+                {
+                    switch_Send();
+                    break;
+                }
+                 case SC_Receive:
+                {
+                    switch_Receive();
+                    break;
+                }
+                 case SC_Disconnect:
+                {
+                    switch_Disconnect();
                     break;
                 }
                 #endif

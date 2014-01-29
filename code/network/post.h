@@ -31,6 +31,11 @@
 #include "network.h"
 #include "synchlist.h"
 
+#define NB_BOXES 16
+#define NB_CONNECTION_PER_PORT 16
+
+class NachosSocket;
+
 // Mailbox address -- uniquely identifies a mailbox on a given machine.
 // A mailbox is just a place for temporary storage for messages.
 typedef int MailBoxAddress;
@@ -38,56 +43,66 @@ typedef int MailBoxAddress;
 // The following class defines part of the message header.
 // This is prepended to the message by the PostOffice, before the message
 // is sent to the Network.
+enum MailType {
+	REQUEST,
+	ACK,
+	CONFIRMATION,
+	MESSAGE
+};
 
 class MailHeader {
   public:
-    MailBoxAddress to;		// Destination mail box
-    MailBoxAddress from;	// Mail box to reply to
-    unsigned length;		// Bytes of message data (excluding the
-				// mail header)
+	unsigned int id;
+	MailType mailType;
+    MailBoxAddress to;					// Destination mail box
+    MailBoxAddress from;				// Mail box to reply to
+    unsigned length;					// Bytes of message data (excluding the
+										// mail header)
 };
 
 // Maximum "payload" -- real data -- that can included in a single message
 // Excluding the MailHeader and the PacketHeader
-
 #define MaxMailSize 	(MaxPacketSize - sizeof(MailHeader))
-
 
 // The following class defines the format of an incoming/outgoing
 // "Mail" message.  The message format is layered:
 //	network header (PacketHeader)
 //	post office header (MailHeader)
 //	data
-
 class Mail {
   public:
      Mail(PacketHeader pktH, MailHeader mailH, char *msgData);
-				// Initialize a mail message by
-				// concatenating the headers to the data
+										// Initialize a mail message by
+										// concatenating the headers to the data
 
-     PacketHeader pktHdr;	// Header appended by Network
-     MailHeader mailHdr;	// Header appended by PostOffice
-     char data[MaxMailSize];	// Payload -- message data
+     PacketHeader pktHdr;				// Header appended by Network
+     MailHeader mailHdr;				// Header appended by PostOffice
+     char data[MaxMailSize];			// Payload -- message data
 };
 
 // The following class defines a single mailbox, or temporary storage
 // for messages.   Incoming messages are put by the PostOffice into the
 // appropriate mailbox, and these messages can then be retrieved by
 // threads on this machine.
-
 class MailBox {
   public:
-    MailBox();			// Allocate and initialize mail box
-    ~MailBox();			// De-allocate mail box
+    MailBox();							// Allocate and initialize mail box
+    ~MailBox();							// De-allocate mail box
 
-    void Put(PacketHeader pktHdr, MailHeader mailHdr, char *data);
-   				// Atomically put a message into the mailbox
-    void Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data);
-   				// Atomically get a message out of the
-				// mailbox (and wait if there is no message
-				// to get!)
-  private:
-    SynchList *messages;	// A mailbox is just a list of arrived messages
+    void Put(int sid,PacketHeader pktHdr, MailHeader mailHdr, char *data );
+										// Atomically put a message into the mailbox of a socket
+
+	void PutRequest(PacketHeader pktHdr, MailHeader mailHdr, char *data);
+
+    void Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data, int sid);
+										// Atomically get a message out of the
+										// mailbox (and wait if there is no message
+										// to get!)
+
+	int SearchByRemote(int machine_from, int mailBox_from);
+
+	NachosSocket *Listener;
+	NachosSocket **Sockets;				// A mailbox is just a list of arrived messages
 };
 
 // The following class defines a "Post Office", or a collection of
@@ -98,44 +113,107 @@ class MailBox {
 //
 // Incoming messages are put by the PostOffice into the
 // appropriate mailbox, waking up any threads waiting on Receive.
-
 class PostOffice {
   public:
-    PostOffice(NetworkAddress addr, double reliability, int nBoxes);
-				// Allocate and initialize Post Office
-				//   "reliability" is how many packets
-				//   get dropped by the underlying network
-    ~PostOffice();		// De-allocate Post Office data
+    PostOffice(NetworkAddress addr, double reliability);
+										// Allocate and initialize Post Office
+										//   "reliability" is how many packets
+										//   get dropped by the underlying network
+    ~PostOffice();						// De-allocate Post Office data
 
-    void Send(PacketHeader pktHdr, MailHeader mailHdr, const char *data);
-    				// Send a message to a mailbox on a remote
-				// machine.  The fromBox in the MailHeader is
-				// the return box for ack's.
+	int NumBoxes();
 
+    int Send(PacketHeader pktHdr, MailHeader mailHdr, const char *data);
+										// Send a message to a mailbox on a remote
+										// machine.  The fromBox in the MailHeader is
+										// the return box for ack's.
+
+	//TODO only used by nettest, remove nettest, remove the option -o, remove this function
     void Receive(int box, PacketHeader *pktHdr,
 		MailHeader *mailHdr, char *data);
-    				// Retrieve a message from "box".  Wait if
-				// there is no message in the box.
+										// Retrieve a message from "box".  Wait if
+										// there is no message in the box.
 
-    void PostalDelivery();	// Wait for incoming messages,
-				// and then put them in the correct mailbox
+    void PostalDelivery();				// Wait for incoming messages,
+										// and then put them in the correct mailbox
 
-    void PacketSent();		// Interrupt handler, called when outgoing
-				// packet has been put on network; next
-				// packet can now be sent
-    void IncomingPacket();	// Interrupt handler, called when incoming
-   				// packet has arrived and can be pulled
-				// off of network (i.e., time to call
-				// PostalDelivery)
+    void PacketSent();					// Interrupt handler, called when outgoing
+										// packet has been put on network; next
+										// packet can now be sent
+    void IncomingPacket();				// Interrupt handler, called when incoming
+										// packet has arrived and can be pulled
+										// off of network (i.e., time to call
+										// PostalDelivery)
+	
+	bool IsListening(int i_local_port); //if the mailbox's listener is NULL, return false else true.			
+	int EnableListening(int i_local_port, NachosSocket *socket);		// enable listening on a "port"
+	int ReserveSlot(NachosSocket ***slot, int mailbox, int remote_machine, int remote_port); 	//reserve a socket slot in the mailbox
+																								//return 0 if OK
+																								//return -1 if there is no free slot
+																								//return -2 if the same socket already exist
+																								//return -3 if mailbox does not exist
+	void RemoveSocket(NachosSocket *socket);
 
   private:
-    Network *network;		// Physical network connection
-    NetworkAddress netAddr;	// Network address of this machine
-    MailBox *boxes;		// Table of mail boxes to hold incoming mail
-    int numBoxes;		// Number of mail boxes
-    Semaphore *messageAvailable;// V'ed when message has arrived from network
-    Semaphore *messageSent;	// V'ed when next message can be sent to network
-    Lock *sendLock;		// Only one outgoing message at a time
+    Thread *NetworkDeamon;
+    Network *network;					// Physical network connection
+    NetworkAddress netAddr;				// Network address of this machine
+    MailBox *boxes;						// Table of mail boxes to hold incoming mail
+    int numBoxes;						// Number of mail boxes
+    Semaphore *messageAvailable;		// V'ed when message has arrived from network
+    Semaphore *messageSent;				// V'ed when next message can be sent to network
+    Lock *sendLock;						// Only one outgoing message at a time
 };
 
+enum SocketStatusEnum
+{
+	SOCKET_CONNECTED,					// Once connected
+	SOCKET_CONNECTING,					// Connecting
+	SOCKET_LISTENING,
+    SOCKET_CLOSED						// after call to disconnect
+};
+
+class NachosSocket {
+	public:
+		NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int i_remote_port, int i_local_port);
+		~NachosSocket();
+		
+		int Receive(char *buffer, unsigned int size, bool blocking);
+		int SendRequest();
+		int SendAck();
+		int SendMail(char* buffer,unsigned int size);
+
+		int WaitTimeoutAck();
+		
+		Mail* PickAMail();
+		
+		bool IsListening();
+		bool IsConnected();
+		
+		int LocalPort();
+		int RemotePort();
+		int RemoteMachine();
+
+		void SetStatus(SocketStatusEnum new_status);
+
+		bool confirm;									// state of the confirmation
+		unsigned int confirm_id;						// the id of the message confirmed
+		unsigned int received_id;
+		bool ack;										// state of acknowledgement
+
+		SynchList *messages;							//message list for this socket
+	private:
+		int Send(PacketHeader packetHdr,MailHeader mailHdr,char* data);
+		
+		SocketStatusEnum status;						// Status of the stocket(Connected, Disconnected...)
+		
+		int local_port;									// Local mail box
+		int remote_port;								// remote mail box
+		int remote_machine;								// Remote machine
+
+		char* reception_buffer;							//This buffer is used when we take a part of a mail
+														//the rest is stored here for later
+		unsigned int buffer_length;
+		unsigned int mail_id_counter;
+};
 #endif

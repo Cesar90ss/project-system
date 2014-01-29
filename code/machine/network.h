@@ -59,7 +59,7 @@ class Network {
 				// Allocate and initialize network driver
     ~Network();			// De-allocate the network driver data
 
-    void Send(PacketHeader hdr, char* data);
+    int Send(PacketHeader hdr, char* data);
     				// Send the packet data to a remote machine,
 				// specified by "hdr".  Returns immediately.
     				// "writeHandler" is invoked once the next

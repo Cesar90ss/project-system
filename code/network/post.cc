@@ -18,8 +18,20 @@
 
 #include "copyright.h"
 #include "post.h"
+#include "thread.h"
+#include "stats.h"
 
 #include <strings.h> /* for bzero */
+#include <limits.h>
+
+extern PostOffice* postOffice;
+extern Thread *currentThread;
+extern Statistics *stats;
+
+#define NB_REEMISSION	500		//Number of times mails are re-emitted until we receive a confirmation
+#define SEND_TIMEOUT	10000	//Amount of time we wait between each mail re-emission
+#define ACK_TIMEOUT		1000000	//Amount of time we wait for the ack during the connection establishing
+#define TIMEOUT_RECEIVE 100000000 //Amount of time we wait when using the receive with blocking option
 
 //----------------------------------------------------------------------
 // Mail::Mail
@@ -28,9 +40,8 @@
 //
 //	"pktH" -- source, destination machine ID's
 //	"mailH" -- source, destination mailbox ID's
-//	"data" -- payload data
+//	"msgData" -- payload data
 //----------------------------------------------------------------------
-
 Mail::Mail(PacketHeader pktH, MailHeader mailH, char *msgData)
 {
     ASSERT(mailH.length <= MaxMailSize);
@@ -42,16 +53,20 @@ Mail::Mail(PacketHeader pktH, MailHeader mailH, char *msgData)
 
 //----------------------------------------------------------------------
 // MailBox::MailBox
-//      Initialize a single mail box within the post office, so that it
+//      Initialize a single mailbox within the post office, so that it
 //	can receive incoming messages.
 //
 //	Just initialize a list of messages, representing the mailbox.
 //----------------------------------------------------------------------
-
-
 MailBox::MailBox()
 {
-    messages = new SynchList();
+    int i;
+	Sockets = new NachosSocket*[NB_CONNECTION_PER_PORT];
+	for(i=0;i<NB_CONNECTION_PER_PORT;i++)
+	{
+		Sockets[i] = NULL;
+	}
+	Listener = NULL;
 }
 
 //----------------------------------------------------------------------
@@ -64,7 +79,19 @@ MailBox::MailBox()
 
 MailBox::~MailBox()
 {
-    delete messages;
+    int i;
+	for(i=0;i<NB_CONNECTION_PER_PORT;i++)
+	{
+		if(Sockets[i] != NULL)
+		{
+			delete Sockets[i];
+		}
+	}
+	delete [] Sockets;
+	if(Listener != NULL)
+	{
+		delete Listener;
+	}
 }
 
 //----------------------------------------------------------------------
@@ -97,14 +124,23 @@ PrintHeader(PacketHeader pktHdr, MailHeader mailHdr)
 //----------------------------------------------------------------------
 
 void
-MailBox::Put(PacketHeader pktHdr, MailHeader mailHdr, char *data)
+MailBox::Put(int sid,PacketHeader pktHdr, MailHeader mailHdr, char *data)
 {
     Mail *mail = new Mail(pktHdr, mailHdr, data);
-
-    messages->Append((void *)mail);	// put on the end of the list of
-					// arrived messages, and wake up
-					// any waiters
+    Sockets[sid]->messages->Append((void *)mail);	// put on the end of the list of
+													// arrived messages, and wake up
+													// any waiter on the socket
 }
+
+void
+MailBox::PutRequest(PacketHeader pktHdr, MailHeader mailHdr, char *data)
+{
+    Mail *mail = new Mail(pktHdr, mailHdr, data);
+	Listener->messages->Append((void *)mail);	// put on the end of the list of
+													// arrived messages, and wake up
+													// any waiter on the socket
+}
+
 
 //----------------------------------------------------------------------
 // MailBox::Get
@@ -119,12 +155,19 @@ MailBox::Put(PacketHeader pktHdr, MailHeader mailHdr, char *data)
 //----------------------------------------------------------------------
 
 void
-MailBox::Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data)
+MailBox::Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data, int sid)
 {
     DEBUG('n', "Waiting for mail in mailbox\n");
-    Mail *mail = (Mail *) messages->Remove();	// remove message from list;
+	Mail *mail;
+	if(Sockets[sid] != NULL)
+    	mail = (Mail *) Sockets[sid]->messages->Remove();	// remove message from list;
 						// will wait if list is empty
-
+						//change message in array to make sure right message will be taken in the right port
+	else
+	{
+		DEBUG('n', "There is no such socket using this mailbox\n");
+		return;
+	}
     *pktHdr = mail->pktHdr;
     *mailHdr = mail->mailHdr;
     if (DebugIsEnabled('n')) {
@@ -136,6 +179,18 @@ MailBox::Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data)
 					// the caller's buffer
     delete mail;			// we've copied out the stuff we
 					// need, we can now discard the message
+}
+
+int
+MailBox::SearchByRemote(int machine_from, int mailBox_from)
+{
+	int i;
+	for(i = 0; i<NB_CONNECTION_PER_PORT; i++)
+	{
+		if(Sockets[i] != NULL && (Sockets[i]->RemoteMachine() == machine_from) && (Sockets[i]->RemotePort() == mailBox_from) )
+			return i;
+	}
+	return -1;
 }
 
 //----------------------------------------------------------------------
@@ -173,7 +228,7 @@ static void WriteDone(int arg)
 //	"nBoxes" is the number of mail boxes in this Post Office
 //----------------------------------------------------------------------
 
-PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
+PostOffice::PostOffice(NetworkAddress addr, double reliability)
 {
 // First, initialize the synchronization with the interrupt handlers
     messageAvailable = new Semaphore("message available", 0);
@@ -182,8 +237,8 @@ PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
 
 // Second, initialize the mailboxes
     netAddr = addr;
-    numBoxes = nBoxes;
-    boxes = new MailBox[nBoxes];
+    numBoxes = NB_BOXES;
+    boxes = new MailBox[NB_BOXES];
 
 // Third, initialize the network; tell it which interrupt handlers to call
     network = new Network(addr, reliability, ReadAvail, WriteDone, (int) this);
@@ -191,9 +246,9 @@ PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
 
 // Finally, create a thread whose sole job is to wait for incoming messages,
 //   and put them in the right mailbox.
-    Thread *t = new Thread("postal worker");
+    NetworkDeamon = new Thread("postal worker");
 
-    t->Fork(PostalHelper, (int) this);
+    NetworkDeamon->Fork_No_User_Space(PostalHelper, (int) this);
 }
 
 //----------------------------------------------------------------------
@@ -204,10 +259,17 @@ PostOffice::PostOffice(NetworkAddress addr, double reliability, int nBoxes)
 PostOffice::~PostOffice()
 {
     delete network;
-    delete [] boxes;
+	delete [] boxes;
     delete messageAvailable;
     delete messageSent;
     delete sendLock;
+	delete NetworkDeamon;
+}
+
+
+int PostOffice::NumBoxes()
+{
+	return numBoxes;
 }
 
 //----------------------------------------------------------------------
@@ -221,27 +283,89 @@ PostOffice::~PostOffice()
 void
 PostOffice::PostalDelivery()
 {
-    PacketHeader pktHdr;
-    MailHeader mailHdr;
-    char *buffer = new char[MaxPacketSize];
-
-    for (;;) {
+    PacketHeader pktHdr, conf_pktHdr ;
+    MailHeader mailHdr, conf_mailHdr ;
+	NachosSocket* socket;
+    char m_buffer[MaxPacketSize];	//we want to avoid memory leak, so alloc on
+    char *buffer = m_buffer;		//stack and then point on allocated memory, the function will not exit so
+					// there is no risk of data loss
+    for (;;) 
+	{
         // first, wait for a message
         messageAvailable->P();
         pktHdr = network->Receive(buffer);
 
         mailHdr = *(MailHeader *)buffer;
-        if (DebugIsEnabled('n')) {
-	    printf("Putting mail into mailbox: ");
-	    PrintHeader(pktHdr, mailHdr);
+        if (DebugIsEnabled('n'))
+		{
+		    printf("Putting mail into mailbox: ");
+		    PrintHeader(pktHdr, mailHdr);
         }
 
-	// check that arriving message is legal!
-	ASSERT(0 <= mailHdr.to && mailHdr.to < numBoxes);
-	ASSERT(mailHdr.length <= MaxMailSize);
+		// check that arriving message is legal!
+		ASSERT(0 <= mailHdr.to && mailHdr.to < numBoxes);
+		ASSERT(mailHdr.length <= MaxMailSize);
 
-	// put into mailbox
-        boxes[mailHdr.to].Put(pktHdr, mailHdr, buffer + sizeof(MailHeader));
+		// put into mailbox
+		switch(mailHdr.mailType)
+		{
+			case CONFIRMATION:
+			{
+				boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)]->confirm = true;
+				boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)]->confirm_id = mailHdr.id;
+				break;
+			}
+			case ACK:
+			{
+				socket = boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)];
+
+				if(mailHdr.id > socket->received_id)
+				{
+					socket->ack = true;
+					socket->received_id ++;
+				}
+				break;
+			}
+			case REQUEST:
+			{
+				if(IsListening(mailHdr.to))
+				{
+					boxes[mailHdr.to].PutRequest(pktHdr, mailHdr, buffer + sizeof(MailHeader)); // we send the request to the listener
+				}
+				break;
+			}
+			case MESSAGE:
+			{
+				socket = boxes[mailHdr.to].Sockets[boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from)];
+				if(mailHdr.id > socket->received_id)
+				{
+					boxes[mailHdr.to].Put(boxes[mailHdr.to].SearchByRemote(pktHdr.from,mailHdr.from),
+					pktHdr, mailHdr, buffer + sizeof(MailHeader));
+					socket->received_id ++;
+				}
+				break;
+			}
+			default:
+			{
+				//unknown message type
+				ASSERT(FALSE);
+				break;
+			}
+		}
+
+		if(mailHdr.mailType != CONFIRMATION)
+		{
+			conf_pktHdr.to = pktHdr.from;
+			conf_pktHdr.from = pktHdr.to;
+			conf_pktHdr.length = sizeof(MailHeader);
+
+			conf_mailHdr.to = mailHdr.from;
+			conf_mailHdr.from = mailHdr.to;
+			conf_mailHdr.mailType = CONFIRMATION;
+			conf_mailHdr.length = 0;
+			conf_mailHdr.id = mailHdr.id;
+			Send(conf_pktHdr,conf_mailHdr,NULL);
+		}
     }
 }
 
@@ -258,15 +382,16 @@ PostOffice::PostalDelivery()
 //	"data" -- payload message data
 //----------------------------------------------------------------------
 
-void
+int
 PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
 {
-    char* buffer = new char[MaxPacketSize];	// space to hold concatenated
+    char* buffer = new char[MaxPacketSize]();	// space to hold concatenated
 						// mailHdr + data
 
-    if (DebugIsEnabled('n')) {
-	printf("Post send: ");
-	PrintHeader(pktHdr, mailHdr);
+    if (DebugIsEnabled('n'))
+	{
+		printf("Post send: ");
+		PrintHeader(pktHdr, mailHdr);
     }
     ASSERT(mailHdr.length <= MaxMailSize);
     ASSERT(0 <= mailHdr.to && mailHdr.to < numBoxes);
@@ -281,13 +406,14 @@ PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
 
     sendLock->Acquire();   		// only one message can be sent
 					// to the network at any one time
-    network->Send(pktHdr, buffer);
+    int return_value = network->Send(pktHdr, buffer);
     messageSent->P();			// wait for interrupt to tell us
 					// ok to send the next message
     sendLock->Release();
 
     delete [] buffer;			// we've sent the message, so
 					// we can delete our buffer
+	return return_value;
 }
 
 //----------------------------------------------------------------------
@@ -304,14 +430,12 @@ PostOffice::Send(PacketHeader pktHdr, MailHeader mailHdr, const char* data)
 //	"mailHdr" -- address to put: source, destination mailbox ID's
 //	"data" -- address to put: payload message data
 //----------------------------------------------------------------------
-
 void
-PostOffice::Receive(int box, PacketHeader *pktHdr,
-				MailHeader *mailHdr, char* data)
+PostOffice::Receive(int box, PacketHeader *pktHdr, MailHeader *mailHdr, char* data)
 {
     ASSERT((box >= 0) && (box < numBoxes));
 
-    boxes[box].Get(pktHdr, mailHdr, data);
+    boxes[box].Get(pktHdr, mailHdr, data,0);
     ASSERT(mailHdr->length <= MaxMailSize);
 }
 
@@ -321,7 +445,6 @@ PostOffice::Receive(int box, PacketHeader *pktHdr,
 //
 //	Signal the PostalDelivery routine that it is time to get to work!
 //----------------------------------------------------------------------
-
 void
 PostOffice::IncomingPacket()
 {
@@ -337,9 +460,352 @@ PostOffice::IncomingPacket()
 //	the packet could have been dropped by the network, so it won't get
 //	through.
 //----------------------------------------------------------------------
-
 void
 PostOffice::PacketSent()
 {
     messageSent->V();
 }
+//---------------------------------------------------------------//
+// enable listening on a "port"
+int PostOffice::EnableListening(int i_local_port, NachosSocket *socket)
+{
+	if(i_local_port<0 || i_local_port>=numBoxes)
+	{
+		return -1;
+	}
+
+	if(socket == NULL)
+	{
+		return -2;
+	}
+
+	boxes[i_local_port].Listener = socket;
+	return 0;
+}
+//---------------------------------------------------------------//
+//Reserve a socket slot in the mailbox
+int PostOffice::ReserveSlot(NachosSocket ***slot, int mailbox, int remote_machine, int remote_port)
+{
+	MailBox *box = &boxes[mailbox];
+	NachosSocket** free_slot = NULL;
+	int i;
+	
+	//the mailbox does not exist
+	if(mailbox < 0 || mailbox >= numBoxes)
+	{
+		return -3;
+	}
+	
+	for(i=0;i<numBoxes;i++)
+	{
+		if(box->Sockets[i] != NULL)
+		{		
+			if((box->Sockets[i]->RemoteMachine() == remote_machine) && (box->Sockets[i]->RemotePort() == remote_port))
+			{
+				return -2;	//already present
+			}
+		}
+		else
+		{
+			free_slot = &(box->Sockets[i]);
+		}
+	}
+	if(free_slot != NULL)
+	{
+		*slot = free_slot;
+		return 0;
+	}
+
+	return -1; // Not enough space left
+}
+// assume the port number is OK
+bool PostOffice::IsListening(int i_local_port)
+{
+	ASSERT( (i_local_port >= 0) && (i_local_port < numBoxes) );
+
+	return (boxes[i_local_port].Listener != NULL);
+}
+
+//---------------------------------------------------------------//
+//Remove a socket from the mailbox
+void PostOffice::RemoveSocket(NachosSocket* socket)
+{
+	if(socket->IsListening())
+	{
+		boxes[socket->LocalPort()].Listener = NULL;
+	}
+	else
+	{
+		boxes[socket->LocalPort()].Sockets[boxes[socket->LocalPort()].SearchByRemote(socket->RemoteMachine(),socket->RemotePort())] = NULL;
+	}
+}
+//---------------------------------------------------------------//
+//NachosSocket CLASS
+//---------------------------------------------------------------//
+NachosSocket::NachosSocket(SocketStatusEnum i_status, int i_remote_machine, int i_remote_port, int i_local_port)
+{
+	status = i_status;
+	
+	local_port = i_local_port;
+	remote_port = i_remote_port;
+	remote_machine = i_remote_machine;
+	confirm = false;
+	ack = false;
+	messages = new SynchList();
+
+	mail_id_counter = 1;
+	received_id = 0;
+
+	reception_buffer = new char[MaxMailSize];
+	buffer_length = 0;
+}
+//---------------------------------------------------------------//
+NachosSocket::~NachosSocket()
+{
+	delete messages;
+	delete reception_buffer;
+}
+//---------------------------------------------------------------//
+/**
+ * Receive : read a message of at most size bytes from the socket 
+ * and write it inside the buffer given as argument. If it can
+ * not read full size, the actual readen size will be returned.
+ * Return 0 if there is nothing to read, -1 if the socket is closed
+ * -2 if the socket is waiting for connection
+ */
+int NachosSocket::Receive(char *buffer, unsigned int size, bool blocking)
+{	
+	if(status != SOCKET_CONNECTED)
+	{
+		return -1;
+	}
+
+	unsigned int received_size = 0;
+
+	//firstly pick bytes in the buffer if it is not empty
+	if(buffer_length > 0)
+	{
+		//we take all the buffer
+		if(buffer_length <= size)
+		{
+			bcopy(reception_buffer, buffer, buffer_length);
+			received_size += buffer_length;
+			buffer_length = 0;
+		}
+		//we only take a part of the buffer
+		else
+		{
+			bcopy(reception_buffer, buffer, size);
+			received_size += size;
+			buffer_length -= size;
+			//replace the buffer content to the beggining of the buffer
+			memmove(reception_buffer, reception_buffer + size, MaxMailSize - size);
+		}
+	}
+
+	if(received_size == size)
+	{
+		return received_size;
+	}
+
+	//save the actual time for timeout checking
+	long long int startTick = stats->totalTicks;
+
+	//then if we still need bytes, pick a new mail
+	Mail* mail; //set to 1 to enter in the loop
+
+	while(received_size < size)
+	{
+		//take a new mail while bytes are needed
+		if(!messages->IsEmpty() || blocking) //if there is a mail available or if we can block
+		{
+			//yield or pick a mail if counter>0
+			while(messages->IsEmpty() && stats->totalTicks<startTick+TIMEOUT_RECEIVE && blocking)
+			{
+				currentThread->Yield();
+			}
+			if(stats->totalTicks >= startTick+TIMEOUT_RECEIVE && blocking)
+			{
+				return received_size;
+			}
+			mail = PickAMail();
+		}
+		else
+		{
+			return received_size;
+		}
+
+		//take all the mail
+		if(mail->mailHdr.length <= size-received_size)
+		{
+			//TODO just see if the arithmetic pointer is ok here when testing
+			bcopy(mail->data, (void*)(buffer+received_size), mail->mailHdr.length);
+			received_size += mail->mailHdr.length;
+		}
+		//take a part of the mail and put the rest in the socket buffer
+		else
+		{
+			bcopy(mail->data, (void*)(buffer+received_size), size-received_size);
+			
+			//copy the rest in the buffer (we know it is empty if we are here)
+			bcopy((mail->data)+(size-received_size), reception_buffer, mail->mailHdr.length-(size-received_size));
+			buffer_length = mail->mailHdr.length-(size-received_size);
+			received_size = size;
+		}
+		delete mail;
+	}
+
+	return received_size;
+}
+//---------------------------------------------------------------//
+int NachosSocket::SendRequest()
+{
+	MailHeader mailHdr; //= new MailHeader();
+	mailHdr.mailType = REQUEST;
+    mailHdr.to = remote_port;
+    mailHdr.from = local_port;
+    mailHdr.length = 0;
+
+	PacketHeader packetHdr;
+	packetHdr.to = remote_machine;
+
+	return Send(packetHdr, mailHdr, NULL);
+}
+//---------------------------------------------------------------//
+int NachosSocket::SendAck()
+{
+	MailHeader mailHdr; //= new MailHeader();
+	mailHdr.mailType = ACK;
+    mailHdr.to = remote_port;
+    mailHdr.from = local_port;
+    mailHdr.length = 0;
+
+	PacketHeader packetHdr;
+	packetHdr.to = remote_machine;
+	
+	return Send(packetHdr, mailHdr, NULL);
+}
+//---------------------------------------------------------------//
+int NachosSocket::SendMail(char* buffer,unsigned int size)
+{
+	int error_code;
+	 
+	MailHeader mailHdr;
+	mailHdr.mailType = MESSAGE;
+    mailHdr.to = remote_port;
+    mailHdr.from = local_port;
+    
+
+	PacketHeader packetHdr;
+	packetHdr.to = remote_machine;
+
+	mailHdr.length = MaxMailSize;
+	while(size > MaxMailSize)
+	{
+		if((error_code = Send(packetHdr, mailHdr, buffer)) < 0)
+		{
+			return error_code;
+		}
+			
+		buffer+=MaxMailSize;
+		size-=MaxMailSize;
+	}
+	if(size > 0)
+	{
+		mailHdr.length = size;
+		if((error_code = Send(packetHdr, mailHdr, buffer)) < 0)
+		{
+			return error_code;
+		}
+	}
+	return 0;
+}
+//---------------------------------------------------------------//
+int NachosSocket::Send(PacketHeader packetHdr,MailHeader mailHdr, char* data)
+{
+	long long int startTick;
+	int i=0;
+
+	//TODO use the id counter in a method with lock
+	if(mailHdr.mailType != REQUEST)
+	{
+		mailHdr.id = mail_id_counter;
+		mail_id_counter = (mail_id_counter+1)%INT_MAX;
+	}
+	else
+	{
+		mailHdr.id = 0;
+	}
+
+	while (!confirm && i<NB_REEMISSION)
+	{
+		startTick = stats->totalTicks;
+		if(postOffice->Send(packetHdr, mailHdr, data) < 0)
+		{
+			return -2;	//Socket closed on the other side (but we do not close here because we can still read our last mails)
+		}
+		while((!confirm || confirm_id!=mailHdr.id) && stats->totalTicks < startTick+SEND_TIMEOUT)
+		{
+			currentThread->Yield();			
+		}
+		i++;
+	}
+	if(!confirm || confirm_id!=mailHdr.id)
+	{
+		return -1; //timeout reached
+	}
+	confirm = false;
+	return 0;		//Mail sent
+	
+}
+//---------------------------------------------------------------//
+int NachosSocket::WaitTimeoutAck()
+{
+	long long int startTick = stats->totalTicks;
+
+	while(!ack && stats->totalTicks<startTick+ACK_TIMEOUT)
+	{
+		currentThread->Yield();			
+	}
+	if(!ack)
+	{
+		return -1;						//Send Timeout
+	}
+	return 0;
+}
+//---------------------------------------------------------------//
+Mail* NachosSocket::PickAMail()
+{
+	return ((Mail*)messages->Remove());
+}
+//---------------------------------------------------------------//
+void NachosSocket::SetStatus(SocketStatusEnum new_status)
+{
+	status = new_status;
+}
+//---------------------------------------------------------------//
+bool NachosSocket::IsListening()
+{
+	return (status == SOCKET_LISTENING);
+}
+//---------------------------------------------------------------//
+bool NachosSocket::IsConnected()
+{
+	return (status == SOCKET_CONNECTED);
+}
+//---------------------------------------------------------------//
+int NachosSocket::LocalPort()
+{
+	return local_port;
+}
+//---------------------------------------------------------------//
+int NachosSocket::RemotePort()
+{
+	return remote_port;
+}
+//---------------------------------------------------------------//
+int NachosSocket::RemoteMachine()
+{
+	return remote_machine;
+}
+//---------------------------------------------------------------//

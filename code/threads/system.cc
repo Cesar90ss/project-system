@@ -97,7 +97,7 @@ Initialize (int argc, char **argv)
     bool format = FALSE;	// format disk
 #endif
 #ifdef NETWORK
-    double rely = 1;		// network reliability
+    double rely = 0.3;		// network reliability
     int netname = 0;		// UNIX socket name
 #endif
 
@@ -183,7 +183,7 @@ Initialize (int argc, char **argv)
 #endif
 
 #ifdef NETWORK
-    postOffice = new PostOffice (netname, rely, 10);
+    postOffice = new PostOffice (netname, rely);
 #endif
 }
 
@@ -222,6 +222,5 @@ Cleanup ()
     delete scheduler;
     delete interrupt;
     delete stats;
-
     Exit (0);
 }
