@@ -12,6 +12,7 @@
  * -3 if the ack timeout
  */
 
+//This test will couple with step6_catch_error_server-4
 
 int main()
 {

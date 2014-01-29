@@ -1,8 +1,5 @@
 #include "libc.c"
 
-#define DATA_SIZE 13 // with the '\0'
-#define ACK_SIZE 8
-#define NB_LOOP 10
 
 /**
  * This test will return 6 type of error 
@@ -11,7 +8,7 @@
  * -2 if the ack is not resceive by the client
  * -3 if the ack timeout
  */
-
+//This test will couple with step6_catch_error_server-3-4
 
 int main()
 {

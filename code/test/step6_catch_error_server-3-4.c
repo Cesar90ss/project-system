@@ -14,7 +14,7 @@
  * -5 if the ack is not resceive by the client
  * -6 if the ack timeout
  */
-
+//This test will couple with step6_catch_error_client-1
 
 int main()
 {
