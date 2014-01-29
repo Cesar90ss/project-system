@@ -1,10 +1,10 @@
 NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
-OUTPUT=`./nachos-step6 -m 0 -x step6_catch_error_server-3-4 & ./nachos-step6 -m 1 -x step6_catch_error_client-1 && ./nachos-step6 -m 2 -x step6_catch_error_client-1`
+OUTPUT=`./nachos-step6 -m 1 -x step6_multiple_listen_same_port`
 
 
-if [ -n "$(echo "$OUTPUT" | grep "No More Free Socket")" ]; then	
+if [ -n "$(echo "$OUTPUT" | grep " The port is already used by another listener")" ]; then	
 	exit 0 
 else
 	exit -1
