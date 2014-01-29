@@ -350,6 +350,8 @@ FileSystem::Remove(const char *name)
         delete [] expandname;
         delete [] parentDirectory;
         delete [] filename;
+        if (directory)
+            delete directory;
         return -1;
     }
 

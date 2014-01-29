@@ -101,10 +101,9 @@ char *SynchConsole::SynchGetString(char *s, int n)
 
 void SynchConsole::SynchPutInt(int i)
 {
-    char *ToBeWritten = new char[MAX_INT_NUM + 1];
+    char ToBeWritten[MAX_INT_NUM + 1];
     sprintf(ToBeWritten, "%i", i);
     SynchPutString(ToBeWritten);
-    delete [] ToBeWritten;
 }
 
 int SynchConsole::SynchGetInt(int* p)
