@@ -27,7 +27,7 @@ GetInt. This int will be filled with the getting number and the return value of
 GetInt is used to handle error (see user documentation for more information).
 \end{itemize}
 
-\subsection{Multi-Threads}
+\subsection{Multi-Threading}
 
 Concerning stacks management, the first kernel thread (created at \emph{Nachos}
 start) use the UNIX-process stack. Other kernel threads use heap-allocated
@@ -134,7 +134,7 @@ A notion of CurrentDirectory was implemented attached to a process. Each process
 has his own directory and relative path are computed taking into account this
 one. All paths are computed using ExpandFilename.
 
-\subsubsection{Open file table}
+\subsubsection{Open files table}
 Each process has his own file table which is typically a unique identifier and a
 FileInfo structure. This file structure allows checking which thread own the
 file, which file name was already opened to apply some restrictions.

@@ -1,6 +1,6 @@
 \subsection{Motivation}
-Tests have been an important phase in our whole development. In order to insure
-that our implementation was still working after any change, we made a lot of
+Testing has been an important phase in our whole development. In order to insure
+that our implementation was still working after any changes, we made a lot of
 regression tests. 
 
 It means that, as soon as we added a new feature which was compiling, we were
@@ -11,6 +11,8 @@ parts of the kernel. Thus, we tried to test everything we implemented on top of
 the given Nachos kernel.
 
 \subsection{The way it works}
+Our tests are divided in two directories, $regression$ and $test$. The
+structure is the following :
 \begin{itemize}
     \item $*.c$ files, in test directory, contains some programs which helped us
         test user-level features and system calls
@@ -21,56 +23,55 @@ the given Nachos kernel.
 
 
 \subsection{How to run them}
-To run all the tests, just compile the kernel then enter the following command :
-
-\textbf{make regression}
+To run all tests, just compile the kernel then enter the following command :
+\textbf{make regression}.\\
 
 It will run tests for all steps. Those which are marked as "ok" didn't raised
 any error, the others did.\\
 
 In order to not be lost while tests are running, we specified the step we were
-working on at the beginning of the test name. For instance, step5 tests are
+working on at the beginning of the test name. For instance, $step5\_*$ tests are
 related to file-system.\\
 
 To create our tests we proceeded the following way :
 \begin{itemize}
     \item First we create some basic test, as unitary as possible trying to
-        cover each execution flow (including error handling). 
-    \item After we create more complex tests using execution scenarios.
+        cover each execution flow (including error handling)
+    \item Then we create more complex tests using execution scenarios
 \end{itemize}
 
-We finally made 132 tests for all nachos parts. 
+We finally made $132$ tests for all nachos parts. 
 
 \subsection{Examples}
-\subsubsection{Consumer/Producer}
+\subsubsection{Consumers/Producers}
 We implemented a producer/consumer test in user-mode using circular buffer.
-We used two semaphores and one mutex. The mutex protect the critical section
+We used two semaphores and one mutex. The mutex protects the critical section
 where buffer is manipulated. The two semaphores are used as counter :
 \begin{itemize}
-    \item One for the number of empty slot inside buffer
+    \item One for the number of empty slots inside buffer
     \item One for the number of currently available items inside buffer
 \end{itemize}
 
-We do this with five producers and five consumers with buffer of size 3.
+We do this with five producers and five consumers with buffer of size three.
 
 \subsubsection{The tiny shell}
-A shell was implemented with jobs support. You can launch programs using
+A shell was implemented with jobs support. Program can be launched using
 ForkExec.
-These programs can be launch either in foreground or background using \& at
+These programs run either in foreground or background using \& at
 the end of the command line.
 
 The "jobs" command list all currently background running processes.
 
 The "fg" command is used to switch a background process to foreground.
 
-These tests allow to check ForkExec and WaitPid syscalls as well as process
+These tests allow to check ForkExec and WaitPid syscalls as well as processes
 management.
 
 \subsubsection{Stress process}
 In the aim of testing our implementation limits on processes and threads, we
 tried to create 150 processes, each of them with 40 threads.
 It allows us to check if Nachos does not misbehave and handle limits properly.
-Thus, running this test, we see that when the bound is reach, bad request for
+Thus, running this test, we see that when the bounds are reached, bad request for
 new process/threads creation are rejected.
 
 %\begin{itemize}

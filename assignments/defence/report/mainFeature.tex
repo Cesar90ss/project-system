@@ -1,23 +1,32 @@
 The nachos kernel offers most of the basic features awaited from a kernel :\\
 \begin{itemize}
-\item synchronized Input/Output
+\item Synchronized Input/Output
 \item User Multi Threading
-\item Virtual memory and multiple processes running concurrently
-\item A file system
+\item Virtual memory
+\item Concurrent multi-processes
+\item A File System
 \item TCP/IP like protocol
 \end{itemize}
 
 \subsection{Interesting features}
 
-First, all the network features have also been ported to the user space. A user program can use sockets and 
-transfer content across the network using the facilities offered by our nachos kernel. \\
-We have also implemented the auto exit of the user thread so that, at the end of their execution, they do not return
-into main code. And we can also catch their return values.\\
-For this same threads, the kernel also give access to facilities to synchronize them (semaphore).\\
-Processes have also been implemented with some managing functions. Indeed, though the kernel does not offer any 
-processes hierarchy, a process can wait for the end of another one and then catch its exit value.\\
-In the user space, we provide a minimal shell for use with our kernel. It provides a prompt and the ability
-to launch programs. Job management is also provided.\\
-Finally, dynamic memory allocation has been implemented for the user space. User can allocate dynamically on the heap 
-instead of the stack.\\
-After that, the user has access to a whole range of system calls that will be detailed in the following section.
+First, all the network features have been ported to the user space. A user
+program can use sockets and transfer content through the network using the
+means offered by our nachos kernel.\\
+
+For these same threads, the kernel also give access to facilities to
+synchronize them (semaphore).\\
+
+Processes have also been implemented with some managing functions. Indeed,
+though the kernel does not offer any processes hierarchy, a process can wait
+for the end of another one and then catch its exit value.\\
+
+In user space, we provide a minimal shell which gives access to a prompt and
+the ability to launch programs with jobs management.\\
+
+Finally, dynamic memory allocation has been implemented for the user space.
+User can allocate dynamically on the heap instead of the stack.\\
+
+After that, the user has access to a whole range of system calls that will be
+detailed in the appendix. We consider our kernel fully-tested and we ensure no
+memory leak or bad memory accesses.
