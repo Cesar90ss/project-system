@@ -135,9 +135,9 @@ M1 MOSIG, IM$^2$AG UJF
 
 \subsection{Multi-Threading}
 \begin{frame}{Multi-Threading Model}
-    \begin{itemize}
-        \item "Picture"
-    \end{itemize}
+    \begin{figure}[ht]
+        \includegraphics[width=0.8\linewidth]{threadschema.pdf}
+    \end{figure}
 \end{frame}
 
 \begin{frame}{Multi-Threading issue : Exit Handler}
@@ -162,9 +162,9 @@ M1 MOSIG, IM$^2$AG UJF
 \subsection{Memory Management}
 \begin{frame}{Virtual memory management}
     \begin{itemize}
-        \item Problem : sharing physical memory between 
+        \item \textbf{Problem :} sharing physical memory between 
             \\processes having multiple threads
-        \item Solution  :
+        \item \textbf{Solution :}
             \begin{itemize}
                 \item Virtual Memory 
                 \item Allocate one stack for each thread
@@ -172,10 +172,10 @@ M1 MOSIG, IM$^2$AG UJF
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Heap management}
-    \begin{itemize}
-        \item Heap management
-    \end{itemize}
+\begin{frame}{Heap/Stack management}
+    \begin{figure}[ht]
+        \includegraphics[width=1\linewidth]{memoryschema.pdf}
+    \end{figure}
 \end{frame}
 
 \subsection{Multi-Process}
