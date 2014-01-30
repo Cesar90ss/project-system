@@ -18,6 +18,8 @@
 *.toc
 *.dvi
 assignments/defence/*/*.pdf
+*.out
+*.nav
 
 # Nachos code
 code/build/*
