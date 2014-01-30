@@ -34,38 +34,48 @@ M1 MOSIG, IM$^2$AG UJF
 }
 \date{January 2014} 
 
-
 \frame{\titlepage} 
 
-\section{Introduction}
+\begin{frame}
+    %\tableofcontents[sectionstyle=hide/hide, subsectionstyle=show/shaded/hide]
+    \tableofcontents[subsectionstyle=shaded]
+\end{frame}
+
 \begin{frame}{Introduction}
+\end{frame}
+
+\section{Features}
+
+\begin{frame}{Main features}
   \begin{itemize}
     \item Input/Output Management
-    \item Multithread
+    \item Multi-Threading
     \item Memory Management
     \item File System
     \item Network
   \end{itemize}
 \end{frame}
-\section{Additional Work}
-\begin{frame}{Interesting Features}
+
+\begin{frame}{Additional Work}
   \begin{itemize}
 	\item Socket API 
 	\item Dynamic Memory Allocation
 	\item User Thread Synchronization (Producer/Consumer)
     \item Process Management (Mini Shell)
     \item Automatic Regression Test 
-    \item Memory leak prevention
+    \item Absence of memory leak
   \end{itemize}
 \end{frame}
 
-\section{Multithread}
-\begin{frame}{Multithread Model}
+\section{Implementation}
+\subsection{Multi-Threading}
+\begin{frame}{Multi-Threading Model}
   \begin{itemize}
     \item "Picture"
   \end{itemize}
 \end{frame}
-\begin{frame}{Multithread Exit Handler}
+
+\begin{frame}{Multi-Threading issue : Exit Handler}
   \begin{itemize}
     \item Problem : Original thread only execute the specific 
     \\function and return anywhere in the memory 
@@ -76,25 +86,34 @@ M1 MOSIG, IM$^2$AG UJF
     \end{itemize}
   \end{itemize}
 \end{frame}
-\begin{frame}{New Semaphore Thread}
+
+\begin{frame}{User Thread Synchronization (Producer/Consumer)}
   \begin{itemize}
-    \item New Semaphore Thread
+    \item Files and folders management
+    \item Disk management
   \end{itemize}
 \end{frame}
 
-\section{Memory Management}
+\subsection{Memory Management}
 \begin{frame}{Virtual memory management}
-  \begin{itemize}
-	\item Problem : sharing physical memory between 
-	\\processes having multiple threads
-    \item Solution  
     \begin{itemize}
-    \item Virtual Memory 
-    \item Allocate one stack for each thread
-  \end{itemize}
-\end{itemize}
-  
+        \item Problem : sharing physical memory between 
+            \\processes having multiple threads
+        \item Solution  :
+            \begin{itemize}
+                \item Virtual Memory 
+                \item Allocate one stack for each thread
+            \end{itemize}
+    \end{itemize}
 \end{frame}
+
+\begin{frame}{Heap management}
+  \begin{itemize}
+    \item Heap management
+  \end{itemize}
+\end{frame}
+
+\subsection{Multi-Process}
 \begin{frame}{Multiple processes}
   \begin{itemize}
 	\item Problem : Original code can not handle and
@@ -102,41 +121,28 @@ M1 MOSIG, IM$^2$AG UJF
     \item Waitpid Function allows to end the process 
     \\before continue execution of caller another
     \\process to prevent
-    
-  \end{itemize}
-\end{frame}
-\begin{frame}{Heap management}
-  \begin{itemize}
-    \item Heap management
   \end{itemize}
 \end{frame}
 
-\section{Socket API}
-\begin{frame}{Socket API}
-  \begin{itemize}
-    \item System calls  
-    \item Robust transmission
-    \begin{figure}[ht]
-		\includegraphics[width=0.7\linewidth]{Network_colored.pdf}
-    \end{figure}
-  \end{itemize}
-\end{frame}
-
-\section{User Thread Synchronization (Producer/Consumer)}
-\begin{frame}{User Thread Synchronization (Producer/Consumer)}
-  \begin{itemize}
-    \item Files and folders management
-    \item Disk management
-  \end{itemize}
-\end{frame}
-\section{Process Management (Mini Shell)}
 \begin{frame}{Process Management (Mini Shell)}
   \begin{itemize}
     \item Files and folders management
     \item Disk management
   \end{itemize}
 \end{frame}
-\section{Automatic Regression Test}
+
+\subsection{Network}
+\begin{frame}{Socket API}
+  \begin{itemize}
+    \item System calls  
+    \item Robust transmission
+    \begin{figure}[ht]
+		\includegraphics[width=0.7\linewidth]{Networkcolored.pdf}
+    \end{figure}
+  \end{itemize}
+\end{frame}
+
+\section{Quality}
 \begin{frame}{Automatic Regression Test}
   \begin{itemize}
     \item Manual Test : Manually test the function per step
@@ -144,19 +150,12 @@ M1 MOSIG, IM$^2$AG UJF
     \\"picture"
   \end{itemize}
 \end{frame}
-\section{Memory leak prevention}
+
 \begin{frame}{Memory leak prevention}
   \begin{itemize}
     \item No more memory leak
     \item System well tested
     \item No bad memory access
-  \end{itemize}
-\end{frame}
-
-\section{No Error}
-\begin{frame}{No Error}
-\begin{itemize}
-  \item 
   \end{itemize}
 \end{frame}
 
