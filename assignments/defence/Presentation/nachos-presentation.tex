@@ -105,9 +105,6 @@ M1 MOSIG, IM$^2$AG UJF
     \tableofcontents
 \end{frame}
 
-\begin{frame}{Introduction}
-\end{frame}
-
 \section{Features}
 
 \begin{frame}{Main features}
@@ -132,6 +129,9 @@ M1 MOSIG, IM$^2$AG UJF
 \end{frame}
 
 \section{Implementation}
+\begin{frame}{Table of contents}
+    \tableofcontents[currentsection]
+\end{frame}
 
 \subsection{Multi-Threading}
 \begin{frame}{Multi-Threading Model}
@@ -155,12 +155,17 @@ M1 MOSIG, IM$^2$AG UJF
 \subsection{Memory Management}
 \begin{frame}{Virtual memory management}
     \begin{itemize}
-        \item \textbf{Problem :} sharing physical memory between 
-            \\processes having multiple threads
+        \item \textbf{Problem :} sharing physical memory between multiple
+            processes
         \item \textbf{Solution :}
             \begin{itemize}
-                \item Virtual Memory 
-                \item Allocate one stack for each thread
+                \item Page table
+                \item Frame Provider
+            \end{itemize}
+        \item Possible improvements :
+            \begin{itemize}
+                \item Use case to speed up
+                \item Indirection to reduce size of the page table
             \end{itemize}
     \end{itemize}
 \end{frame}
@@ -223,13 +228,17 @@ M1 MOSIG, IM$^2$AG UJF
 \end{frame}
 
 \section{Quality}
+\begin{frame}{Table of contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
 \begin{frame}{Automatic Regression Test}
     \begin{itemize}
         \item Ensure new feature doesn't break previous ones
-        \item Set of $132$ tests
+        \item Set of \textbf{$132$ tests}
         \item Test all cases we could imagine
         \item Helped removing bugs/memory leak
-        \item Almost no debug phase
+        \item Almost \textbf{no debug phase}
     \end{itemize}
 \end{frame}
 
@@ -243,6 +252,10 @@ M1 MOSIG, IM$^2$AG UJF
 \end{frame}
 
 \section{Project Management}
+\begin{frame}{Table of contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
 \begin{frame}{Team work}
     \begin{itemize}
         \item Every day at university
@@ -267,6 +280,12 @@ M1 MOSIG, IM$^2$AG UJF
         \item Substantial set of tests
         \item Socket API
     \end{itemize}
+\end{frame}
+
+\begin{frame}{Conclusion}
+    \begin{centering}
+        THE END...
+    \end{centering}
 \end{frame}
 
 \end{document}
