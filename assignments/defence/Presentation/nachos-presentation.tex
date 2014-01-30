@@ -111,52 +111,52 @@ M1 MOSIG, IM$^2$AG UJF
 \section{Features}
 
 \begin{frame}{Main features}
-  \begin{itemize}
-    \item Input/Output Management
-    \item Multi-Threading
-    \item Memory Management
-    \item File System
-    \item Network
-  \end{itemize}
+    \begin{itemize}
+        \item Input/Output Management
+        \item Multi-Threading
+        \item Memory Management
+        \item File System
+        \item Network
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Additional Work}
-  \begin{itemize}
-	\item Socket API 
-	\item Dynamic Memory Allocation
-	\item User Thread Synchronization (Producer/Consumer)
-    \item Process Management (Mini Shell)
-    \item Automatic Regression Test 
-    \item Absence of memory leak
-  \end{itemize}
+    \begin{itemize}
+        \item Socket API 
+        \item Dynamic Memory Allocation
+        \item User Thread Synchronization (Producer/Consumer)
+        \item Process Management (Mini Shell)
+        \item Automatic Regression Test 
+        \item Absence of memory leak
+    \end{itemize}
 \end{frame}
 
 \section{Implementation}
 
 \subsection{Multi-Threading}
 \begin{frame}{Multi-Threading Model}
-  \begin{itemize}
-    \item "Picture"
-  \end{itemize}
+    \begin{itemize}
+        \item "Picture"
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Multi-Threading issue : Exit Handler}
-  \begin{itemize}
-    \item Problem : Original thread only execute the specific 
-    \\function and return anywhere in the memory 
-    \item Solution : Exit Handler
     \begin{itemize}
-		\item Explicit Exit (User Thread Exit)
-		\item Automatic Exit (Function wrapping)
+        \item Problem : Original thread only execute the specific 
+            \\function and return anywhere in the memory 
+        \item Solution : Exit Handler
+            \begin{itemize}
+                \item Explicit Exit (User Thread Exit)
+                \item Automatic Exit (Function wrapping)
+            \end{itemize}
     \end{itemize}
-  \end{itemize}
 \end{frame}
 
 \begin{frame}{User Thread Synchronization (Producers/Consumers)}
-  \begin{itemize}
-    \item Files and folders management
-    \item Disk management
-  \end{itemize}
+    \begin{itemize}
+        \item Files and folders management
+        \item Disk management
+    \end{itemize}
 \end{frame}
 
 \subsection{Memory Management}
@@ -173,81 +173,97 @@ M1 MOSIG, IM$^2$AG UJF
 \end{frame}
 
 \begin{frame}{Heap management}
-  \begin{itemize}
-    \item Heap management
-  \end{itemize}
+    \begin{itemize}
+        \item Heap management
+    \end{itemize}
 \end{frame}
 
 \subsection{Multi-Process}
 \begin{frame}{Multi-Process model}
-  \begin{itemize}
-	\item Problem : Original code can not handle and
-	\\order launching processes
-    \item Waitpid Function allows to end the process 
-    \\before continue execution of caller another
-    \\process to prevent
-  \end{itemize}
+    \begin{itemize}
+        \item Problem : Original code can not handle and
+            \\order launching processes
+        \item Waitpid Function allows to end the process 
+            \\before continue execution of caller another
+            \\process to prevent
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Process Management (Mini Shell)}
-  \begin{itemize}
-    \item Files and folders management
-    \item Disk management
-  \end{itemize}
+    \begin{itemize}
+        \item Files and folders management
+        \item Disk management
+    \end{itemize}
 \end{frame}
 
 \subsection{Network}
 \begin{frame}{Network model}
     \begin{figure}[ht]
-		\includegraphics[width=0.7\linewidth]{Networkcolored.pdf}
+        \includegraphics[width=0.7\linewidth]{Networkcolored.pdf}
     \end{figure}
 \end{frame}
 
 \begin{frame}{Socket API}
-  \begin{itemize}
-    \item System calls  
-    \item Robust transmission
-  \end{itemize}
+    \begin{itemize}
+        \item System calls  
+        \item Robust transmission
+    \end{itemize}
 \end{frame}
 
 \subsection{File system}
 \begin{frame}{File system model}
-    Schema --> not done yet
+    Schema $-->$ not done yet
+\end{frame}
+
+\begin{frame}{Possible extensions}
+    \begin{itemize}
+        \item \textbf{Robustness} : Journalization techniques
+            \begin{itemize}
+                \item Log all actions \& replay them if crash
+                \item Do write operations in reverse order : only loose of
+                    storage space
+            \end{itemize}
+        \item \textbf{I/O optimization} : elevator algorithm (scheduling minimizing arm
+            hard drive moves)
+    \end{itemize}
 \end{frame}
 
 \section{Quality}
 \begin{frame}{Automatic Regression Test}
-  \begin{itemize}
-    \item Manual Test : Manually test the function per step
-    \item Automatic Regression Test : Run once for every function
-    \\"picture"
-  \end{itemize}
+    \begin{itemize}
+        \item Ensure new feature doesn't break previous ones
+        \item Set of $132$ tests
+        \item Test all cases we could imagine
+        \item Helped removing bugs/memory leak
+        \item Almost no debug phase
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Memory leak prevention}
-  \begin{itemize}
-    \item No more memory leak
-    \item System well tested
-    \item No bad memory access
-  \end{itemize}
+    \begin{itemize}
+        \item No more memory leak
+        \item System well tested
+        \item No bad memory access
+        \item Patch for Valgrind/Nachos provided
+    \end{itemize}
 \end{frame}
 
 \section{Project Management}
 \begin{frame}{Team work}
-   \begin{itemize}
-       \item Every day at university
-       \item Teams of 2 or 3
-       \item Extreme programming
-       \item Test driven development
-       \item GIT
-   \end{itemize} 
+    \begin{itemize}
+        \item Every day at university
+        \item Teams of 2 or 3
+        \item Extreme programming
+        \item Test driven development
+        \item GIT
+    \end{itemize} 
 \end{frame}
 
 \begin{frame}{Conclusion}
     \textbf{Missing features :}
     \begin{itemize}
         \item Network : process migration, multi-threading support
-        \item File system : optimization \& robustness
+        \item File system : I/O optimization \& robustness
     \end{itemize}
 
     \textbf{Strong points :}
@@ -255,6 +271,7 @@ M1 MOSIG, IM$^2$AG UJF
         \item No memory leak
         \item Almost all bonuses done (missing 2)
         \item Substantial set of tests
+        \item Socket API
     \end{itemize}
 \end{frame}
 
