@@ -30,7 +30,7 @@
                 GetChar is a function that read a character from the input buffer.
             \item RETURN :
                 \begin{itemize}
-                    \item The character itself or EOF if there is none in the buffer
+                    \item The character itself or EOF($-1$) if there is none in the buffer
                 \end{itemize}
         \end{itemize}
 
@@ -38,19 +38,19 @@
         \begin{itemize}
             \item SYSNOPSIS : void PutInt(int i)
             \item DESCRIPTION :
-                PutInt is a function which is used to write the integer i to the console.
+                PutInt is a function which is used to write the integer $i$ to the console.
         \end{itemize}
 
     \item [NAME] : \textbf{GetInt}
         \begin{itemize}
             \item SYSNOPSIS : int GetInt(int* p)
             \item DESCRIPTION :
-                GetInt read an integer from the input buffer pointed out by p.
+                GetInt read an integer and put the result inside input integer pointed out by p.
             \item RETURN :
                 \begin{itemize}
                     \item 0 if there is no error
                     \item -1 when the input cannot be read as an int
-                    \item -2 when the address p cannot be written by the caller
+                    \item -2 when the address p cannot be written by the process
                 \end{itemize}
         \end{itemize}
 
@@ -59,7 +59,8 @@
             \item SYSNOPSIS : void PutString(const char s[])
             \item DESCRIPTION :
                 PutString writes the string $s$ to the console. If the string given is longer than
-                MAX\_STRING\_SIZE then the remaining part is not printed in the console.
+                MAX\_STRING\_SIZE then the remaining part is not printed in the
+                console and put end of string ('$\\0$') at the end of the buffer.
         \end{itemize}
 
     \item [NAME] : \textbf{GetString}
@@ -70,7 +71,7 @@
             \item RETURN :
                 \begin{itemize}
                     \item $s$ if there is no error
-                    \item otherwise return NULL (in case of error or EOF)
+                    \item otherwise return NULL (no data read)
                 \end{itemize}
         \end{itemize}
 
@@ -78,13 +79,13 @@
         \begin{itemize}
             \item SYSNOPSIS : int UserThreadCreate(void f(void *arg), void *arg)
             \item DESCRIPTION :
-                This function create a new thread which will execute the function f with the
-                argument arg.
+                This function creates a new thread which will execute the function $f$ with the
+                argument $arg$.
             \item RETURN :
                 \begin{itemize}
                     \item 0 on success
                     \item -1 if no space left for stack
-                    \item -2 if MAX\_TOTAL\_THREADS (20 by default) has been reached
+                    \item -2 if MAX\_TOTAL\_THREADS has been reached launched (20 by default)
                 \end{itemize}
         \end{itemize}
 
@@ -93,29 +94,29 @@
         \begin{itemize}
             \item SYSNOPSIS : void UserThreadExit(void *ret)
             \item DESCRIPTION :
-                This function is used to destroy the current thread and puts the return value in
+                This function is use to destroy the current thread and puts the return value in
                 $ret$.
                 When the main thread call UserThreadExit, other threads continue to
                 run. The last thread to end will call Exit.
                 When a thread function reach a return statement, it will be converted
-                to this syscall with return value as argument.
+                to this syscall with return value as $ret$.
         \end{itemize}
 
     \item [NAME] : \textbf{UserThreadJoin}
         \begin{itemize}
             \item SYSNOPSIS : int UserThreadJoin(int tid, void **retval)
             \item DESCRIPTION :
-                This function is used to join another thread (eg : wait for the tread
-                of tid $tid$ to terminate). If multiple threads tries to join on the same
+                This function is used to join another thread (eg : wait for the thread
+                of $tid$ to terminate). If multiple threads try to join on the same
                 thread, only the first one will be able to join on it. The function
                 will return an error for the others.
-                If retval is not null, it contains the return value of exit thread,
-                either by calling UserThreadExit or by reaching the end of thread function.
+                If $retval$ is not NULL, it contains the return value of exit thread,
+                either by calling UserThreadExit or by reaching the end of the thread function.
             \item RETURN :
                 \begin{itemize}
                     \item 0 on success
-                    \item -1 if bad tid
-                    \item -2 if another thread is already joining on the same thread tid
+                    \item -1 if bad $tid$
+                    \item -2 if another thread is already joining on the same thread $tid$
                 \end{itemize}
         \end{itemize}
 
@@ -123,11 +124,12 @@
         \begin{itemize}
             \item SYSNOPSIS : int UserSemaphoreCreate(char* name, int value)
             \item DESCRIPTION :
-                Initialize and return a semaphore id named "name" with an initial value "value".
-                It do not create a semaphore with the id of a previously destroyed semaphore.
+                Initialize and return a semaphore id named $name$ with an initial value $value$.
+                It does not create a semaphore with the id of a previously
+                destroyed semaphore, as identifier are unique.
             \item RETURN :
                 \begin{itemize}
-                    \item Return the id of the semaphore freshly created
+                    \item Return the $id$ of the semaphore freshly created
                 \end{itemize}
         \end{itemize}
 
@@ -135,7 +137,7 @@
         \begin{itemize}
             \item SYSNOPSIS : int UserSemaphoreP(int id)
             \item DESCRIPTION :
-                Takes the lock on the semaphore pointed by id.
+                Takes the lock on the semaphore pointed by $id$.
             \item RETURN :
                 \begin{itemize}
                     \item 0 on success
@@ -147,7 +149,7 @@
         \begin{itemize}
             \item SYSNOPSIS : int UserSemaphoreV(int id)
             \item DESCRIPTION :
-                Release the lock (unlock) the semaphore pointed by id.
+                Release the semaphore pointed by $id$.
             \item RETURN :
                 \begin{itemize}
                     \item 0 on success
@@ -159,7 +161,7 @@
         \begin{itemize}
             \item SYSNOPSIS : int UserSemaphoreDestroy(int id)
             \item DESCRIPTION :
-                Destroy the semaphore pointed by id.
+                Destroy the semaphore pointed by $id$.
             \item RETURN :
                 \begin{itemize}
                     \item 0 on success
@@ -175,7 +177,7 @@
             \item RETURN :
                 \begin{itemize}
                     \item -1 if no more page for heap
-                    \item new page $addr$ otherwise
+                    \item new page address otherwise
                 \end{itemize}
         \end{itemize}
 
@@ -186,7 +188,7 @@
                 FreePageHeap gives back a new page for heap.
             \item RETURN :
                 \begin{itemize}
-                    \item The new heap top $addr$
+                    \item The new heap top address
                 \end{itemize}
         \end{itemize}
 
@@ -197,7 +199,7 @@
                 ForkExec creates a new process that execute the program stated in the argument $s$.
             \item RETURN :
                 \begin{itemize}
-                    \item pid of the newly created process in case of creation success
+                    \item $pid$ of the newly created process in case of creation success
                     \item -1 if more than MAX\_PROCESS processes have been created (by default 30)
                     \item -2 case of an invalid executable
                 \end{itemize}
@@ -208,7 +210,7 @@
             \item SYSNOPSIS : int Waitpid(unsigned int pid, int *retval)
             \item DESCRIPTION :
                 Waitpid wait on the process which pid is given as argument.
-                If $retval$ not NULL, the exit code of the process is put at address $retval$.
+                If $retval$ is not NULL, the exit code of the process is put at address $retval$.
             \item RETURN :
                 \begin{itemize}
                     \item -1 if process does not exist
@@ -222,14 +224,14 @@
         \begin{itemize}
             \item SYSNOPSIS : int Open(const char* filename)
             \item DESCRIPTION :
-                Open try to open file *filename* taking into account current directory,
+                Open try to open file $filename$ taking into account current directory,
                 returning a unique identifier
             \item RETURN :
                 \begin{itemize}
                     \item -1 if file can not be opened
-                    \item -2 if MAX\_OPEN\_FILES (default 10) are already opened
-                    \item -3 if the file is already opened by another thread/process
-                    \item id $\in [0; MAX\_OPEN\_FILES[$ a unique identifier used for future syscall
+                    \item -2 if MAX\_OPEN\_FILES are already opened (default 10)
+                    \item id $\in [0; MAX\_OPEN\_FILES[$, unique identifier used
+                      for a future syscall
                         \end{itemize}
                 \end{itemize}
 
@@ -237,7 +239,7 @@
                 \begin{itemize}
                     \item SYSNOPSIS : int Close(int id)
                     \item DESCRIPTION :
-                        Close try to close file with identifier *id*.
+                        Close try to close file with identifier $id$.
                     \item RETURN :
                         \begin{itemize}
                             \item -1 if file $id$ does not exists
@@ -261,12 +263,12 @@
                 \begin{itemize}
                     \item SYSNOPSIS : int Read(int id, char *buffer, int numBytes)
                     \item DESCRIPTION :
-                        Try to read $numBytes$ inside file $id$ and store result in $buffer$.
-                        $buffer$ should be large enough to fit $numBytes$.
+                        Try to read at most $numBytes$ inside file $id$ and store result in buffer.
+                        buffer should be large enough to fit $numBytes$.
                     \item RETURN :
                         \begin{itemize}
                             \item -1 if file does not exists
-                            \item other $numReadBytes$ the real number of bytes read
+                            \item the real number of bytes read otherwise
                         \end{itemize}
                 \end{itemize}
 
@@ -274,12 +276,12 @@
                 \begin{itemize}
                     \item SYSNOPSIS : int Write(int id, const char* from, int numBytes)
                     \item DESCRIPTION :
-                        Try to write inside file $id$ at most $numBytes$ bytes stored in $from$
+                        Try to write inside file $id$ at most $numBytes$ bytes stored in from
                         memory.
                     \item RETURN :
                         \begin{itemize}
                             \item -1 if the file does not exists
-                            \item otherwise $numWriteBytes$ the real number of bytes
+                            \item the real number of bytes written otherwise
                         \end{itemize}
                 \end{itemize}
 
@@ -328,7 +330,7 @@
                         $dirname$ can be relative path to current directory.
                     \item RETURN :
                         \begin{itemize}
-                            \item -1 if dirname does not exists
+                            \item -1 if $dirname$ does not exists
                             \item 0 otherwise
                         \end{itemize}
                 \end{itemize}
@@ -336,17 +338,17 @@
 
 
 \subsection{Malloc}
-  An implement of malloc/free has been provided as on UNIX. realloc and calloc
+  An implementation of $malloc$/$free$ has been provided as on UNIX. $realloc$ and $calloc$
   are also available.
 
   Same rules and same prototypes as for UNIX version (see man malloc). Our
   version dynamically allocate and release pages for heap.
 
-  In context of multithreads, you need to call memory\_init into the main thread
+  In context of multi-threads, you need to call $memory\_init$ into the main thread
   before forking thread to initialize synchronization structure. This is not
-  needed (but not wrong) for no-thread applications (only the main thread).
+  needed (but not wrong) for no-multi-threads applications (only the main thread).
 
-  Three allocations strategy has been implemented :
+  Three allocations strategies has been implemented :
   \begin{itemize}
   \item FIRST\_FIT
   \item BEST\_FIT
@@ -359,5 +361,5 @@
     #include "mem_alloc.c"
   \end{lstlisting}
   By default, the strategy is FIRST\_FIT and the first line (define) is
-  unnecessary. The mem\_alloc.*c* is needed as Makefile only compile one file as
+  unnecessary. The mem\_alloc.\textbf{c} is needed as Makefile only compile one file as
   a binary.

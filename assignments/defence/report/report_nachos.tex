@@ -20,7 +20,7 @@
 \usepackage{subcaption}
 \usepackage{listings}
 \usepackage{fullpage}
-\usepackage{appendix}
+%\usepackage{appendix}
 
 \lstset{%
     basicstyle=\scriptsize\sffamily,%
@@ -96,7 +96,9 @@ User documentation has been moved in appendix for more readability.
 
 \section{To be continued}
     \input{extension}
-
+\newpage
 \appendix
+\addcontentsline{toc}{section}{Appendix}
+%\section{Appendix}
     \input{syscall}
 \end{document}
