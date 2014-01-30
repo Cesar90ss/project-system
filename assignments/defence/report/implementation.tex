@@ -88,7 +88,7 @@ will return $-1$. All semaphores are destroyed at the end of a process.
 
 To handle virtual memory, all requests for memory page allocation/deallocation
 was made through a FrameProvider. This component has his own frame placement
-policy. Everytime a process (via his AddrSpace) ask the FrameProvider for
+policy. Every time a process (via his AddrSpace) ask the FrameProvider for
 physical pages when it is needed (for Stack, Heap or Code/Data segments).
 We implemented different strategies to see if our model was coherent : random,
 first and last.\\
@@ -119,8 +119,8 @@ to avoid deadlocks that would happen otherwise.
 
 Waitpid allows to catch the exit code of the process which is being waited.
 
-\subsection{FileSystem}
-For Filesystem, we followed the subject.
+\subsection{File-System}
+For File-system, we followed the subject.
 
 \subsubsection{Sub-Directory and Current Directory}
 
