@@ -43,18 +43,35 @@ We finally made 132 tests for all nachos parts.
 
 \subsection{Examples}
 \subsubsection{Consumer/Producer}
-\subsubsection{The tiny shell}
-\subsubsection{Stress process}
+We implemented a producer/consumer test in user-mode using circular buffer.
+We used two semaphores and one mutex. The mutex protect the critical section
+where buffer is manipulated. The two semaphores are used as counter :
+\begin{itemize}
+    \item One for the number of empty slot inside buffer
+    \item One for the number of currently available items inside buffer
+\end{itemize}
 
-%\subsection{Part 1 to 2}
-%In the 1st step there is no particular test we need just make sure that NachOS work well in our machine. We run 
-%basic test input and output how to track the code, how to handling error and understanding basic command and all 
-%tools are needed to develop these system. 
-%
-%For the 2nd step we implement basic Input/Output for the system. There is 6 basic Input/Output have to implement.
-%There are 6 basic systemcall relating to basic Input/Output : GetChar(), PutChar(), GetString(), PutString(), 
-%GetInt() and PutInt(). In this step we provided complete test for each syscalls basic called on the syscalls. And 
-%particular detail test will describe in following part :
+We do this with five producers and five consumers with buffer of size 3.
+
+\subsubsection{The tiny shell}
+A shell was implemented with jobs support. You can launch programs using
+ForkExec.
+Theses programs can be launch either in foreground or background using \& at
+the end of the command line.
+
+The "jobs" command list all currently background running processes.
+
+The "fg" command is used to switch a background process to foreground.
+
+These tests allow to check ForkExec and WaitPid syscalls as well as process
+management.
+
+\subsubsection{Stress process}
+In the aim of testing our implementation limits on processes and threads, we
+tried to create 150 processes, each of them with 40 threads.
+It allows us to check if Nachos does not misbehave and handle limits properly.
+Thus, running this test, we see that when the bound is reach, bad request for
+new process/threads creation are rejected.
 
 %\begin{itemize}
 %	\item GetChar() and PutChar()
