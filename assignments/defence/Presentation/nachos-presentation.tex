@@ -38,7 +38,7 @@ M1 MOSIG, IM$^2$AG UJF
 
 \begin{frame}
     %\tableofcontents[sectionstyle=hide/hide, subsectionstyle=show/shaded/hide]
-    \tableofcontents[subsectionstyle=shaded]
+    \tableofcontents
 \end{frame}
 
 \begin{frame}{Introduction}
@@ -68,6 +68,7 @@ M1 MOSIG, IM$^2$AG UJF
 \end{frame}
 
 \section{Implementation}
+
 \subsection{Multi-Threading}
 \begin{frame}{Multi-Threading Model}
   \begin{itemize}
@@ -87,7 +88,7 @@ M1 MOSIG, IM$^2$AG UJF
   \end{itemize}
 \end{frame}
 
-\begin{frame}{User Thread Synchronization (Producer/Consumer)}
+\begin{frame}{User Thread Synchronization (Producers/Consumers)}
   \begin{itemize}
     \item Files and folders management
     \item Disk management
@@ -114,7 +115,7 @@ M1 MOSIG, IM$^2$AG UJF
 \end{frame}
 
 \subsection{Multi-Process}
-\begin{frame}{Multiple processes}
+\begin{frame}{Multi-Process model}
   \begin{itemize}
 	\item Problem : Original code can not handle and
 	\\order launching processes
@@ -132,14 +133,22 @@ M1 MOSIG, IM$^2$AG UJF
 \end{frame}
 
 \subsection{Network}
+\begin{frame}{Network model}
+    \begin{figure}[ht]
+		\includegraphics[width=0.7\linewidth]{Networkcolored.pdf}
+    \end{figure}
+\end{frame}
+
 \begin{frame}{Socket API}
   \begin{itemize}
     \item System calls  
     \item Robust transmission
-    \begin{figure}[ht]
-		\includegraphics[width=0.7\linewidth]{Networkcolored.pdf}
-    \end{figure}
   \end{itemize}
+\end{frame}
+
+\subsection{File system}
+\begin{frame}{File system model}
+    Schema --> not done yet
 \end{frame}
 
 \section{Quality}
@@ -160,19 +169,30 @@ M1 MOSIG, IM$^2$AG UJF
 \end{frame}
 
 \section{Project Management}
-\begin{frame}{Project Management}
-\begin{itemize}
-  \item 
-  \end{itemize}
+\begin{frame}{Team work}
+   \begin{itemize}
+       \item Every day at university
+       \item Team of 2 or 3
+       \item Extreme programming
+       \item Test driven development
+       \item Intensive usage of GIT : branches \& tags
+   \end{itemize} 
 \end{frame}
 
 \section{Conclusion}
 \begin{frame}{Conclusion}
-\begin{itemize}
-  \item 
-  \end{itemize}
+    Missing features :
+    \begin{itemize}
+        \item Network : process migration, multi-threading support
+        \item File system : optimization \& robustness
+    \end{itemize}
+
+    Strong points :
+    \begin{itemize}
+        \item No memory leaks
+        \item Almost all bonuses done
+        \item Good set of tests
+    \end{itemize}
 \end{frame}
 
-
 \end{document}
-
