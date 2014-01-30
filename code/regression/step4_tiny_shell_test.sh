@@ -16,5 +16,7 @@ elif [ -z '$(echo "$SORTED_STRING" | grep -i "Program 2 is Running")' ]; then
     exit -2
 elif [ -z '$(echo "$SORTED_STRING" | grep -i "Machine halting!")' ]; then
     exit -3
+elif [ -z "$OUTPUT" ]; then
+    exit -4
 fi
-    exit 0
+exit 0
