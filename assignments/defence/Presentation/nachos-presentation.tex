@@ -1,10 +1,73 @@
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
 \documentclass{beamer}
-\usepackage[T1]{fontenc} 
-\usepackage[utf8]{inputenc}
 
+\mode<presentation> {
 
-\usetheme{JuanLesPins}
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
 
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{listings}
+\usepackage{lmodern} 
+\setbeamertemplate{footline}[frame number] 
 \setbeamertemplate{footline}{%
   \raisebox{5pt}{\makebox[\paperwidth]{\hfill\makebox[10pt]{\scriptsize\insertframenumber\hspace{5pt}}}}}
 \beamertemplatenavigationsymbolsempty
@@ -13,10 +76,9 @@
 \titlegraphic{\vspace{-5em}\includegraphics[width=2cm]{logoimag.png}\hspace*{4.75cm}~%
    \includegraphics[width=5cm]{logoujf.pdf}
 }
-
-\begin{document}
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   TITLE PAGE                          %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{Nachos Project}
 \subtitle{M1 MOSIG}   
@@ -33,7 +95,9 @@ Simon Moura
 M1 MOSIG, IM$^2$AG UJF 
 }
 \date{January 2014} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{document}
 \frame{\titlepage} 
 
 \begin{frame}
@@ -172,26 +236,25 @@ M1 MOSIG, IM$^2$AG UJF
 \begin{frame}{Team work}
    \begin{itemize}
        \item Every day at university
-       \item Team of 2 or 3
+       \item Teams of 2 or 3
        \item Extreme programming
        \item Test driven development
-       \item Intensive usage of GIT : branches \& tags
+       \item GIT
    \end{itemize} 
 \end{frame}
 
-\section{Conclusion}
 \begin{frame}{Conclusion}
-    Missing features :
+    \textbf{Missing features :}
     \begin{itemize}
         \item Network : process migration, multi-threading support
         \item File system : optimization \& robustness
     \end{itemize}
 
-    Strong points :
+    \textbf{Strong points :}
     \begin{itemize}
-        \item No memory leaks
-        \item Almost all bonuses done
-        \item Good set of tests
+        \item No memory leak
+        \item Almost all bonuses done (missing 2)
+        \item Substantial set of tests
     \end{itemize}
 \end{frame}
 
