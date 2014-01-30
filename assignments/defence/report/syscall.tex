@@ -1,3 +1,4 @@
+\subsection{Syscalls}
 \begin{description}
     \item [NAME] : \textbf{halt}
         \begin{itemize}
@@ -332,3 +333,31 @@
                         \end{itemize}
                 \end{itemize}
         \end{description}
+
+
+\subsection{Malloc}
+  An implement of malloc/free as been provided as on UNIX. realloc and calloc
+  are also available.
+
+  Same rules and same prototypes as for UNIX version (see man malloc). Our
+  version dynamically allocate and release pages for heap.
+
+  In context of multithreads, you need to call memory\_init into the main thread
+  before forking thread to initialize synchronization structure. This is not
+  needed (but not wrong) for no-thread applications (only the main thread).
+
+  Three allocations strategy has been implemented :
+  \begin{itemize}
+  \item FIRST\_FIT
+  \item BEST\_FIT
+  \item WORSE\_FIT
+  \end{itemize}
+  To use this library, include at top of your program :
+
+  \begin{lstlisting}[language=C]
+    #define BEST_FIT 1 
+    #include "mem_alloc.c"
+  \end{lstlisting}
+  By default, the strategy is FIRST\_FIT and the first line (define) is
+  unnecessary. The mem\_alloc.*c* is needed as Makefile only compile one file as
+  a binary.

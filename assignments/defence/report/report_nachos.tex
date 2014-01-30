@@ -68,27 +68,26 @@
 \begin{document}
 \maketitle
 
-%table of contents
-\newpage
 \tableofcontents
 \newpage
 
-\begin{abstract}
-\end{abstract}
-
 \section{Interesting/main features of our kernel}
-\input{implementation_choice}
-\section{Syscalls : User documentation}
-\input{syscall}
+    \input{mainFeature}
+
+\section{User documentation}
+TODO: write text to see appendix
+
 \section{User test + description of what they are doing}
 
 \section{Implementation choices + justification}
     \input{implementation}
 
 \section{Organization}
-    \include{organization}
+    \input{organization}
 
 \section{Conclusion}
-\input{extension}
+    \input{extension}
 
+\appendix
+\input{syscall}
 \end{document}
