@@ -59,7 +59,9 @@ thread reach the return of the main function. It will implicitly call
 
 It is noticeable that thread id (tid) are unique to a process during is
 lifetime. A tid will never be re-used. This allows us to implement
-\textrm{UserThreadJoin} as discussed below.
+\textrm{UserThreadJoin} as discussed below. Even after a thread termination, his
+AddrSpace keeps track of its statue and keep a Semaphore to join on it as well
+as the pthread return value if available.
 
 \textrm{UserThreadJoin(unsigned int tid, void **retval)} allows one thread to wait for
 another.\\
