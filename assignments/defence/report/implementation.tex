@@ -31,7 +31,7 @@ GetInt is used to handle error (see user documentation for more information).
 
 Concerning stacks management, the first kernel thread (created at \emph{Nachos}
 start) use the UNIX-process stack. Other kernel threads use heap-allocated
-stack. For user thread, each thread as his own stack, from bottom of the memory
+stacks. For user thread, each thread as his own stack, from bottom of the memory
 up to the top. All user thread stacks are handled inside StackMgr class.
 StackMgr handle all stacks requests inside a AddrSpace. If UserThreadCreate is
 called and no space for stack is available, the function returns $-1$.\\
@@ -40,7 +40,7 @@ A word about thread hierarchy. There is none. This mean that every thread
 belongs to a process. A thread can create other threads but the behavior (e.g
 exit) does not influence others.
 
-A user thread can exit in two way :
+A user thread can exit in two ways :
 \begin{itemize}
     \item calling \textrm{UserThreadExit(void *ret)} where $ret$ is a generic
         pointer to the returned data
@@ -70,16 +70,16 @@ immediately.\\
 If multiple threads simultaneously try to join with the same thread, only the
 first one will be able to join on it. For others, syscall will return error
 code $-2$. \\
-If threads join multiple time on the same thread (not at the same time), each
+If threads join multiple times on the same thread (not at the same time), each
 call will be successful and if retval is not NULL, it will be filled with the
 return value of thread.\\
 
 About semaphores, they are now available to user program using
 UserSemaphoreCreate syscall. This return a semaphore id process-specific. To
 wait for resource being available, \textrm{UserSemaphoreP} is here. To notify resource
-availability, it's\textrm{ UserSemaphoreV}. Finally,\textrm{ UserSemaphoreDestroy} destroy a
+availability, it's\textrm{ UserSemaphoreV}. Finally,\textrm{ UserSemaphoreDestroy} destroys a
 semaphore. Semaphore id are process-unique and not re-used. If a
-UserSemaphore[P|V] is used after the semaphore was destroyed, these syscall
+UserSemaphore[P|V] is used after the semaphore was destroyed, these syscalls
 will return $-1$. All semaphores are destroyed at the end of a process.
 
 \subsection{Virtual Memory}
@@ -99,13 +99,13 @@ Heap and stack pages are dynamically allocated using FrameProvider.
 
 \subsection{Multi-Processes}
 ForkExec creates new kernel thread that will execute new user program in a new
-Address space.The creation of the new process is divided between the calling
+address space. The creation of the new process is divided between the calling
 thread and the called thread which will begin its execution with a special
 initialization function. The managing of the processes is done by the processMgr
-object which manage the pids and the ability to wait for a certain thread using
+object which manages the pids and the ability to wait for a certain thread using
 Waitpid function.\\
 
-There is no processes hierarchy, only the number of currently running thread is
+There is no processes hierarchy, only the number of currently running threads is
 counted and when the last process exit the machine is halted.
 
 When a process halt it does not affect the others since all are independent
@@ -122,11 +122,11 @@ For Filesystem, we followed the subject.
 
 \subsubsection{Sub-Directory and Current Directory}
 
-We added a attribute inside the directory table. This attribute ($isDir$) allows
+We added an attribute inside the directory table. This attribute ($isDir$) allows
 to distinguish between files and directory. A function called
 \textrm{ExpandFilename} handle all ``.'', ``..'' to compute the absolute
 path. This allows us to avoid creating two special files inside each directory,
-saving 2 entries.\\
+saving two entries.\\
 
 A notion of CurrentDirectory was implemented attached to a process. Each process
 has his own directory and relative path are computed taking into account this
@@ -151,58 +151,55 @@ When a file is created, it has a size of $0$. At each write, if needed, file siz
 expanded allocating Data Sector and DataBlock sector.
 
 \subsubsection{Concurrent Accesses}
-The SynchFileMgr component manage all concurrent accesses to a same file
+The SynchFileMgr component manages all concurrent accesses to a same file
 (represented by the sector of his FileHdr). Attached to this sector, a
 ReaderLock and a WriterLock are used for implementing a reader/writer schema for
 all file accesses across all processes and threads.
 
 \subsection{Network}
 We chose to implement a socket user interface in our Nachos kernel. These
-sockets work in connected mode with robust transmissions.
-As in Unix TCP sockets, a server create a listening socket and accept new
+sockets work in connected mode with robust transmissions.\\
+As in TCP sockets, a server create a listening socket and accept new
 connections on it. This allow to join a server on one port (defined by
-convention as $80$ for HTTP server) with many clients, and each of them will then
+convention as $80$ for HTTP servers) with many clients, and each of them will then
 have a personal socket with the server.
 On its side, the server can communicate with each client separately on
-different sockets.  Our kernel provides $16$ ports which can handle $16$ sockets
+different sockets. Our kernel provides $16$ ports which can handle $16$ sockets
 each, so the kernel can handle $256$ connections at a time.
 
 \subsection{Low level transmission}
 The lower layer of our network implementation is the transmission of one mail.
 This part have to be robust and then we can construct an higher level protocol
-on it.
+on it.\\
 For every single mail, the emitter send the mail, wait a confirmation and retry
 if no. The number of tries is limited and the send function will return an
 error if this limit is reached.
-
 The receiver can receive many times the same mail before the emitter receive a
 confirmation. To prevent the duplication of a mail, we include an id in each of
 them. The receiver will take the first iteration of a mail and just confirm the
-other ones.
-The id we use is an int which is always incremented, so the network will stop
+other. The id we use is an int which is always incremented, so the socket will stop
 to work after $2^{32}$ mails sent. This limit is hard to reach, so we did not
 deal with it, but it is possible to make the id go back to $0$ when it happens
 without blocking the network.
 A confirmation mail contains the id of the mail it confirm, so a confirmation
-mail cannot be used later by the emitter to confirm an other sending.
+mail cannot be used later by the emitter to confirm an other mail.
 
 \subsection{Protocol}
-The protocol we constructed on the robust transmission level is connected (like
-TCP). The connection establishing is not symmetric (there is a server and a
-client) and use a three-way handshake.  We use the mailboxes of the initial
-Nachos code as ports, but now each mailbox contains an array of socket because
-many sockets can be connected within a same port (for instance the port $80$ of
-HTTP servers).  The number of connections a port can handle is limited to $16$,
-because an array was simpler to implement and $16$ is sufficient (but it can be
-replaced easily by a list).
-
+Then we constructed the connected protocol over the robust transmission.
+The connection establishing use a three-way handshake.\\
+We use the mailboxes of the initial Nachos code as ports, but now each mailbox contains an array of 
+socket because many sockets can be connected within a same port (for instance the
+port $80$ of HTTP servers).  The number of connections a port can handle is limited 
+to $16$, because an array was simpler to implement and $16$ is sufficient (but it 
+can be replaced easily by a list).\\
 The postal worker dispatch the mails he receive. He know in which mailbox
 thanks to the mail header and then find the good socket by comparing the origin
-of the mail to the ones contained into sockets.
-
+of the mail to the ones contained into sockets.\\
+Here is the schema of the classes used in network :
 \begin{figure}[H]
 	\centering
-		\includegraphics[scale=0.55]{networkschema}
+		\includegraphics[scale=0.4]{networkschema}
+		\caption{Each socket can be accessed from its address space and the mailbox which handle it.}
 \end{figure}
 %%% Local Variables:
 %%% mode: latex

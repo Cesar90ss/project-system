@@ -4,20 +4,20 @@ The nachos kernel offers most of the basic functionalities awaited from a kernel
 \item User Multi Threading
 \item Virtual memory and multiple processes running concurently
 \item A file system
-\item TCP/IP protocol
+\item TCP/IP like protocol
 \end{itemize}
 
 \subsection{Interesting features}
 
-First, all the the network functionalities have also been ported to the userspace. A user program can use sockets and 
-transfer content other the network using the faclities offered by our nachos kernel. \\
+First, all the network functionalities have also been ported to the userspace. A user program can use sockets and 
+transfer content across the network using the facilities offered by our nachos kernel. \\
 We have also implemented the auto exit of the userthread so that, at the end of their execution, they do not return
 into main code. And we can also catch their return values.\\
 For this same threads, the kernel also give access to facilities to synchronize them (semaphore).\\
 Processes have also been implemented with some managing functions. Indeed, though the kernel does not offer any 
 processes hierarchy, a process can wait for the end of another one and then catch its exit value.\\
-Also, in the userspace, we provide a minimal shell for use with our kernel. It provides a prompt and the ability
-to launch program. Job management is also provided.\\
-Finally, dynamic memory allocation has been implemented for the userspace. User can allocate \\dynamically on the heap 
+In the userspace, we provide a minimal shell for use with our kernel. It provides a prompt and the ability
+to launch programs. Job management is also provided.\\
+Finally, dynamic memory allocation has been implemented for the userspace. User can allocate dynamically on the heap 
 instead of the stack.\\
 After that, the user has access to a whole range of system calls that will be detailed in the following section.
