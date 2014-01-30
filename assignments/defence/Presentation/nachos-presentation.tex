@@ -140,11 +140,11 @@ M1 MOSIG, IM$^2$AG UJF
     \end{figure}
 \end{frame}
 
-\begin{frame}{Multi-Threading issue : Exit Handler}
+\begin{frame}{Multi-Threading example : Exit Handler}
     \begin{itemize}
-        \item Problem : Original thread only execute the specific 
+        \item \textbf{Problem :} Original thread only execute the specific 
             \\function and return anywhere in the memory 
-        \item Solution : Exit Handler
+        \item \textbf{Solution :} Exit Handler
             \begin{itemize}
                 \item Explicit Exit (User Thread Exit)
                 \item Automatic Exit (Function wrapping)
@@ -162,7 +162,7 @@ M1 MOSIG, IM$^2$AG UJF
                 \item Page table
                 \item Frame Provider
             \end{itemize}
-        \item Possible improvements :
+        \item \textbf{Possible improvements :}
             \begin{itemize}
                 \item Use case to speed up
                 \item Indirection to reduce size of the page table
@@ -172,32 +172,24 @@ M1 MOSIG, IM$^2$AG UJF
 
 \begin{frame}{Heap/Stack management}
     \begin{figure}[ht]
-        \includegraphics[width=1\linewidth]{memoryschema.pdf}
+        \includegraphics[width=0.85\linewidth]{memoryschema.pdf}
     \end{figure}
 \end{frame}
 
 \subsection{Multi-Process}
-\begin{frame}{Multi-Process model}
-  \begin{itemize}
-      \item Problem : Original code can not handle and
-      order launching processes
-      \item Waitpid Function allows to wait the end of a 
-      process before continue execution of caller
-  \end{itemize}
-\end{frame}
-
 \begin{frame}{Process Management (Mini Shell)}
   \begin{itemize}
       \item Provide mini shell that allows to launch 
-      program with job management
-      \item Launch it in Foreground or background
+          program with \textbf{job management}
+      \item Launch processes in \textbf{foreground or background}
+      \item Test process management
   \end{itemize}
 \end{frame}
 
 \subsection{Network}
 \begin{frame}{Network model}
     \begin{figure}[ht]
-        \includegraphics[width=0.7\linewidth]{Networkcolored.pdf}
+        \includegraphics[width=0.9\linewidth]{Networkcolored.pdf}
     \end{figure}
 \end{frame}
 
@@ -211,7 +203,9 @@ M1 MOSIG, IM$^2$AG UJF
 
 \subsection{File system}
 \begin{frame}{File system model}
-    Schema $-->$ not done yet
+    \begin{figure}[ht]
+        \includegraphics[width=0.9\linewidth]{filesystem.pdf}
+    \end{figure}
 \end{frame}
 
 \begin{frame}{Possible extensions}
@@ -283,9 +277,7 @@ M1 MOSIG, IM$^2$AG UJF
 \end{frame}
 
 \begin{frame}{Conclusion}
-    \begin{centering}
-        THE END...
-    \end{centering}
+    \center{THE END...}
 \end{frame}
 
 \end{document}
