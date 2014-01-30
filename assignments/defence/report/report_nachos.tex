@@ -20,6 +20,8 @@
 \usepackage{subcaption}
 \usepackage{listings}
 \usepackage{fullpage}
+\usepackage{appendix}
+
 \lstset{%
     basicstyle=\scriptsize\sffamily,%
     commentstyle=\footnotesize\ttfamily,%
@@ -66,11 +68,16 @@
 \date{\today}
 
 \begin{document}
-\maketitle
 
+\begin{titlepage}
+  \maketitle
+\thispagestyle{empty}
 \tableofcontents
-\newpage
+\end{titlepage}
 
+
+\pagestyle{plain}
+\setcounter{page}{1}
 \section{Interesting/main features of our kernel}
     \input{mainFeature}
 
