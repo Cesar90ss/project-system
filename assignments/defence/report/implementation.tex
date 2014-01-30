@@ -178,30 +178,29 @@ if there is no. The number of tries is limited and the send function will return
 error if this limit is reached.
 The receiver can receive many times the same mail before the emitter receives a
 confirmation. To prevent the duplication of a mail, we include an id in each of
-them. The receiver will take the first iteration of a mail and just confirm the
-other. The id we use is an integer that is always incremented, so the socket will stop
-to work after $2^{32}$ mails sent. This limit is hard to reach, so we did not
-deal with it, but it is possible to make the id go back to $0$ when it happens
+them. The receiver will take the first iteration of a mail and just confirm the 
+other. A confirmation mail contains the id of the mail it confirm, so a confirmation
+mail cannot be used later by the emitter to confirm an other mail.\\
+The id we use is an int which is always incremented, so the socket will stop
+to work after $2^{32}$ mails sent. This limit is hard to reach, so we did not protect 
+it, but it is possible to make the id go back to $0$ when it happens
 without blocking the network.
-A confirmation mail contains the id of the mail it confirms, so a confirmation
-mail cannot be used later by the emitter to confirm an other mail.
-
 \subsection{Protocol}
 Then we constructed the connected protocol over the robust transmission.
 The connection establishing use a three-way handshake.\\
-We use the mailboxes of the initial Nachos code as ports, but now each mailbox contains an array of 
+We use the mailboxes of the initial Nachos code as ports, so now each mailbox contains an array of 
 socket because many sockets can be connected within a same port (for instance the
 port $80$ of HTTP servers).  The number of connections a port can handle is limited 
 to $16$ because an array was simpler to implement and $16$ is sufficient (but it 
 can be replaced easily by a list).\\
-The postal worker dispatch the mails he receives. He know in which mailbox
+To dispatch the mails he receive, the postal worker knows the mailbox 
 thanks to the mail header and then find the good socket by comparing the origin
 of the mail to the ones contained into sockets.\\
 Here is the schema of the classes used in network :
 \begin{figure}[H]
 	\centering
 		\includegraphics[scale=0.4]{networkschema}
-		\caption{Each socket can be accessed from its address space and the mailbox which handle it.}
+		\caption{Each socket can be accessed from its AddrSpace(user) or the mailbox which handle it(network).}
 \end{figure}
 %%% Local Variables:
 %%% mode: latex
