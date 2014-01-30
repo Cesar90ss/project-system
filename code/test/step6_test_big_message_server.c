@@ -8,27 +8,17 @@ int main()
 	char buffer [MAX_SIZE];
 	int listening_id = Listen(1);
 	if(listening_id != 0)
-	{
-		PutString("Start");
-	}
+	PutString("Start\n");
 	int socket_id = Accept(listening_id);
-	if(socket_id != 0)
-	{
-		PutString("Connect");
-	}
+	PutString("Connect\n");
 	int i;
-	Receive(socket_id,buffer,MAX_SIZE,1);
-	
 	for(i=0;i<MAX_SIZE;i++)
 	{
-		if(buffer[i] != i)
-		{
-			PutString("Corrupting Message\n");
-			return -1;
-		}
-		
+		buffer[i]=i;
 	}
-	PutString("Message Arrived\n");
+	int k;
+	for(k=0;k<1000;k++);
+	Send(socket_id,buffer,MAX_SIZE);
 	return 0;
 	
 }
