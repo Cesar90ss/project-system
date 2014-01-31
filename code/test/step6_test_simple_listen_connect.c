@@ -32,7 +32,7 @@ int main()
 	connected_sid = Connect(0,1); // we connect to the macine 0 on port 1(see step6_test_simple_listen_accept.c)
 	if(connected_sid < 0)
 	{
-		PutString("Message Apocalyptique :  TO BE DEFINED\n");
+		PutString("Connection Timed out\n");
 		return -3;
 	}
 	PutString("Connected\n");

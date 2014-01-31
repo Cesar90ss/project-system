@@ -35,7 +35,7 @@ int main()
 	connected_sid = Accept(listen_sid);
 	if(connected_sid < 0)
 	{
-		PutString("Message Apocalyptique :  TO BE DEFINED\n");
+		PutString("Connection Timed out\n");
 		return -3;
 	}
 	PutString("Connected\n");

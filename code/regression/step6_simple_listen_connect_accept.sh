@@ -1,9 +1,9 @@
 NACHOS_DIR=../build/
 
 cd $NACHOS_DIR
-./nachos-final -f
-./nachos-final -cp step6_test_simple_listen_accept run
-./nachos-final -cp step6_test_simple_listen_connect run2
+./nachos-final -f > /dev/null
+./nachos-final -cp step6_test_simple_listen_accept run  > /dev/null
+./nachos-final -cp step6_test_simple_listen_connect run2  > /dev/null
 
 
 for i in {1..10}
