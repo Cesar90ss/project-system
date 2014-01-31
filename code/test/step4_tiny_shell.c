@@ -91,7 +91,7 @@ main ()
             if (c == -1)
             {
                 // Wait for PutString to end
-                for (c = 0; c < 100000; c++);
+                //for (c = 0; c < 100000; c++);
 
                 Exit(-1);
             }
