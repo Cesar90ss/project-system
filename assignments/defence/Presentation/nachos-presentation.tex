@@ -119,9 +119,9 @@ M1 MOSIG, IM$^2$AG UJF
 
 \begin{frame}{Additional Work}
     \begin{itemize}
-        \item Socket API 
+        \item Socket API
         \item Dynamic Memory Allocation
-        \item User Thread Synchronization (Producer/Consumer)
+        \item User Threads Synchronization (Producers/Consumers)
         \item Process Management (Mini Shell)
         \item Automatic Regression Test 
         \item Absence of memory leak
@@ -164,7 +164,7 @@ M1 MOSIG, IM$^2$AG UJF
             \end{itemize}
         \item \textbf{Possible improvements :}
             \begin{itemize}
-                \item Use case to speed up
+                \item Use cache to speed up (TLB)
                 \item Indirection to reduce size of the page table
             \end{itemize}
     \end{itemize}
@@ -179,10 +179,10 @@ M1 MOSIG, IM$^2$AG UJF
 \subsection{Multi-Process}
 \begin{frame}{Process Management (Mini Shell)}
   \begin{itemize}
-      \item Provide mini shell that allows to launch 
-          program with \textbf{job management}
+      \item Provide mini shell that allows to launch
+          programs with \textbf{jobs management}
       \item Launch processes in \textbf{foreground or background}
-      \item Test process management
+      \item Test processes management
   \end{itemize}
 \end{frame}
 
@@ -196,7 +196,7 @@ M1 MOSIG, IM$^2$AG UJF
 \begin{frame}{Socket API}
     \begin{itemize}
         \item Create System calls to ease communication management
-        \item Export Socket to Userspace 
+        \item Export Sockets to Userspace
         \item Robust transmission
     \end{itemize}
 \end{frame}
@@ -231,7 +231,7 @@ M1 MOSIG, IM$^2$AG UJF
         \item Ensure new feature doesn't break previous ones
         \item Set of \textbf{$132$ tests}
         \item Test all cases we could imagine
-        \item Helped removing bugs/memory leak
+        \item Helped removing bugs/memory leaks
         \item Almost \textbf{no debug phase}
     \end{itemize}
 \end{frame}
@@ -257,7 +257,7 @@ M1 MOSIG, IM$^2$AG UJF
         \item Extreme programming
         \item Test driven development
         \item GIT
-    \end{itemize} 
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Conclusion}
